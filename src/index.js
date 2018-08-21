@@ -2,7 +2,6 @@
 
 /**
  * Main program
- * @file Initializes the main program
  * @author Sean W. Lawrence
  * @license MIT
  * See {@link generator}.
@@ -16,5 +15,4 @@ import main from './generator';
  * @returns {undefined}
  * @see {@link generator/main}
  */
-
 main();

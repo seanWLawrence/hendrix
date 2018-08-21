@@ -1,9 +1,9 @@
 // @flow
 
 /**
- * @summary Generator for markdown files
- * @file Creates the generator that parses markdown files, runs them through the layout template
+ * Creates the generator that parses markdown files, runs them through the layout template
  * and adds the finished HTML files to the public/ directory
+ * @summary Generator for markdown files
  * @author Sean W. Lawrence
  * @license MIT
  * @module generator
@@ -45,7 +45,6 @@ import { render as template } from 'mustache';
  * @returns {MarkdownInfo} - Object with the filename and markdown string
  * @example getMarkdown('example.md') // { filename: 'example.md', markdown: '# Example' }
  */
-
 function getMarkdown(filename) {
   /**
    * Path for the Markdown file
@@ -79,7 +78,6 @@ function getMarkdown(filename) {
  * @returns {HTML} - HTML string output from the Markdown input
  * @example renderMarkdown('# Hello, world!') // <h1>Hello, world!</h1>
  */
-
 function renderMarkdown(markdown) {
   /**
    * Creates new MarkdownIt instance and renders the Markdown into an HTML string,
@@ -96,7 +94,6 @@ function renderMarkdown(markdown) {
  * @returns {HTML} HTML string with the layout added
  * @example renderLayout('<h1>Hello, world!</h1>') // '<html><body><h1> Hello, world!</h1></body></html>'
  */
-
 function renderLayout(html) {
   /**
    * Returns the final HTML output with the template added
@@ -114,7 +111,6 @@ function renderLayout(html) {
  * @example createHTMLFile('example.md', '<html><body><h1>Hello, world!</h1></body></html>')
  * // creates a file called example.html with the HTML provided
  */
-
 function createHTMLFile(filename, html) {
   /**
    * Returned HTML file name, placed in the public directory
@@ -171,7 +167,6 @@ const layout = readFileSync(templatePath, 'utf8');
  * @see {@link createHTMLFile}
  * @returns {undefined} - This program does not return anything, it consists of only side effects
  */
-
 export default function main() {
   /**
    * Loops over the allMarkdownFiles array and runs all of the above methods on them

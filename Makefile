@@ -3,12 +3,11 @@ test:
 
 lint:
 	flow
-	npx prettier-eslint --config .prettierrc.js --eslint-config-path .eslintrc.js --write  \"src/*.js\"
+	prettier-eslint --config .prettierrc.js --eslint-config-path .eslintrc.js --write  \"src/*.js\"
 	flow stop
 
 build:
-	NODE_ENV=production
-	npx babel src -d bin
+	NODE_ENV=production	npx babel src -d bin
 
 serve:
 	npx serve
