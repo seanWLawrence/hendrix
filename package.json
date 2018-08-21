@@ -10,7 +10,8 @@
     "build": "make build",
     "serve": "make serve",
     "commit": "make commit",
-    "ci": "make ci"
+    "ci": "make ci",
+    "create-docs": "make create-docs"
   },
   "keywords": [
     "lighthouse",

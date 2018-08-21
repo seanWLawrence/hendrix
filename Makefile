@@ -17,5 +17,9 @@ commit:
 
 ci:
 	make lint
-	 jest
-	build
+	jest
+	make build
+
+create-docs:
+	rm -rf docs
+	npx jsdoc src -d ./docs -R README.md -P package.json 
