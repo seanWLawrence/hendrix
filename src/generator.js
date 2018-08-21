@@ -1,3 +1,5 @@
+// @flow
+
 import MarkdownIt from 'markdown-it';
 import { join } from 'path';
 import { readdirSync, readFileSync, writeFileSync } from 'fs';
