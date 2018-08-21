@@ -7,6 +7,7 @@ lint:
 	flow stop
 
 build:
+	NODE_ENV=production
 	npx babel src -d bin
 
 serve:

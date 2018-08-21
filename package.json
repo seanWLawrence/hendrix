@@ -28,10 +28,10 @@
   "devDependencies": {
     "@babel/cli": "^7.0.0-rc.1",
     "@babel/core": "^7.0.0-rc.1",
-    "@babel/plugin-syntax-export-default-from": "^7.0.0-rc.1",
     "@babel/preset-env": "^7.0.0-rc.1",
     "@babel/preset-flow": "^7.0.0-rc.1",
     "babel-eslint": "^8.2.6",
+    "babel-preset-minify": "^0.4.3",
     "cz-conventional-changelog": "^2.1.0",
     "eslint": "^5.4.0",
     "eslint-plugin-flowtype": "^2.50.0",

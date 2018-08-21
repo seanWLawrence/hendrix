@@ -1,7 +1,19 @@
+// add default and flow babel presets
 const presets = ['@babel/env', '@babel/flow'];
 
-const plugins = ['@babel/syntax-export-default-from'];
-
+// ignore test files
 const ignore = ['src/__tests__'];
 
-module.exports = { presets, plugins, ignore };
+// export the config file
+module.exports = function(api) {
+  // if NODE_ENV=production, add minify preset
+  if (api.env() === 'production') {
+    presets.push('minify');
+  }
+
+  // return config object
+  return {
+    presets,
+    ignore,
+  };
+};
