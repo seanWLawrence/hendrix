@@ -87,14 +87,17 @@ function renderMarkdown(markdown) {
 
   return (
     new MarkdownIt({ html: true })
-      .use(require('markdown-it-anchor'))
+      .use(require('markdown-it-anchor'), {
+        permalink: true,
+        permalinkBefore: true,
+        permalinkSymbol: '&#128279;',
+      })
       .use(require('markdown-it-attrs'))
       .use(require('markdown-it-smartarrows'))
       .use(require('markdown-it-header-sections'))
       .use(require('markdown-it-toc-done-right'))
       .use(require('markdown-it-center-text'))
       .use(require('markdown-it-replace-link'))
-      .use(require('markdown-it-lozad'))
       .use(require('markdown-it-front-matter'), (frontmatter) => {
         console.log(frontmatter);
       })

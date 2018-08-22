@@ -1,1 +1,73 @@
-"use strict";Object.defineProperty(exports,"__esModule",{value:!0}),exports.default=main;var _markdownIt=_interopRequireDefault(require("markdown-it")),_path=require("path"),_fs=require("fs"),_mustache=require("mustache");function _interopRequireDefault(a){return a&&a.__esModule?a:{default:a}}function getMarkdown(a){var b=(0,_path.join)(markdownPath,a),c=(0,_fs.readFileSync)(b,"utf8");return{filename:a,markdown:c}}function renderMarkdown(a){return new _markdownIt.default({html:!0}).use(require("markdown-it-anchor")).use(require("markdown-it-attrs")).use(require("markdown-it-smartarrows")).use(require("markdown-it-header-sections")).use(require("markdown-it-toc-done-right")).use(require("markdown-it-center-text")).use(require("markdown-it-replace-link")).use(require("markdown-it-lozad")).use(require("markdown-it-front-matter"),function(a){console.log(a)}).use(require("mdfigcaption")).render(a).trim()}function renderLayout(a){return(0,_mustache.render)(layout,{title:"Demo site",html:a,lozad:require("lozad").toString()})}function createHTMLFile(a,b){a="public/".concat(a.split(".")[0],".html"),(0,_fs.writeFileSync)(a,b)}var markdownPath=(0,_path.join)(__dirname,"..","src","markdown"),templatePath=(0,_path.join)(__dirname,"..","src","templates/layout.mustache"),allMarkdownFiles=(0,_fs.readdirSync)(markdownPath).map(getMarkdown),layout=(0,_fs.readFileSync)(templatePath,"utf8");function main(){allMarkdownFiles.forEach(function(a){var b=a.filename,c=a.markdown,d=renderMarkdown(c),e=renderLayout(d);createHTMLFile(b,e)})}
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = main;
+
+var _markdownIt = _interopRequireDefault(require("markdown-it"));
+
+var _path = require("path");
+
+var _fs = require("fs");
+
+var _mustache = require("mustache");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Creates the generator that parses markdown files, runs them through the layout template
+ * and adds the finished HTML files to the public/ directory
+ * @summary Generator for markdown files
+ * @author Sean W. Lawrence
+ * @license MIT
+ * @module generator
+ */
+function getMarkdown(filename) {
+  var markdownFile = (0, _path.join)(markdownPath, filename);
+  var markdown = (0, _fs.readFileSync)(markdownFile, 'utf8');
+  return {
+    filename: filename,
+    markdown: markdown
+  };
+}
+
+function renderMarkdown(markdown) {
+  return new _markdownIt.default({
+    html: true
+  }).use(require('markdown-it-anchor'), {
+    permalink: true,
+    permalinkBefore: true,
+    permalinkSymbol: '&#128279;'
+  }).use(require('markdown-it-attrs')).use(require('markdown-it-smartarrows')).use(require('markdown-it-header-sections')).use(require('markdown-it-toc-done-right')).use(require('markdown-it-center-text')).use(require('markdown-it-replace-link')).use(require('markdown-it-front-matter'), function (frontmatter) {
+    console.log(frontmatter);
+  }).use(require('mdfigcaption')).render(markdown).trim();
+}
+
+function renderLayout(html) {
+  return (0, _mustache.render)(layout, {
+    title: 'Demo site',
+    html: html,
+    lozad: require('lozad').toString()
+  });
+}
+
+function createHTMLFile(filename, html) {
+  filename = "public/".concat(filename.split('.')[0], ".html");
+  (0, _fs.writeFileSync)(filename, html);
+}
+
+var markdownPath = (0, _path.join)(__dirname, '..', 'src', 'markdown');
+var templatePath = (0, _path.join)(__dirname, '..', 'src', 'templates/layout.mustache');
+var allMarkdownFiles = (0, _fs.readdirSync)(markdownPath).map(getMarkdown);
+var layout = (0, _fs.readFileSync)(templatePath, 'utf8');
+
+function main() {
+  allMarkdownFiles.forEach(function (md) {
+    var filename = md.filename,
+        markdown = md.markdown;
+    var html = renderMarkdown(markdown);
+    var result = renderLayout(html);
+    createHTMLFile(filename, result);
+  });
+}

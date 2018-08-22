@@ -1,1 +1,13 @@
-"use strict";var _generator=_interopRequireDefault(require("./generator"));function _interopRequireDefault(a){return a&&a.__esModule?a:{default:a}}(0,_generator.default)();
+"use strict";
+
+var _generator = _interopRequireDefault(require("./generator"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Main program
+ * @author Sean W. Lawrence
+ * @license MIT
+ * See {@link generator}.
+ */
+(0, _generator.default)();
