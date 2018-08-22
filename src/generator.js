@@ -13,7 +13,6 @@ import MarkdownIt from 'markdown-it';
 import { join } from 'path';
 import { readdirSync, readFileSync, writeFileSync } from 'fs';
 import { render as template } from 'mustache';
-import iterator from 'markdown-it-for-inline';
 import slugify from './slugify';
 import addDataSrc from './data-src';
 
