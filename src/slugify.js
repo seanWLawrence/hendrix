@@ -23,7 +23,7 @@
  * @returns {string} - Formatted string
  * @example slugify('Hello, world!') // 'hello-world'
  */
-function slugify(rawSlug) {
+function slugify(rawSlug: string) {
   return [...rawSlug]
     .map((char) => char.toLowerCase())
     .join('')

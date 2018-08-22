@@ -13,7 +13,9 @@ import MarkdownIt from 'markdown-it';
 import { join } from 'path';
 import { readdirSync, readFileSync, writeFileSync } from 'fs';
 import { render as template } from 'mustache';
+import iterator from 'markdown-it-for-inline';
 import slugify from './slugify';
+import addDataSrc from './data-src';
 
 /**
  * Markdown information object that contains the filename and Markdown string
@@ -86,50 +88,34 @@ function renderMarkdown(markdown) {
    * @external markdown-it {@link https://github.com/markdown-it/markdown-it#simple|MarkdownIt}
    */
 
-  return (
-    new MarkdownIt({ html: true })
-      .use(require('markdown-it-anchor'), {
-        permalink: true,
-        permalinkBefore: true,
-        permalinkSymbol: '&#128279;',
-        slugify,
-      })
-      .use(require('markdown-it-attrs'))
-      .use(require('markdown-it-smartarrows'))
-      .use(require('markdown-it-header-sections'))
-      .use(require('markdown-it-toc-done-right'))
-      .use(require('markdown-it-center-text'))
-      .use(require('markdown-it-replace-link'))
-      .use(require('markdown-it-front-matter'), (frontmatter) => {
-        console.log(frontmatter);
-      })
-      .use(require('mdfigcaption'))
-      // .use(require('markdown-it-responsive'), {
-      //   responsive: {
-      //     srcset: {
-      //       'post-*': [
-      //         {
-      //           width: 320,
-      //           rename: {
-      //             suffix: '-small',
-      //           },
-      //         },
-      //         {
-      //           width: 600,
-      //           rename: {
-      //             suffix: '-medium',
-      //           },
-      //         },
-      //       ],
-      //     },
-      //     sizes: {
-      //       'post-*': '(min-width: 36em) 33.3vw, 100vw',
-      //     },
-      //   },
-      // })
-      .render(markdown)
-      .trim()
-  );
+  const md = new MarkdownIt({
+    html: true,
+  });
+
+  /**
+   * Adds anchor tags to each header element.
+   * Uses our custom slugify function.
+   * @see {@link slugify}
+   */
+  md.use(require('markdown-it-anchor'), {
+    permalink: true,
+    permalinkBefore: true,
+    permalinkSymbol: '&#128279;',
+    slugify,
+  });
+
+  /**
+   * Replaces the 'src' attribute on all images with the
+   * 'data-src' attribute.
+   * Used for faster performance with Lozad lazy-loading
+   * @see {@link data-src}
+   */
+  addDataSrc(md);
+
+  /**
+   * Renders the markdown and returns the HTML string
+   */
+  return md.render(markdown);
 }
 
 /**

@@ -13,6 +13,12 @@ var _fs = require("fs");
 
 var _mustache = require("mustache");
 
+var _markdownItForInline = _interopRequireDefault(require("markdown-it-for-inline"));
+
+var _slugify = _interopRequireDefault(require("./slugify"));
+
+var _dataSrc = _interopRequireDefault(require("./data-src"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
@@ -33,15 +39,18 @@ function getMarkdown(filename) {
 }
 
 function renderMarkdown(markdown) {
-  return new _markdownIt.default({
+  var md = new _markdownIt.default({
     html: true
   }).use(require('markdown-it-anchor'), {
     permalink: true,
     permalinkBefore: true,
-    permalinkSymbol: '&#128279;'
+    permalinkSymbol: '&#128279;',
+    slugify: _slugify.default
   }).use(require('markdown-it-attrs')).use(require('markdown-it-smartarrows')).use(require('markdown-it-header-sections')).use(require('markdown-it-toc-done-right')).use(require('markdown-it-center-text')).use(require('markdown-it-replace-link')).use(require('markdown-it-front-matter'), function (frontmatter) {
     console.log(frontmatter);
-  }).use(require('mdfigcaption')).render(markdown).trim();
+  }).use(require('mdfigcaption'));
+  (0, _dataSrc.default)(md);
+  return md.render(markdown);
 }
 
 function renderLayout(html) {

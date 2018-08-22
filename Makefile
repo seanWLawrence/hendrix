@@ -12,6 +12,12 @@ build:
 serve:
 	npx serve
 
+build-serve:
+	clear
+	npm run build
+	node bin/index.js
+	make serve
+
 commit:
 	npx git-cz
 
