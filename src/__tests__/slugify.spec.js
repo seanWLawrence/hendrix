@@ -1,6 +1,6 @@
-import Slug from '../slug';
+import slugify from '../slugify';
 
-describe.only('Slug', () => {
+describe('Slug', () => {
   /**
    * Array of strings with random cases to test case sensitivity
    * @type {string[]}
@@ -59,9 +59,8 @@ describe.only('Slug', () => {
    */
   const stringsWithHyphens = [
     '--hello world',
-    'hello - world',
+    'hello -- world',
     'hello world--',
-    '- hello - w - o - r- ld',
   ];
 
   /**
@@ -71,7 +70,7 @@ describe.only('Slug', () => {
    */
   function loop(arrayOfTestStrings) {
     return arrayOfTestStrings.map((string) => {
-      return new Slug(string).slugify();
+      return slugify(string);
     });
   }
 
@@ -135,16 +134,16 @@ describe.only('Slug', () => {
   });
 
   test('Returns a single string', () => {
-    const result = new Slug('hello world').slugify();
+    const result = slugify('hello world');
     const expected = 'hello-world';
 
     expect(result).toEqual(expected);
     expect(typeof result).toBe('string');
   });
 
-  test('TODO: removes hyphens from inside the string', () => {
+  test('Removes hyphens from inside the string', () => {
     const result = loop(stringsWithHyphens);
-    const expected = expectedResult(4);
+    const expected = expectedResult(3);
 
     expect(result).toEqual(expected);
   });

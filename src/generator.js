@@ -13,6 +13,7 @@ import MarkdownIt from 'markdown-it';
 import { join } from 'path';
 import { readdirSync, readFileSync, writeFileSync } from 'fs';
 import { render as template } from 'mustache';
+import slugify from './slugify';
 
 /**
  * Markdown information object that contains the filename and Markdown string
@@ -91,6 +92,7 @@ function renderMarkdown(markdown) {
         permalink: true,
         permalinkBefore: true,
         permalinkSymbol: '&#128279;',
+        slugify,
       })
       .use(require('markdown-it-attrs'))
       .use(require('markdown-it-smartarrows'))
