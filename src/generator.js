@@ -85,7 +85,46 @@ function renderMarkdown(markdown) {
    * @external markdown-it {@link https://github.com/markdown-it/markdown-it#simple|MarkdownIt}
    */
 
-  return new MarkdownIt().render(markdown).trim();
+  return (
+    new MarkdownIt({ html: true })
+      .use(require('markdown-it-anchor'))
+      .use(require('markdown-it-attrs'))
+      .use(require('markdown-it-smartarrows'))
+      .use(require('markdown-it-header-sections'))
+      .use(require('markdown-it-toc-done-right'))
+      .use(require('markdown-it-center-text'))
+      .use(require('markdown-it-replace-link'))
+      .use(require('markdown-it-lozad'))
+      .use(require('markdown-it-front-matter'), (frontmatter) => {
+        console.log(frontmatter);
+      })
+      .use(require('mdfigcaption'))
+      // .use(require('markdown-it-responsive'), {
+      //   responsive: {
+      //     srcset: {
+      //       'post-*': [
+      //         {
+      //           width: 320,
+      //           rename: {
+      //             suffix: '-small',
+      //           },
+      //         },
+      //         {
+      //           width: 600,
+      //           rename: {
+      //             suffix: '-medium',
+      //           },
+      //         },
+      //       ],
+      //     },
+      //     sizes: {
+      //       'post-*': '(min-width: 36em) 33.3vw, 100vw',
+      //     },
+      //   },
+      // })
+      .render(markdown)
+      .trim()
+  );
 }
 
 /**
@@ -100,7 +139,11 @@ function renderLayout(html) {
    * @type {HTML}
    */
 
-  return template(layout, { title: 'Demo site', html });
+  return template(layout, {
+    title: 'Demo site',
+    html,
+    lozad: require('lozad').toString(),
+  });
 }
 
 /**
