@@ -13,8 +13,7 @@ import MarkdownIt from 'markdown-it';
 import { join } from 'path';
 import { readdirSync, readFileSync, writeFileSync } from 'fs';
 import { render as template } from 'mustache';
-import slugify from './slugify';
-import addDataSrc from './data-src';
+import slugify from './utils/slugify';
 
 /**
  * Markdown information object that contains the filename and Markdown string
@@ -102,14 +101,6 @@ function renderMarkdown(markdown) {
     permalinkSymbol: '&#128279;',
     slugify,
   });
-
-  /**
-   * Replaces the 'src' attribute on all images with the
-   * 'data-src' attribute.
-   * Used for faster performance with Lozad lazy-loading
-   * @see {@link data-src}
-   */
-  addDataSrc(md);
 
   /**
    * Renders the markdown and returns the HTML string

@@ -20,14 +20,15 @@
     "generator",
     "SEO"
   ],
-  "author": "",
-  "license": "ISC",
+  "author": "Sean W. Lawrence",
+  "license": "MIT",
   "dependencies": {
     "lozad": "^1.6.0",
     "markdown-it": "^8.4.2",
     "markdown-it-anchor": "^5.0.2",
     "markdown-it-attrs": "^2.3.1",
     "markdown-it-center-text": "^1.0.4",
+    "markdown-it-container": "^2.0.0",
     "markdown-it-front-matter": "^0.1.2",
     "markdown-it-header-sections": "^1.0.0",
     "markdown-it-replace-link": "^1.0.1",
