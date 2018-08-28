@@ -23,6 +23,7 @@
   "author": "Sean W. Lawrence",
   "license": "MIT",
   "dependencies": {
+    "inquirer": "^6.2.0",
     "lozad": "^1.6.0",
     "markdown-it": "^8.4.2",
     "markdown-it-anchor": "^5.0.2",
