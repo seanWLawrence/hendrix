@@ -1,0 +1,30 @@
+// @flow
+
+import * as React from 'react';
+
+type Props = {
+{{#props}}
+  {{name}}: {{type}},
+{{/props}}
+};
+
+/**
+* {{description}}
+* @class {{name}}
+* @returns {ReactComponent} Component - A React.js component
+*/
+export default class {{name}} extends React.Component<Props, {}> {
+  render() {
+    const {
+    {{#props}}
+      {{name}},
+    {{/props}}
+    } = this.props;
+
+    return (
+      <>
+      {{name}}
+      </>
+    )
+  }
+};

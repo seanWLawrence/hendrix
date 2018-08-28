@@ -4,15 +4,25 @@
  * Main program
  * @author Sean W. Lawrence
  * @license MIT
- * See {@link generator}.
  */
 
-import main from './generator';
+import cli from './cli';
+import controller from './controller';
+/**
+ * Main program
+ * @param {Function} callback - Callback function to call with the values
+ * @returns {undefined} - Side effects only
+ */
+function main() {
+  /**
+   * Calls the cli prompt to gather data, and then runs
+   * the controller switch statement to decide which generator to use and run
+   * the generator
+   */
+  cli(controller);
+}
 
 /**
- * Initialize the main program
- * @function
- * @returns {undefined}
- * @see {@link generator/main}
+ * Initialize main program
  */
 main();

@@ -15,7 +15,7 @@ function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = 
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
-function cli() {
+function cli(callback) {
   (0, _inquirer.prompt)([{
     message: 'What are we creating?',
     type: 'list',
@@ -59,10 +59,7 @@ function cli() {
   }, {
     message: 'What are we naming it?',
     type: 'input',
-    name: 'name',
-    filter: function filter(answer) {
-      return answer.toLowerCase();
-    }
+    name: 'name'
   }, {
     message: 'What does it do?',
     type: 'input',
@@ -95,21 +92,11 @@ function cli() {
       return answers.type === 'component' || answers.type === 'project';
     }
   }, {
-    message: "List your component's props separated by a space, i.e. prop1 prop2 prop3",
+    message: "List your component's props and types separated by a space, i.e. <prop-name>:<type> <another-prop-name>:<type>",
     type: 'input',
     name: 'props',
     when: function when(answers) {
-      return answers.type === 'React component' && answers.flow === false;
-    },
-    filter: function filter(answer) {
-      return answer.split(' ');
-    }
-  }, {
-    message: "List your component's props and types separated by a space, i.e. <prop-name>:<type> <another-prop-name>:<type>",
-    type: 'input',
-    name: 'propsWithTypes',
-    when: function when(answers) {
-      return answers.type === 'React component' && answers.flow === true;
+      return answers.type === 'component';
     },
     filter: function filter(answer) {
       return answer.split(' ').reduce(function (acc, next) {
@@ -183,7 +170,6 @@ function cli() {
       return answer.split(' ');
     }
   }]).then(function (answers) {
-    console.log(answers);
-    return answers;
+    callback(answers);
   });
 }

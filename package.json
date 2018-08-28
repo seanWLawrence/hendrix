@@ -23,6 +23,7 @@
   "author": "Sean W. Lawrence",
   "license": "MIT",
   "dependencies": {
+    "chalk": "^2.4.1",
     "inquirer": "^6.2.0",
     "lozad": "^1.6.0",
     "markdown-it": "^8.4.2",
@@ -42,6 +43,7 @@
   "devDependencies": {
     "@babel/cli": "^7.0.0-rc.1",
     "@babel/core": "^7.0.0-rc.2",
+    "@babel/plugin-transform-regenerator": "^7.0.0",
     "@babel/preset-env": "^7.0.0-rc.1",
     "@babel/preset-flow": "^7.0.0-rc.1",
     "babel-core": "^7.0.0-bridge.0",

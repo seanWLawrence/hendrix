@@ -1,6 +1,8 @@
 "use strict";
 
-var _generator = _interopRequireDefault(require("./generator"));
+var _cli = _interopRequireDefault(require("./cli"));
+
+var _controller = _interopRequireDefault(require("./controller"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -8,6 +10,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * Main program
  * @author Sean W. Lawrence
  * @license MIT
- * See {@link generator}.
  */
-(0, _generator.default)();
+function main() {
+  (0, _cli.default)(_controller.default);
+}
+
+main();

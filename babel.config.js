@@ -1,6 +1,9 @@
 // add default and flow babel presets
 const presets = ['@babel/env', '@babel/flow'];
 
+// add generator functions support
+const plugins = ['@babel/plugin-transform-regenerator'];
+
 // ignore test files
 const ignore = ['src/__tests__'];
 
@@ -12,6 +15,7 @@ module.exports = function(api) {
   // return config object
   return {
     presets,
+    plugins,
     ignore,
     comments: false,
   };
