@@ -2,24 +2,24 @@
 
 import * as React from 'react';
 
-type Props = {
 {{#props}}
+type Props = {
   {{name}}: {{type}},
-{{/props}}
 };
+{{/props}}
 
 /**
 * {{description}}
 * @class {{name}}
 * @returns {ReactComponent} Component - A React.js component
 */
-export default class {{name}} extends React.Component<Props, {}> {
+export default class {{name}} extends React.Component<{{#props}}Props{{/props}}, {}> {
   render() {
-    const {
     {{#props}}
+    const {
       {{name}},
-    {{/props}}
     } = this.props;
+    {{/props}}
 
     return (
       <>

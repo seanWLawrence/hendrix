@@ -1,6 +1,7 @@
 // @flow
 
 import generateReactComponent from './generators/react-component';
+import generateMarkdownPage from './generators/markdown-page';
 import type { Answers } from './types';
 
 /**
@@ -16,8 +17,9 @@ export default function controller(answers: Answers) {
   const {
     type,
     name,
-    description = 'TODO',
-    props = [],
+    description = false,
+    props = false,
+    frontmatter = false,
     flow = false,
   } = answers;
 
@@ -25,7 +27,8 @@ export default function controller(answers: Answers) {
     case 'component':
       generateReactComponent({ name, props, flow, description });
       break;
-    case 'Mustache template':
+    case 'markdown':
+      generateMarkdownPage({ name, frontmatter });
       break;
     case 'Open source project':
       break;

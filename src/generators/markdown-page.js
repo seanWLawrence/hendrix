@@ -1,189 +1,45 @@
 // @flow
 
+import { createPage } from './index';
+import config from '../config';
+
 /**
- * Creates the generator that parses markdown files, runs them through the layout template
- * and adds the finished HTML files to the public/ directory
- * @summary Generator for markdown files
- * @author Sean W. Lawrence
+ * Generates a new Markdown page
+ * @function generateMarkdownPage
+ * @module generateMarkdownPage
+ * @param {Object} answers - Answers object
+ * @returns {undefined} - Side effects only
  * @license MIT
- * @module generator
+ * @author Sean W. Lawrence
  */
-
-import MarkdownIt from 'markdown-it';
-import { join } from 'path';
-import { readdirSync, readFileSync, writeFileSync } from 'fs';
-import { render as template } from 'mustache';
-import slugify from '../utils/slugify';
-
-/**
- * Markdown information object that contains the filename and Markdown string
- * @typedef {Object} MarkdownInfo
- * @property {string} filename - The name of the file
- * @property {string} markdown - The Markdown string from the file
- */
-
-/**
- * Markdown string
- * @typedef {string} Markdown
- * @example '# Hello, world!'
- */
-
-/**
- * HTML string
- * @typedef {string} HTML
- * @example '<h1>Hello world!</h1>'
- */
-
-/**
- * File name
- * @typedef {string} Filename
- * @example 'example.md'
- */
-
-/**
- * Reads file and creates an object with the filename and markdown string
- * @param {Filename} filename - The name of the Markdown file
- * @returns {MarkdownInfo} - Object with the filename and markdown string
- * @example getMarkdown('example.md') // { filename: 'example.md', markdown: '# Example' }
- */
-function getMarkdown(filename) {
+export default function generateReactComponent(answers) {
   /**
-   * Path for the Markdown file
-   * @type {Filename}
+   * Gets the path of the with-flow template from the config
+   * @const
+   * @type {string}
    */
-
-  const markdownFile = join(markdownPath, filename);
+  let templatePath = config('markdown').imports.components;
 
   /**
-   * Markdown string that the file contains
-   * @type {Markdown}
+   * Gets the path for the new component file to go
    */
-
-  const markdown = readFileSync(markdownFile, 'utf8');
+  const outputPath = config(answers.name).exports.components;
 
   /**
-   * Returns the MarkdownInfo object.
-   * @type {MarkdownInfo}
-   * @see {@link generator/MarkdownInfo}
+   * Checks if flow boolean is true, if yes, change path of template
+   * to the 'with-flow' template
    */
-
-  return {
-    filename,
-    markdown,
-  };
-}
-
-/**
- * Renders Markdown to an HTML string and trims whitespace on ends of the string
- * @param {Markdown} markdown - The markdown that needs to be converted to HTML
- * @returns {HTML} - HTML string output from the Markdown input
- * @example renderMarkdown('# Hello, world!') // <h1>Hello, world!</h1>
- */
-function renderMarkdown(markdown) {
-  /**
-   * Creates new MarkdownIt instance and renders the Markdown into an HTML string,
-   * then trims the whitespace
-   * @external markdown-it {@link https://github.com/markdown-it/markdown-it#simple|MarkdownIt}
-   */
-
-  const md = new MarkdownIt({
-    html: true,
-  });
+  if (withFlow === true) {
+    templatePath = config('with-flow').imports.components;
+  }
 
   /**
-   * Adds anchor tags to each header element.
-   * Uses our custom slugify function.
-   * @see {@link slugify}
+   * Runs generator
    */
-  md.use(require('markdown-it-anchor'), {
-    permalink: true,
-    permalinkBefore: true,
-    permalinkSymbol: '&#128279;',
-    slugify,
-  });
+  createPage({ answers, templatePath, outputPath });
 
   /**
-   * Renders the markdown and returns the HTML string
+   * Ends function
    */
-  return md.render(markdown);
-}
-
-/**
- * Path of Markdown directory
- * @type {Filename}
- */
-
-const markdownPath = join(__dirname, '..', 'src', 'markdown');
-
-/**
- * Path of Templates directory
- * @type {Filename}
- */
-
-const templatePath = join(__dirname, '..', 'src', 'templates/layout.mustache');
-
-/**
- * Array of markdown filenames stored as MarkdownInfo objects
- * @type {Array<MarkdownInfo>}
- * @see {@link MarkdownInfo}
- */
-
-const allMarkdownFiles = readdirSync(markdownPath).map(getMarkdown);
-
-/**
- * Stringified version of the layout template
- * @type {HTML}
- */
-
-const layout = readFileSync(templatePath, 'utf8');
-
-/**
- * Main program - Loops over the markdown files array, renders the markdown
- * into valid HTML, passes the HTML into the layout template
- * and creates a new HTML file (or overwrites an existing one) with the final result
- * @summary Main program
- * @exports main
- * @see {@link renderMarkdown}
- * @see {@link renderLayout}
- * @see {@link createHTMLFile}
- * @returns {undefined} - This program does not return anything, it consists of only side effects
- */
-export default function main() {
-  /**
-   * Loops over the allMarkdownFiles array and runs all of the above methods on them
-   * @function
-   * @returns {undefined} - This function returns nothing
-   */
-
-  allMarkdownFiles.forEach((md) => {
-    /**
-     * Object with filename and Markdown string from the Markdown file
-     * @type {MarkdownInfo}
-     * @see {@link MarkdownInfo}
-     */
-
-    const { filename, markdown } = md;
-
-    /**
-     * HTML string from the Markdown that was passed in
-     * @type {HTML}
-     */
-
-    const html = renderMarkdown(markdown);
-
-    /**
-     * HTML string with the layout HTML added
-     * @type {HTML}
-     */
-
-    const result = renderLayout(html);
-
-    /**
-     * Calls the createHTMLFile function to create HTML file in the public folder with the final HTML result
-     * @function
-     * @see {@link createHTMLFile}
-     */
-
-    createHTMLFile(filename, result);
-  });
+  return;
 }

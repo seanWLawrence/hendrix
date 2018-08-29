@@ -5,55 +5,34 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = generateReactComponent;
 
-var _mustache = require("mustache");
-
-var _fs = require("fs");
+var _index = require("./index");
 
 var _config = _interopRequireDefault(require("../config"));
 
-var _chalk = _interopRequireDefault(require("chalk"));
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _templateObject() {
-  var data = _taggedTemplateLiteral(["\n  {bold.green New component created} in ", " \n  {magenta Happy coding!} \n  "]);
-
-  _templateObject = function _templateObject() {
-    return data;
-  };
-
-  return data;
-}
-
-function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
-
+/**
+ * Generates a new React component
+ * @function generateReactComponent
+ * @module generateReactComponent
+ * @param {Object} answers - Answers object
+ * @returns {undefined} - Side effects only
+ * @license MIT
+ * @author Sean W. Lawrence
+ */
 function generateReactComponent(answers) {
   var withFlow = answers.flow;
-  var templatePath = (0, _config.default)('without-flow').imports.components;
+  var templatePath = (0, _config.default)('react').imports.components;
+  var outputPath = (0, _config.default)(answers.name).exports.components;
 
   if (withFlow === true) {
-    templatePath = (0, _config.default)('with-flow').imports.components;
+    templatePath = (0, _config.default)('react-flow').imports.components;
   }
 
-  createComponent({
+  (0, _index.createPage)({
     answers: answers,
-    templatePath: templatePath
+    templatePath: templatePath,
+    outputPath: outputPath
   });
-  return;
-}
-
-function logSuccess(outputPath) {
-  console.log((0, _chalk.default)(_templateObject(), outputPath));
-  return;
-}
-
-function createComponent(_ref) {
-  var answers = _ref.answers,
-      templatePath = _ref.templatePath;
-  var outputPath = (0, _config.default)(answers.name).exports.components;
-  var templateValue = (0, _fs.readFileSync)(templatePath, 'utf8');
-  var content = (0, _mustache.render)(templateValue, answers);
-  (0, _fs.writeFileSync)(outputPath, content);
-  logSuccess(outputPath);
   return;
 }

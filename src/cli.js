@@ -75,6 +75,7 @@ export default function cli(callback: () => void) {
       message: 'What are we naming it?',
       type: 'input',
       name: 'name',
+      validate: answer !== '',
     },
     {
       message: 'What does it do?',

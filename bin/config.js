@@ -13,13 +13,31 @@ var _path = require("path");
  * @license MIT
  * @author Sean W. Lawrence
  */
+var templatesPath = (0, _path.join)(__dirname, '..', 'src/templates');
+
+function getImportPath(directory, filename) {
+  return (0, _path.join)(templatesPath, directory, "".concat(filename, ".mustache"));
+}
+
+function getExportPath(directory, filename, extension) {
+  return (0, _path.join)(__dirname, '..', directory, "".concat(filename, ".").concat(extension));
+}
+
 function config(filename) {
   return {
     imports: {
-      components: (0, _path.join)(__dirname, '..', 'src/templates/react-component', "".concat(filename, ".mustache"))
+      components: getImportPath('components', filename),
+      pages: getImportPath('pages', filename),
+      projects: getImportPath('projects', filename),
+      templates: getImportPath('templates', filename),
+      tests: getImportPath('tests', filename)
     },
     exports: {
-      components: (0, _path.join)(__dirname, '..', 'public', "".concat(filename, ".js"))
+      components: getExportPath('public/components', filename, 'js'),
+      pages: getExportPath('public/pages', filename, 'md'),
+      projects: getExportPath('public/projects', filename, 'js'),
+      templates: getExportPath('public/templates', filename, 'mustache'),
+      tests: getExportPath('public/__tests__', filename, 'spec.js')
     }
   };
 }
