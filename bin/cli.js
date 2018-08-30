@@ -7,6 +7,10 @@ exports.default = cli;
 
 var _inquirer = require("inquirer");
 
+var _falsify = _interopRequireDefault(require("./utils/falsify"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
@@ -59,7 +63,10 @@ function cli(callback) {
   }, {
     message: 'What are we naming it?',
     type: 'input',
-    name: 'name'
+    name: 'name',
+    validate: function validate(answer) {
+      return answer !== '';
+    }
   }, {
     message: 'What does it do?',
     type: 'input',
@@ -73,6 +80,9 @@ function cli(callback) {
         default:
           return false;
       }
+    },
+    filter: function filter(answer) {
+      return (0, _falsify.default)(answer);
     }
   }, {
     message: 'Are you using Flow.js for static type checking?',
@@ -86,61 +96,61 @@ function cli(callback) {
 
         case 'No':
           return false;
+
+        default:
+          return false;
       }
     },
     when: function when(answers) {
       return answers.type === 'component' || answers.type === 'project';
     }
   }, {
-    message: "List your component's props and types separated by a space, i.e. <prop-name>:<type> <another-prop-name>:<type>",
+    message: 'List your component\'s props and types separated by a space, i.e. <prop-name>:<type> <another-prop-name>:<type>',
     type: 'input',
     name: 'props',
     when: function when(answers) {
       return answers.type === 'component';
     },
     filter: function filter(answer) {
-      return answer.split(' ').reduce(function (acc, next) {
-        next = next.split(':');
-
-        var _next = next,
-            _next2 = _slicedToArray(_next, 2),
-            name = _next2[0],
-            type = _next2[1];
+      var result = answer.split(' ').reduce(function (acc, next) {
+        var _next$split = next.split(':'),
+            _next$split2 = _slicedToArray(_next$split, 2),
+            name = _next$split2[0],
+            type = _next$split2[1];
 
         return acc.concat({
           name: name,
           type: type
         });
       }, []);
+      return (0, _falsify.default)(result);
     }
   }, {
-    message: "List your Markdown page's frontmatter separated by a space, i.e. <prop-name>:<value> <another-prop-name>:<value>",
+    message: 'List your Markdown page\'s frontmatter separated by a space, i.e. <prop-name>:<value> <another-prop-name>:<value>',
     type: 'input',
     name: 'frontmatter',
     when: function when(answers) {
       return answers.type === 'markdown';
     },
     filter: function filter(answer) {
-      return answer.split(' ').reduce(function (acc, next) {
-        next = next.split(':');
+      if (answer === '') {
+        return false;
+      }
 
-        var _next3 = next,
-            _next4 = _slicedToArray(_next3, 2),
-            name = _next4[0],
-            value = _next4[1];
+      var result = answer.split(';').reduce(function (acc, next) {
+        var _next$split3 = next.split(':'),
+            _next$split4 = _slicedToArray(_next$split3, 2),
+            name = _next$split4[0],
+            value = _next$split4[1];
 
+        name = name.trim();
+        value = value.trim();
         return acc.concat({
           name: name,
           value: value
         });
       }, []);
-    }
-  }, {
-    message: 'What are we testing?',
-    type: 'input',
-    name: 'testDescription',
-    when: function when(answers) {
-      return answers.type === 'test';
+      return result;
     }
   }, {
     message: 'What type of test is this?',
@@ -157,6 +167,9 @@ function cli(callback) {
 
         case 'Unit/function':
           return 'unit';
+
+        default:
+          return 'unit';
       }
     }
   }, {
@@ -167,9 +180,11 @@ function cli(callback) {
       return answers.type === 'template';
     },
     filter: function filter(answer) {
-      return answer.split(' ');
+      var result = answer.split(' ');
+      return (0, _falsify.default)(result);
     }
   }]).then(function (answers) {
+    console.log(answers);
     callback(answers);
   });
 }

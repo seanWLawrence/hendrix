@@ -5,9 +5,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = controller;
 
-var _reactComponent = _interopRequireDefault(require("./generators/react-component"));
+var _react = _interopRequireDefault(require("./generators/components/react"));
 
-var _markdownPage = _interopRequireDefault(require("./generators/markdown-page"));
+var _markdown = _interopRequireDefault(require("./generators/pages/markdown"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -21,32 +21,15 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @author Sean W. Lawrence
  */
 function controller(answers) {
-  var type = answers.type,
-      name = answers.name,
-      _answers$description = answers.description,
-      description = _answers$description === void 0 ? false : _answers$description,
-      _answers$props = answers.props,
-      props = _answers$props === void 0 ? false : _answers$props,
-      _answers$frontmatter = answers.frontmatter,
-      frontmatter = _answers$frontmatter === void 0 ? false : _answers$frontmatter,
-      _answers$flow = answers.flow,
-      flow = _answers$flow === void 0 ? false : _answers$flow;
+  var type = answers.type;
 
   switch (type) {
     case 'component':
-      (0, _reactComponent.default)({
-        name: name,
-        props: props,
-        flow: flow,
-        description: description
-      });
+      (0, _react.default)(answers);
       break;
 
     case 'markdown':
-      (0, _markdownPage.default)({
-        name: name,
-        frontmatter: frontmatter
-      });
+      (0, _markdown.default)(answers);
       break;
 
     case 'Open source project':

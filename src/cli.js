@@ -157,7 +157,7 @@ export default function cli(callback: (answers: Answers) => void): void {
     },
     {
       message:
-        'List your Markdown page\'s frontmatter separated by a space, i.e. <prop-name>:<value> <another-prop-name>:<value>',
+        'List your Markdown page\'s frontmatter separated by a semicolon, i.e. <prop-name>:<value>; <another-prop-name>:<value>',
       type: 'input',
       name: 'frontmatter',
       when: (answers: Answers): boolean => answers.type === 'markdown',
@@ -165,22 +165,31 @@ export default function cli(callback: (answers: Answers) => void): void {
         answer: string,
       ): boolean | Array<{ name: string, value: string }> => {
         /**
-         * Split the single string into an array of strings,
+         * If no frontmatter was entered, return false so the frontmatter section will not be rendered in the template
+         */
+        if (answer === '') {
+          return false;
+        }
+
+        /**
+         * If frontmatter was entered,
+         * split the single string into an array of strings,
          * separated by each space
          * and reduce the array of strings into an array of objects
          * with name and type properties, i.e.
          * [{name: 'propName', type: 'propType'}]
          */
-        const result = answer.split(' ').reduce((acc, next) => {
-          const [name, value] = next.split(':');
+        const result = answer.split(';').reduce((acc, next) => {
+          let [name, value] = next.split(':');
+          name = name.trim();
+          value = value.trim();
           return acc.concat({ name, value });
         }, []);
 
         /**
-         * If answer is empty array, return false
-         * If not, return the formatted answer array
+         * Returns the result
          */
-        return falsify(result);
+        return result;
       },
     },
     {
@@ -227,6 +236,7 @@ export default function cli(callback: (answers: Answers) => void): void {
     },
   ]).then(
     (answers: Answers): void => {
+      console.log(answers);
       /**
        * Runs the callback function passed in with the answers
        * gathered from the cli prompt

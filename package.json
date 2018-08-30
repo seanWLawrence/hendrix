@@ -25,7 +25,6 @@
   "dependencies": {
     "chalk": "^2.4.1",
     "inquirer": "^6.2.0",
-    "lozad": "^1.6.0",
     "markdown-it": "^8.4.2",
     "markdown-it-anchor": "^5.0.2",
     "markdown-it-attrs": "^2.3.1",

@@ -18,9 +18,4 @@ export function logSuccess(type: string, outputPath: string) {
   {bold.green New ${type} created} in ${outputPath} 
   {magenta Happy coding!} 
   `);
-
-  /**
-   * Ends the function
-   */
-  return;
 }

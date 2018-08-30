@@ -1,8 +1,8 @@
 // @flow
 
-import { createPage } from './index';
-import config from '../config';
-import type { Answers } from '../types';
+import { createPage } from '..';
+import config from '../../config';
+import type { Answers } from '../../types';
 
 /**
  * Generates a new React component

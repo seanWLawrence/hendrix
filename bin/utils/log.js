@@ -33,5 +33,4 @@ function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(
  */
 function logSuccess(type, outputPath) {
   console.log((0, _chalk.default)(_templateObject(), type, outputPath));
-  return;
 }

@@ -1,7 +1,7 @@
 // @flow
 
-import generateReactComponent from './generators/react-component';
-import generateMarkdownPage from './generators/markdown-page';
+import generateReactComponent from './generators/components/react';
+import generateMarkdownPage from './generators/pages/markdown';
 import type { Answers } from './types';
 
 /**
@@ -14,21 +14,14 @@ import type { Answers } from './types';
  * @author Sean W. Lawrence
  */
 export default function controller(answers: Answers) {
-  const {
-    type,
-    name,
-    description = false,
-    props = false,
-    frontmatter = false,
-    flow = false,
-  } = answers;
+  const { type } = answers;
 
   switch (type) {
     case 'component':
-      generateReactComponent({ name, props, flow, description });
+      generateReactComponent(answers);
       break;
     case 'markdown':
-      generateMarkdownPage({ name, frontmatter });
+      generateMarkdownPage(answers);
       break;
     case 'Open source project':
       break;
