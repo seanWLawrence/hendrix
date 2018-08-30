@@ -40,9 +40,9 @@ export default function cli(callback: (answers: Answers) => void): void {
       choices: [
         'React component',
         'Markdown page',
+        'Test',
         'Mustache template',
         'Open source project',
-        'Test',
       ],
       default: 'React component',
       validate: (answer: string): boolean => {
@@ -99,6 +99,8 @@ export default function cli(callback: (answers: Answers) => void): void {
         switch (answers.type) {
           case 'component':
           case 'project':
+          case 'test':
+          case 'markdown':
             return true;
           default:
             return false;
@@ -196,18 +198,16 @@ export default function cli(callback: (answers: Answers) => void): void {
       message: 'What type of test is this?',
       name: 'testType',
       type: 'list',
-      choices: ['Integration/browser', 'Unit/function'],
+      choices: ['Unit', 'End to end'],
       when: (answers: Answers): boolean => answers.type === 'test',
-      filter: (
-        answer: 'Integration/browser' | 'Unit/function',
-      ): 'integration' | 'unit' => {
+      filter: (answer: 'End to end' | 'Unit'): 'end-to-end' | 'unit' => {
         /**
          * Changes name of input to a simpler term for use later
          */
         switch (answer) {
-          case 'Integration/browser':
-            return 'integration';
-          case 'Unit/function':
+          case 'End to end':
+            return 'end-to-end';
+          case 'Unit':
             return 'unit';
           default:
             return 'unit';

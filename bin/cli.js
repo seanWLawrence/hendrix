@@ -24,7 +24,7 @@ function cli(callback) {
     message: 'What are we creating?',
     type: 'list',
     name: 'type',
-    choices: ['React component', 'Markdown page', 'Mustache template', 'Open source project', 'Test'],
+    choices: ['React component', 'Markdown page', 'Test', 'Mustache template', 'Open source project'],
     default: 'React component',
     validate: function validate(answer) {
       switch (answer) {
@@ -75,6 +75,8 @@ function cli(callback) {
       switch (answers.type) {
         case 'component':
         case 'project':
+        case 'test':
+        case 'markdown':
           return true;
 
         default:
@@ -156,16 +158,16 @@ function cli(callback) {
     message: 'What type of test is this?',
     name: 'testType',
     type: 'list',
-    choices: ['Integration/browser', 'Unit/function'],
+    choices: ['Unit', 'End to end'],
     when: function when(answers) {
       return answers.type === 'test';
     },
     filter: function filter(answer) {
       switch (answer) {
-        case 'Integration/browser':
-          return 'integration';
+        case 'End to end':
+          return 'end-to-end';
 
-        case 'Unit/function':
+        case 'Unit':
           return 'unit';
 
         default:

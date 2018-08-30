@@ -3,6 +3,8 @@
 import generateReactComponent from './generators/components/react';
 import generateMarkdownPage from './generators/pages/markdown';
 import generateMustacheTemplate from './generators/templates/mustache';
+import generateUnitTest from './generators/tests/unit';
+import generateEndToEndTest from './generators/tests/end-to-end';
 import type { Answers } from './types';
 
 /**
@@ -27,9 +29,15 @@ export default function controller(answers: Answers) {
     case 'template':
       generateMustacheTemplate(answers);
       break;
-    case 'Markdown page':
-      break;
-    case 'Test':
+    case 'test':
+      switch (answers.testType) {
+        case 'unit':
+          generateUnitTest(answers);
+          break;
+        case 'end-to-end':
+          generateEndToEndTest(answers);
+          break;
+      }
       break;
     default:
       break;

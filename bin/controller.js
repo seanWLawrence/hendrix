@@ -11,6 +11,10 @@ var _markdown = _interopRequireDefault(require("./generators/pages/markdown"));
 
 var _mustache = _interopRequireDefault(require("./generators/templates/mustache"));
 
+var _unit = _interopRequireDefault(require("./generators/tests/unit"));
+
+var _endToEnd = _interopRequireDefault(require("./generators/tests/end-to-end"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
@@ -38,10 +42,17 @@ function controller(answers) {
       (0, _mustache.default)(answers);
       break;
 
-    case 'Markdown page':
-      break;
+    case 'test':
+      switch (answers.testType) {
+        case 'unit':
+          (0, _unit.default)(answers);
+          break;
 
-    case 'Test':
+        case 'end-to-end':
+          (0, _endToEnd.default)(answers);
+          break;
+      }
+
       break;
 
     default:
