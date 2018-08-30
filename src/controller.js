@@ -2,6 +2,7 @@
 
 import generateReactComponent from './generators/components/react';
 import generateMarkdownPage from './generators/pages/markdown';
+import generateMustacheTemplate from './generators/templates/mustache';
 import type { Answers } from './types';
 
 /**
@@ -23,7 +24,8 @@ export default function controller(answers: Answers) {
     case 'markdown':
       generateMarkdownPage(answers);
       break;
-    case 'Open source project':
+    case 'template':
+      generateMustacheTemplate(answers);
       break;
     case 'Markdown page':
       break;

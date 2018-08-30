@@ -1,43 +1,38 @@
+// @flow
+
+import { createPage } from '..';
+import config from '../../config';
+import type { Answers } from '../../types';
 
 /**
- * Renders the layout template with an HTML string into the body
- * @param {HTML} html - The HTML string to be added to the body of the layout template
- * @returns {HTML} HTML string with the layout added
- * @example renderLayout('<h1>Hello, world!</h1>') // '<html><body><h1> Hello, world!</h1></body></html>'
+ * Generates a new Mustache template
+ * @function generateMustacheTemplate
+ * @module generateMustacheTemplate
+ * @param {Answers} answers - Answers object gathered from the propmt in cli.js
+ * @returns {undefined} - Side effects only
+ * @license MIT
+ * @author Sean W. Lawrence
  */
-function renderLayout(html) {
+export default function generateMustacheTemplate(answers: Answers) {
   /**
-   * Returns the final HTML output with the template added
-   * @type {HTML}
+   * Gets the path of the Markdown template
+   * @const
+   * @type {string}
    */
-
-  return template(layout, {
-    title: 'Demo site',
-    html,
-    lozad: require('lozad').toString(),
-  });
-}
-
-/**
- * Creates a new HTML file in the public folder
- * @param {Filename} filename - The HTML file name
- * @param {HTML} html - The HTML string that the file will contain
- * @returns {undefined} - This function is only for side effects and returns nothing
- * @example createHTMLFile('example.md', '<html><body><h1>Hello, world!</h1></body></html>')
- * // creates a file called example.html with the HTML provided
- */
-function createHTMLFile(filename, html) {
-  /**
-   * Returned HTML file name, placed in the public directory
-   * @type {Filename}
-   */
-
-  filename = `public/${filename.split('.')[0]}.html`;
+  let templatePath = config('mustache').imports.templates;
 
   /**
-   * Creates new file (or overwrites the existing one) with the HTML string that was provided
-   * @type {undefined}
+   * Gets the path for the new Markdown page to go
    */
+  const outputPath = config(answers.name).exports.templates;
 
-  writeFileSync(filename, html);
+  /**
+   * Runs generator
+   */
+  createPage({ answers, templatePath, outputPath });
+
+  /**
+   * Ends function
+   */
+  return;
 }

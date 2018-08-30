@@ -24,7 +24,7 @@ function cli(callback) {
     message: 'What are we creating?',
     type: 'list',
     name: 'type',
-    choices: ['React component', 'Mustache template', 'Open source project', 'Markdown page', 'Test'],
+    choices: ['React component', 'Markdown page', 'Mustache template', 'Open source project', 'Test'],
     default: 'React component',
     validate: function validate(answer) {
       switch (answer) {
@@ -126,7 +126,7 @@ function cli(callback) {
       return (0, _falsify.default)(result);
     }
   }, {
-    message: 'List your Markdown page\'s frontmatter separated by a space, i.e. <prop-name>:<value> <another-prop-name>:<value>',
+    message: 'List your Markdown page\'s frontmatter separated by a semicolon, i.e. <prop-name>:<value>; <another-prop-name>:<value>',
     type: 'input',
     name: 'frontmatter',
     when: function when(answers) {

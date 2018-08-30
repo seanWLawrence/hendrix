@@ -39,9 +39,9 @@ export default function cli(callback: (answers: Answers) => void): void {
       name: 'type',
       choices: [
         'React component',
+        'Markdown page',
         'Mustache template',
         'Open source project',
-        'Markdown page',
         'Test',
       ],
       default: 'React component',

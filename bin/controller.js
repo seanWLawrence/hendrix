@@ -9,6 +9,8 @@ var _react = _interopRequireDefault(require("./generators/components/react"));
 
 var _markdown = _interopRequireDefault(require("./generators/pages/markdown"));
 
+var _mustache = _interopRequireDefault(require("./generators/templates/mustache"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
@@ -32,7 +34,8 @@ function controller(answers) {
       (0, _markdown.default)(answers);
       break;
 
-    case 'Open source project':
+    case 'template':
+      (0, _mustache.default)(answers);
       break;
 
     case 'Markdown page':
