@@ -13,7 +13,7 @@
  * @returns {(string | string[])} - Either the non-empty original value or false
  * @exports falsify
  */
-export default function falsify(value: string | string[]) {
+export default function falsify(value: *) {
   switch (value) {
     case '':
     case []:

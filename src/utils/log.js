@@ -12,7 +12,7 @@ import chalk from 'chalk';
  * @license MIT
  * @author Sean W. Lawrence
  */
-export function logSuccess(type, outputPath) {
+export function logSuccess(type: string, outputPath: string) {
   // eslint-disable-next-line no-console
   console.log(chalk`
   {bold.green New ${type} created} in ${outputPath} 

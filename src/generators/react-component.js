@@ -2,6 +2,7 @@
 
 import { createPage } from './index';
 import config from '../config';
+import type { Answers } from '../types';
 
 /**
  * Generates a new React component
@@ -12,11 +13,11 @@ import config from '../config';
  * @license MIT
  * @author Sean W. Lawrence
  */
-export default function generateReactComponent(answers) {
+export default function generateReactComponent(answers: Answers) {
   /**
    * Destructures the answers object to pass the variables as single values
    */
-  const { flow: withFlow } = answers;
+  const { flow } = answers;
 
   /**
    * Gets the path of the with-flow template from the config
@@ -34,7 +35,7 @@ export default function generateReactComponent(answers) {
    * Checks if flow boolean is true, if yes, change path of template
    * to the 'with-flow' template
    */
-  if (withFlow === true) {
+  if (flow === true) {
     templatePath = config('react-flow').imports.components;
   }
 

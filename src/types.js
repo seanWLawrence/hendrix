@@ -1,3 +1,5 @@
+// @flow
+
 /**
  * @typedef Answers
  * @property {string} type - Type of generator
@@ -11,12 +13,12 @@
  */
 
 export type Answers = {
-  type: 'component' | 'markdown' | 'template' | 'project' | 'test',
+  type?: 'component' | 'markdown' | 'template' | 'project' | 'test',
   name: string,
-  description: string,
-  frontmatter?: string,
+  description: string | boolean,
+  frontmatter?: string | boolean,
   flow?: boolean,
-  props?: string,
+  props?: string | boolean,
   testTypes?: 'integration' | 'unit',
   variables?: string,
 };

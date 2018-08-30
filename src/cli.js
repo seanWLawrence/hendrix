@@ -1,4 +1,5 @@
 // @flow
+
 /**
  * Prompts user to gather information about which generator to use
  * @file prompt
@@ -21,6 +22,8 @@
  */
 
 import { prompt } from 'inquirer';
+import falsify from './utils/falsify';
+import type { Answers } from './types';
 
 /**
  * Initializes prompt to gather information to pass to the generator
@@ -28,7 +31,7 @@ import { prompt } from 'inquirer';
  * @param {Function} callback - Function to be called with the data returned from the prompt
  * @returns {undefined} - Side effects only
  */
-export default function cli(callback: () => void) {
+export default function cli(callback: (answers: Answers) => void): void {
   prompt([
     {
       message: 'What are we creating?',
@@ -42,7 +45,10 @@ export default function cli(callback: () => void) {
         'Test',
       ],
       default: 'React component',
-      validate: (answer) => {
+      validate: (answer: string): boolean => {
+        /**
+         * Only accept values from the given choices
+         */
         switch (answer) {
           case 'React component':
           case 'Mustache template':
@@ -54,7 +60,11 @@ export default function cli(callback: () => void) {
             return false;
         }
       },
-      filter: (answer) => {
+      filter: (answer: string): string | void => {
+        /**
+         * Format the answer into a simpler term
+         * for use later
+         */
         switch (answer) {
           case 'React component':
             return 'component';
@@ -75,13 +85,17 @@ export default function cli(callback: () => void) {
       message: 'What are we naming it?',
       type: 'input',
       name: 'name',
-      validate: answer !== '',
+      validate: (answer: string): boolean => answer !== '',
     },
     {
       message: 'What does it do?',
       type: 'input',
       name: 'description',
-      when: (answers) => {
+      when: (answers: Answers): boolean => {
+        /**
+         * Only asks this question if the type is
+         * a 'component' or 'project'
+         */
         switch (answers.type) {
           case 'component':
           case 'project':
@@ -90,68 +104,103 @@ export default function cli(callback: () => void) {
             return false;
         }
       },
+      filter: (answer: string): boolean | string => falsify(answer),
     },
     {
       message: 'Are you using Flow.js for static type checking?',
       type: 'list',
       name: 'flow',
       choices: ['Yes', 'No'],
-      filter: (answer) => {
+      filter: (answer: 'Yes' | 'No'): boolean => {
+        /**
+         * Change yes/no values to true/false
+         */
         switch (answer) {
           case 'Yes':
             return true;
           case 'No':
             return false;
+          default:
+            return false;
         }
       },
-      when: (answers) =>
+      when: (answers: Answers): boolean =>
         answers.type === 'component' || answers.type === 'project',
     },
     {
       message:
-        "List your component's props and types separated by a space, i.e. <prop-name>:<type> <another-prop-name>:<type>",
+        'List your component\'s props and types separated by a space, i.e. <prop-name>:<type> <another-prop-name>:<type>',
       type: 'input',
       name: 'props',
-      when: (answers) => answers.type === 'component',
-      filter: (answer) => {
-        return answer.split(' ').reduce((acc, next) => {
-          next = next.split(':');
-          let [name, type] = next;
+      when: (answers: Answers): boolean => answers.type === 'component',
+      filter: (
+        answer: string,
+      ): boolean | Array<{ name: string, type: string }> => {
+        /**
+         * Convert answer string to array of strings
+         * separated by the spaces in between each value
+         * and reduce the array of strings into an array
+         * of objects with name and type properties i.e.
+         * [{name: 'propName', type: 'propType'}]
+         */
+        const result = answer.split(' ').reduce((acc, next) => {
+          const [name, type] = next.split(':');
           return acc.concat({ name, type });
         }, []);
+
+        /**
+         * If answer is an empty array, return false
+         * If not, return the formatted answer array
+         */
+        return falsify(result);
       },
     },
     {
       message:
-        "List your Markdown page's frontmatter separated by a space, i.e. <prop-name>:<value> <another-prop-name>:<value>",
+        'List your Markdown page\'s frontmatter separated by a space, i.e. <prop-name>:<value> <another-prop-name>:<value>',
       type: 'input',
       name: 'frontmatter',
-      when: (answers) => answers.type === 'markdown',
-      filter: (answer) => {
-        return answer.split(' ').reduce((acc, next) => {
-          next = next.split(':');
-          let [name, value] = next;
+      when: (answers: Answers): boolean => answers.type === 'markdown',
+      filter: (
+        answer: string,
+      ): boolean | Array<{ name: string, value: string }> => {
+        /**
+         * Split the single string into an array of strings,
+         * separated by each space
+         * and reduce the array of strings into an array of objects
+         * with name and type properties, i.e.
+         * [{name: 'propName', type: 'propType'}]
+         */
+        const result = answer.split(' ').reduce((acc, next) => {
+          const [name, value] = next.split(':');
           return acc.concat({ name, value });
         }, []);
+
+        /**
+         * If answer is empty array, return false
+         * If not, return the formatted answer array
+         */
+        return falsify(result);
       },
-    },
-    {
-      message: 'What are we testing?',
-      type: 'input',
-      name: 'testDescription',
-      when: (answers) => answers.type === 'test',
     },
     {
       message: 'What type of test is this?',
       name: 'testType',
       type: 'list',
       choices: ['Integration/browser', 'Unit/function'],
-      when: (answers) => answers.type === 'test',
-      filter: (answer) => {
+      when: (answers: Answers): boolean => answers.type === 'test',
+      filter: (
+        answer: 'Integration/browser' | 'Unit/function',
+      ): 'integration' | 'unit' => {
+        /**
+         * Changes name of input to a simpler term for use later
+         */
         switch (answer) {
           case 'Integration/browser':
             return 'integration';
           case 'Unit/function':
+            return 'unit';
+          default:
             return 'unit';
         }
       },
@@ -161,12 +210,28 @@ export default function cli(callback: () => void) {
         'List the variables your template will use, separated by spaces, i.e. variable1 variable2 variable3',
       name: 'variables',
       type: 'input',
-      when: (answers) => answers.type === 'template',
-      filter: (answer) => {
-        return answer.split(' ');
+      when: (answers: Answers): boolean => answers.type === 'template',
+      filter: (answer: string): boolean | string[] => {
+        /**
+         * Split the single string by each space
+         * and return it as an array of string values
+         */
+        const result = answer.split(' ');
+
+        /**
+         * If answer if an empty array, return false
+         * If not, return the array of variables
+         */
+        return falsify(result);
       },
     },
-  ]).then((answers) => {
-    callback(answers);
-  });
+  ]).then(
+    (answers: Answers): void => {
+      /**
+       * Runs the callback function passed in with the answers
+       * gathered from the cli prompt
+       */
+      callback(answers);
+    },
+  );
 }

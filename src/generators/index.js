@@ -3,6 +3,7 @@
 import { render as template } from 'mustache';
 import { writeFileSync, readFileSync } from 'fs';
 import { logSuccess } from '../utils/log';
+import type { Answers } from '../types';
 
 /**
  * Generates a new page
@@ -12,7 +13,15 @@ import { logSuccess } from '../utils/log';
  * @license MIT
  * @author Sean W. Lawrence
  */
-export function createPage({ answers, templatePath, outputPath }) {
+export function createPage({
+  answers,
+  templatePath,
+  outputPath,
+}: {
+  answers: Answers,
+  templatePath: string,
+  outputPath: string,
+}) {
   /**
    * Gets the stringified value of the template file to pass into Mustache's render function
    * @const
