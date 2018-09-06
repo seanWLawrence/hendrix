@@ -1,7 +1,7 @@
 {
-  "name": "ilovestatic",
-  "version": "1.0.0",
-  "description": "SEO-optimized, 100% Lighthouse scoring static website generator",
+  "name": "hendrix",
+  "version": "0.0.0",
+  "description": "An extensible CLI scaffolding tool for creating scripts, pages and configuration file boilerplates.",
   "main": "bin/index.js",
   "scripts": {
     "test": "make test",
@@ -15,10 +15,10 @@
     "create-docs": "make create-docs"
   },
   "keywords": [
-    "lighthouse",
-    "static",
+    "cli",
+    "scaffold",
     "generator",
-    "SEO"
+    "boilerplate"
   ],
   "author": "Sean W. Lawrence",
   "license": "MIT",
