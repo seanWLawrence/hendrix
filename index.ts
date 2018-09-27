@@ -30,13 +30,14 @@ export default function createPage(answers: Answers) {
 
 	const [, , ...args] = process.argv;
 
+	const outputDirectory: string = join(process.cwd(), args[0]);
+
 	const outputPath: string = join(
-		process.cwd(),
-		args[0],
+		outputDirectory,
 		`${outputName}.${extension}`,
 	);
 
-	if (existsSync(outputPath)) {
+	if (existsSync(outputDirectory)) {
 		writeFileSync(outputPath, fileContent);
 	} else {
 		mkdirSync(join(process.cwd(), args[0]));
