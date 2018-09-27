@@ -1,0 +1,29 @@
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+
+/**
+* @class {{name}}
+* {{description}}
+ */
+export default class {{name}} extends Component {
+
+  static propTypes = {
+  {{#props}}
+    {{name}}: PropTypes.{{type}}.isRequired,
+  {{/props}}
+  }
+
+  render() {
+    const {
+    {{#props}}
+      {{name}},
+    {{/props}}
+    } = this.props;
+
+    return (
+      <>
+      {{name}}
+      </>
+    )
+  }
+};
