@@ -1,30 +1,33 @@
-test:
+test-watch:
 	jest --watch
 
+test:
+	jest
+
 lint:
-	flow
-	prettier-eslint --config .prettierrc.js --eslint-config-path .eslintrc.js --write  \"src/*.js\"
-	flow stop
+	tslint -c tslint.json 'src/**/*.ts'
+	tsfmt -r
+
+develop:
+	nodemon
 
 build:
-	NODE_ENV=production	npx babel src -d bin 
+	NODE_ENV=production	tsc 
 
-serve:
-	npx serve
-
-build-serve:
-	clear
-	npm run build
-	node bin/index.js
-	make serve
+start:
+	ts-node ./
 
 commit:
+	npm run build
 	npx git-cz
 
 ci:
-	make lint
-	jest
-	make build
+	npm run lint
+	npm run test
+	npm publish
+
+publish:
+	semantic-release
 
 create-docs:
 	rm -rf docs

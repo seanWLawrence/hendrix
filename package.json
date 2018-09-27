@@ -1,65 +1,68 @@
 {
-  "name": "hendrix",
-  "version": "0.0.0",
-  "description": "An extensible CLI scaffolding tool for creating scripts, pages and configuration file boilerplates.",
-  "main": "bin/index.js",
-  "scripts": {
-    "test": "make test",
-    "lint": "make lint",
-    "develop": "make develop",
-    "build": "make build",
-    "build-serve": "make build-serve",
-    "serve": "make serve",
-    "commit": "make commit",
-    "ci": "make ci",
-    "create-docs": "make create-docs"
-  },
-  "keywords": [
-    "cli",
-    "scaffold",
-    "generator",
-    "boilerplate"
-  ],
-  "author": "Sean W. Lawrence",
-  "license": "MIT",
-  "dependencies": {
-    "inquirer": "^6.2.0",
-    "lozad": "^1.6.0",
-    "markdown-it": "^8.4.2",
-    "markdown-it-anchor": "^5.0.2",
-    "markdown-it-attrs": "^2.3.1",
-    "markdown-it-center-text": "^1.0.4",
-    "markdown-it-container": "^2.0.0",
-    "markdown-it-front-matter": "^0.1.2",
-    "markdown-it-header-sections": "^1.0.0",
-    "markdown-it-replace-link": "^1.0.1",
-    "markdown-it-responsive": "^0.1.0",
-    "markdown-it-smartarrows": "^1.0.1",
-    "markdown-it-toc-done-right": "^2.0.3",
-    "mdfigcaption": "^0.1.1",
-    "mustache": "^2.3.2"
-  },
-  "devDependencies": {
-    "@babel/cli": "^7.0.0-rc.1",
-    "@babel/core": "^7.0.0-rc.2",
-    "@babel/preset-env": "^7.0.0-rc.1",
-    "@babel/preset-flow": "^7.0.0-rc.1",
-    "babel-core": "^7.0.0-bridge.0",
-    "babel-eslint": "^8.2.6",
-    "babel-preset-minify": "^0.4.3",
-    "cz-conventional-changelog": "^2.1.0",
-    "eslint": "^5.4.0",
-    "eslint-plugin-flowtype": "^2.50.0",
-    "eslint-plugin-jest": "^21.21.0",
-    "flow-bin": "^0.79.1",
-    "jest": "^23.5.0",
-    "prettier": "^1.14.2",
-    "prettier-eslint": "^8.8.2",
-    "prettier-eslint-cli": "^4.7.1"
-  },
-  "config": {
-    "commitizen": {
-      "path": "node_modules/cz-conventional-changelog"
-    }
-  }
+	"name": "hendrix",
+	"version": "0.0.0",
+	"description": "A CLI scaffolding tool for creating new scripts, pages and configuration files.",
+	"main": "bin/index.js",
+	"bin": {
+		"hendrix": "./bin/index.js"
+	},
+	"scripts": {
+		"test": "make test",
+		"test-watch": "make test-watch",
+		"lint": "make lint",
+		"develop": "make develop",
+		"build": "make build",
+		"start": "make start",
+		"commit": "make commit",
+		"ci": "make ci",
+		"create-docs": "make create-docs"
+	},
+	"keywords": [
+		"generator",
+		"scaffold",
+		"boilerplate"
+	],
+	"author": "Sean W. Lawrence",
+	"license": "MIT",
+	"dependencies": {
+		"chalk": "^2.4.1",
+		"inquirer": "^6.2.0",
+		"markdown-it": "^8.4.2",
+		"markdown-it-anchor": "^5.0.2",
+		"markdown-it-attrs": "^2.3.1",
+		"markdown-it-center-text": "^1.0.4",
+		"markdown-it-container": "^2.0.0",
+		"markdown-it-front-matter": "^0.1.2",
+		"markdown-it-header-sections": "^1.0.0",
+		"markdown-it-replace-link": "^1.0.1",
+		"markdown-it-responsive": "^0.1.0",
+		"markdown-it-smartarrows": "^1.0.1",
+		"markdown-it-toc-done-right": "^2.0.3",
+		"mdfigcaption": "^0.1.1",
+		"mustache": "^2.3.2",
+		"rxjs": "^6.3.3"
+	},
+	"devDependencies": {
+		"@types/inquirer": "0.0.43",
+		"@types/jest": "^23.3.2",
+		"@types/markdown-it": "0.0.5",
+		"@types/mustache": "^0.8.31",
+		"@types/node": "^10.11.0",
+		"cz-conventional-changelog": "^2.1.0",
+		"jest": "^23.5.0",
+		"nodemon": "^1.18.4",
+		"ts-jest": "^23.10.2",
+		"ts-node": "^7.0.1",
+		"tslint": "^5.11.0",
+		"typescript": "^3.0.3",
+		"typescript-formatter": "^7.2.2"
+	},
+	"config": {
+		"commitizen": {
+			"path": "node_modules/cz-conventional-changelog"
+		}
+	},
+	"hendrix": {
+		"outputPath": "./public"
+	}
 }

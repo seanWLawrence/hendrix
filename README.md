@@ -12,11 +12,20 @@ Hendrix allows you to use or create boilerplates easily and create them using it
 
 ## Installation and usage
 
-This package uses NPM and Node.js.
 
-Recommended:
+(Optional) Enter any information that some people may find confusing about your
+library
 
-As of NPM version 5.2.0, you can run this CLI tool without installing it. Simply run this line in the terminal of your project directory:
+## Table of Contents
+
+- [The problem](#the-problem)
+- [This solution](#this-solution)
+- [What this plugin is not](#what-this-plugin-is-not)
+- [Table of Contents](#table-of-contents)
+- [Installation](#installation)
+- [Usage](#usage)
+- [License](#license)
+
 
 ```sh
 npx hendrix
@@ -30,7 +39,7 @@ You can also download the CLI as a standard global dependency like you normally 
 npm i -g hendrix
 ```
 
-Or you can use the Yarn package manager
+## Usage
 
 ```sh
 yarn global add hendrix
