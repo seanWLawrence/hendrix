@@ -1,53 +1,52 @@
-# ILOVESTATIC - Work in progress
+<div align="center">
+<h1>Hendrix</h1>
 
-SEO-optimized, 100% Google Lighthouse Score static website generator.
+<p>A dead simple CLI scaffolding tool to make your life easier.</p>
+</div>
+
+[![npm](https://img.shields.io/npm/v/{{name}}.svg?style=flat-square&colorB=blue)](https://www.npmjs.com/package/{{name}})
+[![Travis (.org)](https://img.shields.io/travis/{{travisURL}}.svg?style=flat-square)]({{travisURL}})
+[![Coveralls github branch](https://img.shields.io/coveralls/{{coverallsURL}}/master.svg?style=flat-square&colorB=brightgreen)]({{coverallsURL}})
+[![GitHub last commit](https://img.shields.io/github/last-commit/seanwlawrence/markdown-it-plugin-data-src.svg?style=flat-square)](https://github.com/seanwlawrence/markdown-it-plugin-data-src/commits/master)
+![GitHub issues](https://img.shields.io/github/issues-raw/seanwlawrence/markdown-it-plugin-data-src.svg?style=flat-square)
+![npm bundle size (minified + gzip)](https://img.shields.io/bundlephobia/minzip/markdown-it-plugin-data-src.svg?style=flat-square)
+[![GitHub](https://img.shields.io/github/license/seanwlawrence/markdown-it-plugin-data-src.svg?style=flat-square)](https://github.com/seanWLawrence/markdown-it-plugin-data-src/blob/master/LICENSE.md)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-blue.svg?style=flat-square)](http://commitizen.github.io/cz-cli/)
 
 ## The problem
 
-Most websites don't need much, just some beautiful styling, text, images and maybe a contact form. But most developers reach for bulky frameworks and libraries like Angular, React, Ember, jQuery, or even something with a database an more complexity like WordPress, Drupal, etc. by default, because it's cool, fun to work with and everyone else is doing it.
-
-The only problem with this, is these simple websites only need a tiny fraction of the code that's being used, which can cause slower page-loading times, poor SEO performance (since JavaScript may not be rendered by all engines as expected) and a much more complexity than it needs to have.
-
-> More code = more slow.
+Enter the reason that you wrote your library
 
 ## This solution
 
-ILOVESTATIC is as simple as it gets: it takes in Markdown via a built-in CMS (no coding necessary), optimizes it for SEO and fast-loading performance, runs it through a mustache.js template and creates squeaky-clean HTML files for you to serve from anywhere, and usually for free.
+Enter the reason why your library is a good solution
 
-All of our themes score 100% on the Google Lighthouse tool, which means that they folow all of Google's best practices and standards for websites to load content and interactivity fast, work offline, have non render-blocking JavaScript, optimized images, etc. You get all that for free, without any stress or effort.
+## What this plugin is not
 
-ILOVESTATIC is also extremely flexible in its simplicity, and can be tweaked and styled any way that you like.
+(Optional) Enter any information that some people may find confusing about your
+library
+
+## Table of Contents
+
+- [The problem](#the-problem)
+- [This solution](#this-solution)
+- [What this plugin is not](#what-this-plugin-is-not)
+- [Table of Contents](#table-of-contents)
+- [Installation](#installation)
+- [Usage](#usage)
+- [License](#license)
 
 ## Installation
 
-This package uses NPM and Node.js.
-
-Recommended:
-
-As of NPM version 5.2.0, you can run this CLI tool without installing it. Simply run this line in the terminal of your project directory:
-
-```sh
-npx ilovestatic new
-```
-
-Download as global dependency:
-
-You can also download the CLI as a standard global dependency like you normally would:
-
-```sh
-npm i -g ilovestatic
-```
-
-Or you can use the Yarn package manager
-
-```sh
-yarn global add ilovestatic
-```
+`npm install {{name}}`
 
 ## Usage
 
-Simply run the new command and you'll see a prompt that will ask you a few questions to get you all set up
+Enter instructions for how to use your library here.
 
-```sh
-npx ilovestatic new
-```
+## License
+
+MIT
+
+Copyright 2018 {{author}}
