@@ -1,28 +1,17 @@
-<div align="center">
-<h1>Hendrix</h1>
+# Hendrix - Work in progress [not ready for use]
 
-<p>A dead simple CLI scaffolding tool to make your life easier.</p>
-</div>
-
-[![npm](https://img.shields.io/npm/v/{{name}}.svg?style=flat-square&colorB=blue)](https://www.npmjs.com/package/{{name}})
-[![Travis (.org)](https://img.shields.io/travis/{{travisURL}}.svg?style=flat-square)]({{travisURL}})
-[![Coveralls github branch](https://img.shields.io/coveralls/{{coverallsURL}}/master.svg?style=flat-square&colorB=brightgreen)]({{coverallsURL}})
-[![GitHub last commit](https://img.shields.io/github/last-commit/seanwlawrence/markdown-it-plugin-data-src.svg?style=flat-square)](https://github.com/seanwlawrence/markdown-it-plugin-data-src/commits/master)
-![GitHub issues](https://img.shields.io/github/issues-raw/seanwlawrence/markdown-it-plugin-data-src.svg?style=flat-square)
-![npm bundle size (minified + gzip)](https://img.shields.io/bundlephobia/minzip/markdown-it-plugin-data-src.svg?style=flat-square)
-[![GitHub](https://img.shields.io/github/license/seanwlawrence/markdown-it-plugin-data-src.svg?style=flat-square)](https://github.com/seanWLawrence/markdown-it-plugin-data-src/blob/master/LICENSE.md)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
-[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-blue.svg?style=flat-square)](http://commitizen.github.io/cz-cli/)
+An extensible CLI scaffolding tool for creating scripts, pages and configuration file boilerplates.
 
 ## The problem
 
-Enter the reason that you wrote your library
+Writing boilerplate sucks. It's time-consuming, redundant and should be automated.
 
 ## This solution
 
-Enter the reason why your library is a good solution
+Hendrix allows you to use or create boilerplates easily and create them using its CLI tool. Answer a few questions about your file and you're ready to start coding. 
 
-## What this plugin is not
+## Installation and usage
+
 
 (Optional) Enter any information that some people may find confusing about your
 library
@@ -37,16 +26,26 @@ library
 - [Usage](#usage)
 - [License](#license)
 
-## Installation
 
-`npm install {{name}}`
+```sh
+npx hendrix
+```
+
+Download as global dependency:
+
+You can also download the CLI as a standard global dependency like you normally would:
+
+```sh
+npm i -g hendrix
+```
 
 ## Usage
 
-Enter instructions for how to use your library here.
+```sh
+yarn global add hendrix
+```
 
-## License
-
-MIT
-
-Copyright 2018 {{author}}
+And then launch it with the following command:
+```sh
+hendrix
+```
