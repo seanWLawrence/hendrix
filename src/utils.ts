@@ -1,6 +1,26 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import { Answers } from 'inquirer';
+import chalk from 'chalk';
 
+/**
+ * Logs successful output to console
+ * @param type
+ * @param outputPath
+ */
+export function logSuccess(type: string, outputPath: string) {
+	console.log(chalk`
+  {bold.green New ${type} created} in ${outputPath} 
+  {magenta Happy coding!} 
+  `);
+}
+
+/**
+ * Formats the filename to look pretty in the console, and
+ * gathers information from it, like the content, extension and
+ * actual filename
+ * @param filename
+ */
 export function formatFilename(filename: string) {
 	const prettyName = filename
 		.split('.')[0]
@@ -13,7 +33,7 @@ export function formatFilename(filename: string) {
 		})
 		.join(' ');
 
-	const templatePath = join(__dirname, '..', 'templates', filename);
+	const templatePath = join(__dirname, 'templates', filename);
 
 	const content = readFileSync(templatePath).toString('utf8');
 
@@ -30,8 +50,13 @@ export function formatFilename(filename: string) {
 	};
 }
 
+/**
+ * Reduces a prop string to an array of {name:value} objects
+ * so they can be looped in the mustache template
+ * @param props
+ */
 export function formatProps(
-	props: string,
+	props: Answers,
 ): Array<{ name: string; value: string }> {
 	return props
 		.split(';')

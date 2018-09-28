@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
-import cli from './src/cli';
+import Hendrix from './src/Hendrix';
 
-cli();
+// init CLI
+new Hendrix().init();
