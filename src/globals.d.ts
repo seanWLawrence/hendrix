@@ -1,5 +1,3 @@
-// @flow
-
 /**
  * @typedef Answers
  * @property {string} type - Type of generator
@@ -22,3 +20,8 @@ export type Answers = {
 	outputName: string;
 	props: Array<{ name: string; value: string }>;
 };
+
+declare module '*.json' {
+	const value: any;
+	export default value;
+}

@@ -11,6 +11,7 @@ import {
 import { logSuccess } from './utils/log';
 import { formatFilename, formatProps } from './utils/format';
 import { Answers } from './globals';
+const packageJSON = require(join(process.cwd(), 'package.json'));
 
 function createPage(answers: Answers) {
 	const {
@@ -27,7 +28,11 @@ function createPage(answers: Answers) {
 
 	const [, , ...args] = process.argv;
 
-	const outputDirectory: string = join(process.cwd(), args[0] ? args[0] : '');
+	const baseUrl = packageJSON.hendrix ? packageJSON.hendrix.baseDirectory : '';
+	const additionalPath = args[0] || '';
+	const outputDirectory: string = join(process.cwd(), baseUrl, additionalPath);
+
+	console.log('PATH', baseUrl, additionalPath, outputDirectory);
 
 	const outputPath: string = join(
 		outputDirectory,
@@ -35,14 +40,16 @@ function createPage(answers: Answers) {
 	);
 
 	if (existsSync(outputDirectory)) {
+		console.log('FILE EXISTS', outputDirectory);
 		writeFileSync(outputPath, fileContent);
-	} else {
-		mkdirSync(join(process.cwd(), args[0]));
-
-		writeFileSync(outputPath, fileContent);
+		return logSuccess(answers.template.prettyName, outputDirectory);
 	}
 
-	logSuccess(answers.template.prettyName, outputPath);
+	console.log('FILE NO EXISTS', outputDirectory);
+	mkdirSync(outputDirectory);
+
+	writeFileSync(outputPath, fileContent);
+	return logSuccess(answers.template.prettyName, outputDirectory);
 }
 
 const getTemplate = {
