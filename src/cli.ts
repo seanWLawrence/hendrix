@@ -13,7 +13,7 @@ import { formatFilename, formatProps } from './utils/format';
 import { Answers } from './globals';
 const packageJSON = require(join(process.cwd(), 'package.json'));
 
-function createPage(answers: Answers) {
+export function createPage(answers: Answers) {
 	const {
 		outputName,
 		template: { filename, extension },
@@ -29,10 +29,10 @@ function createPage(answers: Answers) {
 	const [, , ...args] = process.argv;
 
 	const baseUrl = packageJSON.hendrix ? packageJSON.hendrix.baseDirectory : '';
-	const additionalPath = args[0] || '';
-	const outputDirectory: string = join(process.cwd(), baseUrl, additionalPath);
 
-	console.log('PATH', baseUrl, additionalPath, outputDirectory);
+	const additionalPath = args[0] || '';
+
+	const outputDirectory: string = join(process.cwd(), baseUrl, additionalPath);
 
 	const outputPath: string = join(
 		outputDirectory,
@@ -40,19 +40,18 @@ function createPage(answers: Answers) {
 	);
 
 	if (existsSync(outputDirectory)) {
-		console.log('FILE EXISTS', outputDirectory);
 		writeFileSync(outputPath, fileContent);
 		return logSuccess(answers.template.prettyName, outputDirectory);
 	}
 
-	console.log('FILE NO EXISTS', outputDirectory);
 	mkdirSync(outputDirectory);
 
 	writeFileSync(outputPath, fileContent);
+
 	return logSuccess(answers.template.prettyName, outputDirectory);
 }
 
-const getTemplate = {
+export const getTemplate = {
 	message: 'What are we creating?',
 	type: 'list',
 	name: 'template',
@@ -62,14 +61,14 @@ const getTemplate = {
 	},
 };
 
-const getOutputName = {
+export const getOutputName = {
 	message: `What are we naming it?`,
 	type: 'input',
 	name: 'outputName',
 	validate: (answer: string): boolean => answer.trim() !== '',
 };
 
-const getVariables = {
+export const getVariables = {
 	message: `List your template's key:value pairs separated by a semicolon, i.e. <key>:<value>; <key2>:<value2>;`,
 	type: 'input',
 	name: 'props',

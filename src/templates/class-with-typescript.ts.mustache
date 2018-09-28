@@ -1,0 +1,12 @@
+{{#props}}
+export interface Props {
+  {{name}}: {{value}};
+};
+{{/props}}
+
+class {{name}} implements Props {
+{{#props}}
+  {{name}}: {{value}};
+{{/props}}
+  constructor() {}
+}

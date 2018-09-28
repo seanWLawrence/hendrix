@@ -12,6 +12,8 @@ develop:
 	nodemon
 
 build:
+	rm -rf bin/src/templates
+	cp -R src/templates bin/src/templates
 	NODE_ENV=production	tsc 
 
 start:
