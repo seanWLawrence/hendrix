@@ -13,7 +13,7 @@
     "develop": "make develop",
     "build": "rm -rf bin/src/templates && cp -R src/templates bin/src/templates && tsc",
     "start": "make start",
-    "commit": "make commit",
+    "commit": "npm run build && npx git-cz",
     "ci": "make ci",
     "create-docs": "make create-docs"
   },

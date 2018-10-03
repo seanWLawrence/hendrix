@@ -54,12 +54,12 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var path_1 = require("path");
-var fs_1 = require("fs");
-var util_1 = require("util");
 var inquirer_1 = __importStar(require("inquirer"));
+var mustache_1 = require("mustache");
+var fs_1 = require("fs");
 var utils_1 = require("./utils");
 var packageJSON = require(path_1.join(process.cwd(), 'package.json'));
-var _readdir = util_1.promisify(fs_1.readdir);
+// add autocomplete prompt type
 inquirer_1.default.registerPrompt('autocomplete', require('inquirer-autocomplete-prompt'));
 /**
  * @class Hendrix
@@ -71,11 +71,11 @@ var Hendrix = /** @class */ (function () {
     }
     /**
      * Asynchronously initialize prompts and store the data into the class
-     * properties for use during `createPages`
+     * propertiy `filesToCreate` for use during the `createFiles` method
      */
     Hendrix.prototype.prompt = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, _b, _c, lastPrompt;
+            var _a, _b, _c, createAnotherFile;
             return __generator(this, function (_d) {
                 switch (_d.label) {
                     case 0:
@@ -92,55 +92,52 @@ var Hendrix = /** @class */ (function () {
                         _b.apply(_a, [__assign.apply(void 0, _c.concat([(_d.sent())]))]);
                         return [4 /*yield*/, inquirer_1.prompt(utils_1.finishedPrompt)];
                     case 4:
-                        lastPrompt = _d.sent();
-                        console.log(lastPrompt);
+                        createAnotherFile = (_d.sent()).createAnotherFile;
+                        /**
+                         * Keeps running the prompt method until user
+                         * says that they don't want to create any more files
+                         */
+                        if (createAnotherFile === true) {
+                            return [2 /*return*/, this.prompt()];
+                        }
                         return [2 /*return*/];
                 }
             });
         });
     };
+    Hendrix.prototype.createFiles = function () {
+        this.filesToCreate.forEach(this.createFile);
+    };
     /**
-     * Creates a new page using the data generated from the prompts
+     * Creates a new file using the data generated from the prompts
      */
-    // private createPage() {
-    //   this.templatePath = join(
-    //     __dirname,
-    //     './templates',
-    //     this.answers.template.filename
-    //   );
-    //   this.templateAsString = readFileSync(this.templatePath, 'utf8');
-    //   this.templateRendered = render(this.templateAsString, {
-    //     props: formatProps(this.answers.props),
-    //     name: this.answers.outputName
-    //   });
-    //   // optional: nested filename passed when calling hendrix
-    //   this.directoryArg = process.argv[2] || '';
-    //   // optional: hendrix.baseDirectory in package.json as the starting directory
-    //   if (
-    //     packageJSON.hasOwnProperty('hendrix') &&
-    //     packageJSON.hendrix.hasOwnProperty('baseDirectory')
-    //   ) {
-    //     this.basePath = packageJSON.hendrix.baseDirectory;
-    //   }
-    //   this.outputDirectory = join(
-    //     process.cwd(),
-    //     this.basePath,
-    //     this.directoryArg
-    //   );
-    //   this.outputPath = join(
-    //     this.outputDirectory,
-    //     `${this.answers.outputName}.${this.answers.template.extension}`
-    //   );
-    //   const isFinishedAnswer = await prompt(this.finishedPrompt);
-    //   if (existsSync(this.outputDirectory)) {
-    //     writeFileSync(this.outputPath, this.templateRendered);
-    //     return logSuccess(this.answers.template.prettyName, this.outputDirectory);
-    //   }
-    //   // if the folder doesn't exist, create a new one
-    //   mkdirSync(this.outputDirectory);
-    //   writeFileSync(this.outputPath, this.templateRendered);
-    //   return logSuccess(this.answers.template.prettyName, this.outputDirectory);
-    // }
+    Hendrix.prototype.createFile = function (file) {
+        var _a = file.template, filename = _a.filename, extension = _a.extension, name = _a.name, outputName = file.outputName, props = file.props;
+        var templatePath = path_1.join(__dirname, './templates', filename);
+        var templateAsString = fs_1.readFileSync(templatePath, 'utf8');
+        var templateRendered = mustache_1.render(templateAsString, {
+            props: utils_1.formatProps(props),
+            name: outputName
+        });
+        // optional: nested filename passed when calling hendrix
+        var directoryArg = process.argv[2] || '';
+        var basePath = '';
+        // optional: hendrix.baseDirectory in package.json as the starting directory
+        if (packageJSON.hasOwnProperty('hendrix') &&
+            packageJSON.hendrix.hasOwnProperty('baseDirectory')) {
+            basePath = packageJSON.hendrix.baseDirectory;
+        }
+        var outputDirectory = path_1.join(process.cwd(), basePath, directoryArg);
+        var outputPath = path_1.join(outputDirectory, outputName + "." + extension);
+        if (fs_1.existsSync(outputDirectory)) {
+            fs_1.writeFileSync(outputPath, templateRendered);
+            return utils_1.logSuccess(name, outputDirectory);
+        }
+        // if the folder doesn't exist, create a new one
+        fs_1.mkdirSync(outputDirectory);
+        fs_1.writeFileSync(outputPath, templateRendered);
+        return utils_1.logSuccess(name, outputDirectory);
+    };
     /**
      * Initializes the program
      */
@@ -151,6 +148,7 @@ var Hendrix = /** @class */ (function () {
                     case 0: return [4 /*yield*/, this.prompt()];
                     case 1:
                         _a.sent();
+                        this.createFiles();
                         return [2 /*return*/];
                 }
             });
@@ -159,4 +157,4 @@ var Hendrix = /** @class */ (function () {
     return Hendrix;
 }());
 exports.default = Hendrix;
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiSGVuZHJpeC5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9IZW5kcml4LnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7QUFBQSw2QkFBNEI7QUFDNUIseUJBQTZCO0FBQzdCLDZCQUFpQztBQUNqQyxtREFBK0Q7QUFHL0QsaUNBUWlCO0FBRWpCLElBQU0sV0FBVyxHQUFHLE9BQU8sQ0FBQyxXQUFJLENBQUMsT0FBTyxDQUFDLEdBQUcsRUFBRSxFQUFFLGNBQWMsQ0FBQyxDQUFDLENBQUM7QUFDakUsSUFBTSxRQUFRLEdBQUcsZ0JBQVMsQ0FBQyxZQUFPLENBQUMsQ0FBQztBQUVwQyxrQkFBUSxDQUFDLGNBQWMsQ0FDckIsY0FBYyxFQUNkLE9BQU8sQ0FBQyw4QkFBOEIsQ0FBQyxDQUN4QyxDQUFDO0FBRUY7OztHQUdHO0FBQ0g7SUFBQTtRQUNFLGtCQUFhLEdBQWMsRUFBRSxDQUFDO0lBZ0ZoQyxDQUFDO0lBOUVDOzs7T0FHRztJQUNXLHdCQUFNLEdBQXBCOzs7Ozs7d0JBQ0UsS0FBQSxDQUFBLEtBQUEsSUFBSSxDQUFDLGFBQWEsQ0FBQSxDQUFDLElBQUksQ0FBQTs7d0JBQ2pCLHFCQUFNLGlCQUFNLENBQUMsc0JBQWMsQ0FBQyxFQUFBOzt3Q0FBN0IsQ0FBQyxTQUE0QixDQUFDO3dCQUM3QixxQkFBTSxpQkFBTSxDQUFDLHdCQUFnQixDQUFDLEVBQUE7O3dDQUEvQixDQUFDLFNBQThCLENBQUM7d0JBQy9CLHFCQUFNLGlCQUFNLENBQUMsbUJBQVcsQ0FBQyxFQUFBOzt3QkFIL0IsZ0RBR0ssQ0FBQyxTQUF5QixDQUFDLEtBQzlCLENBQUM7d0JBRWdCLHFCQUFNLGlCQUFNLENBQUMsc0JBQWMsQ0FBQyxFQUFBOzt3QkFBekMsVUFBVSxHQUFHLFNBQTRCO3dCQUUvQyxPQUFPLENBQUMsR0FBRyxDQUFDLFVBQVUsQ0FBQyxDQUFDOzs7OztLQUN6QjtJQUVEOztPQUVHO0lBQ0gseUJBQXlCO0lBQ3pCLDhCQUE4QjtJQUM5QixpQkFBaUI7SUFDakIscUJBQXFCO0lBQ3JCLHFDQUFxQztJQUNyQyxPQUFPO0lBRVAscUVBQXFFO0lBRXJFLDREQUE0RDtJQUM1RCw4Q0FBOEM7SUFDOUMsb0NBQW9DO0lBQ3BDLFFBQVE7SUFFUiw2REFBNkQ7SUFDN0QsK0NBQStDO0lBRS9DLGlGQUFpRjtJQUNqRixTQUFTO0lBQ1QsK0NBQStDO0lBQy9DLDBEQUEwRDtJQUMxRCxRQUFRO0lBQ1IseURBQXlEO0lBQ3pELE1BQU07SUFFTixpQ0FBaUM7SUFDakMscUJBQXFCO0lBQ3JCLHFCQUFxQjtJQUNyQix3QkFBd0I7SUFDeEIsT0FBTztJQUVQLDRCQUE0QjtJQUM1Qiw0QkFBNEI7SUFDNUIsc0VBQXNFO0lBQ3RFLE9BQU87SUFFUCxnRUFBZ0U7SUFDaEUsNENBQTRDO0lBQzVDLDZEQUE2RDtJQUU3RCxpRkFBaUY7SUFDakYsTUFBTTtJQUVOLHFEQUFxRDtJQUNyRCxxQ0FBcUM7SUFFckMsMkRBQTJEO0lBRTNELCtFQUErRTtJQUMvRSxJQUFJO0lBRUo7O09BRUc7SUFDVSxzQkFBSSxHQUFqQjs7Ozs0QkFDRSxxQkFBTSxJQUFJLENBQUMsTUFBTSxFQUFFLEVBQUE7O3dCQUFuQixTQUFtQixDQUFDOzs7OztLQUdyQjtJQUNILGNBQUM7QUFBRCxDQUFDLEFBakZELElBaUZDIn0=
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiSGVuZHJpeC5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9IZW5kcml4LnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7QUFBQSw2QkFBNEI7QUFDNUIsbURBQXFEO0FBQ3JELHFDQUFrQztBQUNsQyx5QkFBd0U7QUFDeEUsaUNBT2lCO0FBRWpCLElBQU0sV0FBVyxHQUFHLE9BQU8sQ0FBQyxXQUFJLENBQUMsT0FBTyxDQUFDLEdBQUcsRUFBRSxFQUFFLGNBQWMsQ0FBQyxDQUFDLENBQUM7QUFFakUsK0JBQStCO0FBQy9CLGtCQUFRLENBQUMsY0FBYyxDQUNyQixjQUFjLEVBQ2QsT0FBTyxDQUFDLDhCQUE4QixDQUFDLENBQ3hDLENBQUM7QUFFRjs7O0dBR0c7QUFDSDtJQUFBO1FBQ0Usa0JBQWEsR0FBYyxFQUFFLENBQUM7SUFzRmhDLENBQUM7SUFwRkM7OztPQUdHO0lBQ1csd0JBQU0sR0FBcEI7Ozs7Ozt3QkFDRSxLQUFBLENBQUEsS0FBQSxJQUFJLENBQUMsYUFBYSxDQUFBLENBQUMsSUFBSSxDQUFBOzt3QkFDakIscUJBQU0saUJBQU0sQ0FBQyxzQkFBYyxDQUFDLEVBQUE7O3dDQUE3QixDQUFDLFNBQTRCLENBQUM7d0JBQzdCLHFCQUFNLGlCQUFNLENBQUMsd0JBQWdCLENBQUMsRUFBQTs7d0NBQS9CLENBQUMsU0FBOEIsQ0FBQzt3QkFDL0IscUJBQU0saUJBQU0sQ0FBQyxtQkFBVyxDQUFDLEVBQUE7O3dCQUgvQixnREFHSyxDQUFDLFNBQXlCLENBQUMsS0FDOUIsQ0FBQzt3QkFFb0MscUJBQU0saUJBQU0sQ0FBQyxzQkFBYyxDQUFDLEVBQUE7O3dCQUEzRCxpQkFBaUIsR0FBYyxDQUFBLFNBQTRCLENBQUEsa0JBQTFDO3dCQUV6Qjs7OzJCQUdHO3dCQUNILElBQUksaUJBQWlCLEtBQUssSUFBSSxFQUFFOzRCQUM5QixzQkFBTyxJQUFJLENBQUMsTUFBTSxFQUFFLEVBQUM7eUJBQ3RCOzs7OztLQUNGO0lBRU8sNkJBQVcsR0FBbkI7UUFDRSxJQUFJLENBQUMsYUFBYSxDQUFDLE9BQU8sQ0FBQyxJQUFJLENBQUMsVUFBVSxDQUFDLENBQUM7SUFDOUMsQ0FBQztJQUVEOztPQUVHO0lBQ0ssNEJBQVUsR0FBbEIsVUFBbUIsSUFBYTtRQUU1QixJQUFBLGtCQUF1QyxFQUEzQixzQkFBUSxFQUFFLHdCQUFTLEVBQUUsY0FBSSxFQUNyQyw0QkFBVSxFQUNWLGtCQUFLLENBQ0U7UUFFVCxJQUFNLFlBQVksR0FBRyxXQUFJLENBQUMsU0FBUyxFQUFFLGFBQWEsRUFBRSxRQUFRLENBQUMsQ0FBQztRQUU5RCxJQUFNLGdCQUFnQixHQUFHLGlCQUFZLENBQUMsWUFBWSxFQUFFLE1BQU0sQ0FBQyxDQUFDO1FBRTVELElBQU0sZ0JBQWdCLEdBQUcsaUJBQU0sQ0FBQyxnQkFBZ0IsRUFBRTtZQUNoRCxLQUFLLEVBQUUsbUJBQVcsQ0FBQyxLQUFLLENBQUM7WUFDekIsSUFBSSxFQUFFLFVBQVU7U0FDakIsQ0FBQyxDQUFDO1FBRUgsd0RBQXdEO1FBQ3hELElBQU0sWUFBWSxHQUFHLE9BQU8sQ0FBQyxJQUFJLENBQUMsQ0FBQyxDQUFDLElBQUksRUFBRSxDQUFDO1FBRTNDLElBQUksUUFBUSxHQUFHLEVBQUUsQ0FBQztRQUVsQiw0RUFBNEU7UUFDNUUsSUFDRSxXQUFXLENBQUMsY0FBYyxDQUFDLFNBQVMsQ0FBQztZQUNyQyxXQUFXLENBQUMsT0FBTyxDQUFDLGNBQWMsQ0FBQyxlQUFlLENBQUMsRUFDbkQ7WUFDQSxRQUFRLEdBQUcsV0FBVyxDQUFDLE9BQU8sQ0FBQyxhQUFhLENBQUM7U0FDOUM7UUFFRCxJQUFNLGVBQWUsR0FBRyxXQUFJLENBQUMsT0FBTyxDQUFDLEdBQUcsRUFBRSxFQUFFLFFBQVEsRUFBRSxZQUFZLENBQUMsQ0FBQztRQUVwRSxJQUFNLFVBQVUsR0FBRyxXQUFJLENBQUMsZUFBZSxFQUFLLFVBQVUsU0FBSSxTQUFXLENBQUMsQ0FBQztRQUV2RSxJQUFJLGVBQVUsQ0FBQyxlQUFlLENBQUMsRUFBRTtZQUMvQixrQkFBYSxDQUFDLFVBQVUsRUFBRSxnQkFBZ0IsQ0FBQyxDQUFDO1lBRTVDLE9BQU8sa0JBQVUsQ0FBQyxJQUFJLEVBQUUsZUFBZSxDQUFDLENBQUM7U0FDMUM7UUFFRCxnREFBZ0Q7UUFDaEQsY0FBUyxDQUFDLGVBQWUsQ0FBQyxDQUFDO1FBRTNCLGtCQUFhLENBQUMsVUFBVSxFQUFFLGdCQUFnQixDQUFDLENBQUM7UUFFNUMsT0FBTyxrQkFBVSxDQUFDLElBQUksRUFBRSxlQUFlLENBQUMsQ0FBQztJQUMzQyxDQUFDO0lBRUQ7O09BRUc7SUFDVSxzQkFBSSxHQUFqQjs7Ozs0QkFDRSxxQkFBTSxJQUFJLENBQUMsTUFBTSxFQUFFLEVBQUE7O3dCQUFuQixTQUFtQixDQUFDO3dCQUVwQixJQUFJLENBQUMsV0FBVyxFQUFFLENBQUM7Ozs7O0tBQ3BCO0lBQ0gsY0FBQztBQUFELENBQUMsQUF2RkQsSUF1RkMifQ==

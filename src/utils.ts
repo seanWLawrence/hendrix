@@ -2,7 +2,7 @@ import { readdir, readFileSync } from 'fs';
 import { promisify } from 'util';
 import { join } from 'path';
 import { Answers } from 'inquirer';
-import fuzzy, { FilterResult } from 'fuzzy';
+import fuzzy from 'fuzzy';
 import chalk from 'chalk';
 
 const _readdir = promisify(readdir);
@@ -12,27 +12,23 @@ const _readdir = promisify(readdir);
  * @param type
  * @param outputPath
  */
-export function logSuccess(type: string, outputPath: string) {
+export function logSuccess(type: string, outputPath: string): void {
   console.log(chalk`
   {bold.green New ${type} created} in ${outputPath} 
   {magenta Happy coding!} 
   `);
 }
 
-export interface File {
+export interface FileInfo {
   name: string;
-  filename: string;
-  content: string;
-  extension: string;
+  value: {
+    filename: string;
+    content: string;
+    extension: string;
+  };
 }
 
-/**
- * Formats the filename to look pretty in the console, and
- * gathers information from it, like the content, extension and
- * actual filename
- * @param filename
- */
-export function getFileInfo(filename: string): File {
+function formatFilename(filename: string): FileInfo {
   const name = filename
     .split('.')[0]
     .split('-')
@@ -44,33 +40,34 @@ export function getFileInfo(filename: string): File {
     })
     .join(' ');
 
+  const extension = filename.split('.')[1];
+
   const templatePath = join(__dirname, 'templates', filename);
 
-  const contentAsBuffer = readFileSync(templatePath);
-  const content = contentAsBuffer.toString('utf8');
-
-  const extension = filename.split('.')[1];
+  const content = readFileSync(templatePath).toString('utf8');
 
   return {
     name,
-    filename,
-    content,
-    extension
+    value: {
+      filename,
+      content,
+      extension
+    }
   };
 }
+
+type Props = { name: string; value: string }[];
 
 /**
  * Reduces a prop string to an array of {name:value} objects
  * so they can be looped in the mustache template
  * @param props
  */
-export function formatProps(
-  props: Answers
-): Array<{ name: string; value: string }> {
+export function formatProps(props: Answers): Props {
   return props
     .split(';')
     .filter(Boolean)
-    .reduce((acc: Array<{ name: string; value: string }>, next: string) => {
+    .reduce((acc: Props, next: string) => {
       let [name, value] = next.split(':');
       return [...acc, { name, value }];
     }, []);
@@ -86,7 +83,7 @@ export const templatePrompt = {
   source: async (_: Answers, input: string = ''): Promise<File[]> => {
     const templatesPath = join(__dirname, 'templates');
     const files = await _readdir(templatesPath);
-    const filesWithInfo = files.map(getFileInfo);
+    const filesWithInfo = files.map(formatFilename);
     const fuzzyOptions = {
       extract: (file: any) => file.name
     };
@@ -113,6 +110,6 @@ export const propsPrompt = {
 export const finishedPrompt = {
   message: 'Create another file?',
   type: 'confirm',
-  name: 'isFinished',
+  name: 'createAnotherFile',
   default: false
 };

@@ -1,13 +1,10 @@
 import { join } from 'path';
-import { readdir } from 'fs';
-import { promisify } from 'util';
-import inquirer, { prompt, Question, Answers } from 'inquirer';
+import inquirer, { prompt, Answers } from 'inquirer';
 import { render } from 'mustache';
 import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'fs';
 import {
   formatProps,
   logSuccess,
-  File,
   templatePrompt,
   outputNamePrompt,
   propsPrompt,
@@ -15,8 +12,8 @@ import {
 } from './utils';
 
 const packageJSON = require(join(process.cwd(), 'package.json'));
-const _readdir = promisify(readdir);
 
+// add autocomplete prompt type
 inquirer.registerPrompt(
   'autocomplete',
   require('inquirer-autocomplete-prompt')
@@ -31,73 +28,79 @@ export default class Hendrix {
 
   /**
    * Asynchronously initialize prompts and store the data into the class
-   * properties for use during `createPages`
+   * propertiy `filesToCreate` for use during the `createFiles` method
    */
-  private async prompt() {
+  private async prompt(): Promise<void> {
     this.filesToCreate.push({
       ...(await prompt(templatePrompt)),
       ...(await prompt(outputNamePrompt)),
       ...(await prompt(propsPrompt))
     });
 
-    const lastPrompt = await prompt(finishedPrompt);
+    const { createAnotherFile }: Answers = await prompt(finishedPrompt);
 
-    console.log(lastPrompt);
+    /**
+     * Keeps running the prompt method until user
+     * says that they don't want to create any more files
+     */
+    if (createAnotherFile === true) {
+      return this.prompt();
+    }
+  }
+
+  private createFiles() {
+    this.filesToCreate.forEach(this.createFile);
   }
 
   /**
-   * Creates a new page using the data generated from the prompts
+   * Creates a new file using the data generated from the prompts
    */
-  // private createPage() {
-  //   this.templatePath = join(
-  //     __dirname,
-  //     './templates',
-  //     this.answers.template.filename
-  //   );
+  private createFile(file: Answers) {
+    const {
+      template: { filename, extension, name },
+      outputName,
+      props
+    } = file;
 
-  //   this.templateAsString = readFileSync(this.templatePath, 'utf8');
+    const templatePath = join(__dirname, './templates', filename);
 
-  //   this.templateRendered = render(this.templateAsString, {
-  //     props: formatProps(this.answers.props),
-  //     name: this.answers.outputName
-  //   });
+    const templateAsString = readFileSync(templatePath, 'utf8');
 
-  //   // optional: nested filename passed when calling hendrix
-  //   this.directoryArg = process.argv[2] || '';
+    const templateRendered = render(templateAsString, {
+      props: formatProps(props),
+      name: outputName
+    });
 
-  //   // optional: hendrix.baseDirectory in package.json as the starting directory
-  //   if (
-  //     packageJSON.hasOwnProperty('hendrix') &&
-  //     packageJSON.hendrix.hasOwnProperty('baseDirectory')
-  //   ) {
-  //     this.basePath = packageJSON.hendrix.baseDirectory;
-  //   }
+    // optional: nested filename passed when calling hendrix
+    const directoryArg = process.argv[2] || '';
 
-  //   this.outputDirectory = join(
-  //     process.cwd(),
-  //     this.basePath,
-  //     this.directoryArg
-  //   );
+    let basePath = '';
 
-  //   this.outputPath = join(
-  //     this.outputDirectory,
-  //     `${this.answers.outputName}.${this.answers.template.extension}`
-  //   );
+    // optional: hendrix.baseDirectory in package.json as the starting directory
+    if (
+      packageJSON.hasOwnProperty('hendrix') &&
+      packageJSON.hendrix.hasOwnProperty('baseDirectory')
+    ) {
+      basePath = packageJSON.hendrix.baseDirectory;
+    }
 
-  //   const isFinishedAnswer = await prompt(this.finishedPrompt);
-  //   if (existsSync(this.outputDirectory)) {
-  //     writeFileSync(this.outputPath, this.templateRendered);
+    const outputDirectory = join(process.cwd(), basePath, directoryArg);
 
-  //     return logSuccess(this.answers.template.prettyName, this.outputDirectory);
-  //   }
+    const outputPath = join(outputDirectory, `${outputName}.${extension}`);
 
-  //   // if the folder doesn't exist, create a new one
-  //   mkdirSync(this.outputDirectory);
+    if (existsSync(outputDirectory)) {
+      writeFileSync(outputPath, templateRendered);
 
-  //   writeFileSync(this.outputPath, this.templateRendered);
+      return logSuccess(name, outputDirectory);
+    }
 
-  //   return logSuccess(this.answers.template.prettyName, this.outputDirectory);
-  // }
+    // if the folder doesn't exist, create a new one
+    mkdirSync(outputDirectory);
+
+    writeFileSync(outputPath, templateRendered);
+
+    return logSuccess(name, outputDirectory);
+  }
 
   /**
    * Initializes the program
@@ -105,6 +108,6 @@ export default class Hendrix {
   public async init() {
     await this.prompt();
 
-    // this.createPage();
+    this.createFiles();
   }
 }
