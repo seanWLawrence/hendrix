@@ -73,20 +73,22 @@ interface Props {
 export function formatProps(props: string): Props {
   return props
     .split(';')
-    .map((prop: any) => prop.trim())
+    .map((prop: string) => prop.trim())
     .filter(Boolean)
-    .reduce((acc: any, next: any) => {
-      const [propName, propValue] = next.split('=').map((v: any) => v.trim());
+    .reduce((acc: {}, next: string) => {
+      const [propName, propValue] = next
+        .split('=')
+        .map((value: string) => value.trim());
 
       // if value is an array of key:value pairs
       if (propValue.includes(':')) {
         const propValueList = propValue
           .split(',')
-          .map((v: any) => v.trim())
-          .reduce((acc: any, next: any) => {
-            let [name, value] = next.split(':');
-            name = name.trim();
-            value = value.trim();
+          .map((value: string) => value.trim())
+          .reduce((acc: { name: string; value: string }[], next: string) => {
+            let [name, value] = next
+              .split(':')
+              .map((value: string) => value.trim());
             return [...acc, { name, value }];
           }, []);
 
@@ -95,7 +97,7 @@ export function formatProps(props: string): Props {
       } else if (propValue.includes(',')) {
         const propValueList = propValue
           .split(',')
-          .reduce((acc: any, next: any) => {
+          .reduce((acc: string[], next: string) => {
             return [...acc, next];
           }, []);
         return { ...acc, ...{ [propName]: propValueList } };
