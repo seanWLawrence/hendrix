@@ -1,12 +1,19 @@
-{{#props}}
+{{#propTypes}}
 export interface Props {
   {{name}}: {{value}};
 };
-{{/props}}
+{{/propTypes}}
 
 class {{name}} implements Props {
-{{#props}}
+{{#propTypes}}
   {{name}}: {{value}};
-{{/props}}
+{{/propTypes}}
   constructor() {}
+  
 }
+
+{{#props}}
+{{.}}
+{{/props}}
+
+{{title}}

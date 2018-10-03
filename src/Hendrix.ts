@@ -66,10 +66,8 @@ export default class Hendrix {
 
     const templateAsString = readFileSync(templatePath, 'utf8');
 
-    const templateRendered = render(templateAsString, {
-      props: formatProps(props),
-      name: outputName
-    });
+    console.log(props);
+    const templateRendered = render(templateAsString, props);
 
     // optional: nested filename passed when calling hendrix
     const directoryArg = process.argv[2] || '';

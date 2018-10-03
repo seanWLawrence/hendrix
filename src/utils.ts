@@ -56,21 +56,54 @@ function formatFilename(filename: string): FileInfo {
   };
 }
 
-type Props = { name: string; value: string }[];
+interface Props {
+  [propName: string]:
+    | Array<{ name: string; value: string }>
+    | string[]
+    | string;
+}
 
 /**
- * Reduces a prop string to an array of {name:value} objects
- * so they can be looped in the mustache template
+ * Reduces prop string into an array or object based on how they were input
  * @param props
+ * @example formatProps('name = Yo') // { name: 'Yo' }
+ * @example formatProps('names = Yo, Ye, Ya') // { names: ['Yo', 'Ye', 'Ya'] }
+ * @example formatProps('names = first: Yo, middle: Ye, last: Ya') // { names: [{name: 'first', value: 'Yo', {name: 'middle', value: 'Ye'}, {name: 'last', value: 'Ya'] }
  */
-export function formatProps(props: Answers): Props {
+export function formatProps(props: string): Props {
   return props
     .split(';')
+    .map((prop: any) => prop.trim())
     .filter(Boolean)
-    .reduce((acc: Props, next: string) => {
-      let [name, value] = next.split(':');
-      return [...acc, { name, value }];
-    }, []);
+    .reduce((acc: any, next: any) => {
+      const [propName, propValue] = next.split('=').map((v: any) => v.trim());
+
+      // if value is an array of key:value pairs
+      if (propValue.includes(':')) {
+        const propValueList = propValue
+          .split(',')
+          .map((v: any) => v.trim())
+          .reduce((acc: any, next: any) => {
+            let [name, value] = next.split(':');
+            name = name.trim();
+            value = value.trim();
+            return [...acc, { name, value }];
+          }, []);
+
+        return { ...acc, ...{ [propName]: propValueList } };
+        // if value is an array of single strings
+      } else if (propValue.includes(',')) {
+        const propValueList = propValue
+          .split(',')
+          .reduce((acc: any, next: any) => {
+            return [...acc, next];
+          }, []);
+        return { ...acc, ...{ [propName]: propValueList } };
+      }
+
+      // if value is a single string
+      return { ...acc, ...{ [propName]: propValue } };
+    }, {});
 }
 
 /**
@@ -102,9 +135,10 @@ export const outputNamePrompt = {
 };
 
 export const propsPrompt = {
-  message: `List your template's key:value pairs separated by a semicolon, i.e. <key>:<value>; <key2>:<value2>;`,
+  message: `List your template's props`,
   type: 'input',
-  name: 'props'
+  name: 'props',
+  filter: (input: string) => formatProps(input)
 };
 
 export const finishedPrompt = {
