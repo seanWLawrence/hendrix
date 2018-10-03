@@ -1,127 +1,171 @@
 import { join } from 'path';
-import { prompt, Question, Answers } from 'inquirer';
+import { readdir } from 'fs';
+import { promisify } from 'util';
+import inquirer, { prompt, Question, Answers } from 'inquirer';
 import { render } from 'mustache';
-import {
-	writeFileSync,
-	readFileSync,
-	existsSync,
-	readdirSync,
-	mkdirSync,
-} from 'fs';
+import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'fs';
 import { formatFilename, formatProps, logSuccess } from './utils';
+import fuzzy from 'fuzzy';
+
 const packageJSON = require(join(process.cwd(), 'package.json'));
+const _readdir = promisify(readdir);
+
+inquirer.registerPrompt(
+  'autocomplete',
+  require('inquirer-autocomplete-prompt')
+);
 
 /**
  * @class Hendrix
  * Main program
  */
 export default class Hendrix {
-	templatePrompt: Question;
-	outputNamePrompt: Question;
-	propsPrompt: Question;
-	answers!: Answers;
-	templatePath!: string;
-	templateAsString!: string;
-	templateRendered!: string;
-	directoryArg!: string;
-	basePath!: string;
-	outputDirectory!: string;
-	outputPath!: string;
+  templatePrompt: Answers;
+  outputNamePrompt: Question;
+  propsPrompt: Question;
+  finishedPrompt: Question;
+  answers!: Answers;
+  templatePath!: string;
+  templateAsString!: string;
+  templateRendered!: string;
+  directoryArg!: string;
+  basePath!: string;
+  outputDirectory!: string;
+  outputPath!: string;
 
-	/**
-	 * Create prompt questions
-	 */
-	constructor() {
-		this.templatePrompt = {
-			message: 'What are we creating?',
-			type: 'list',
-			name: 'template',
-			choices: () => {
-				const templatesPath = join(__dirname, './templates');
-				return readdirSync(templatesPath).map(formatFilename);
-			},
-		};
+  /**
+   * Create prompt questions
+   */
+  constructor() {
+    interface TemplateQuestion {
+      name: string;
+      value: {
+        filename: string;
+        prettyName: string;
+        content: string;
+        extension: string;
+      };
+    }
 
-		this.outputNamePrompt = {
-			message: `What are we naming it?`,
-			type: 'input',
-			name: 'outputName',
-			validate: (answer: string): boolean => answer.trim() !== '',
-		};
+    this.templatePrompt = {
+      message: 'What are we creating?',
+      name: 'template',
+      type: 'autocomplete',
+      source: async (
+        _: any,
+        input: string = ''
+      ): Promise<TemplateQuestion[]> => {
+        const templatesPath = join(__dirname, 'templates');
+        const files = await _readdir(templatesPath);
+        const prettyFiles = files.map(formatFilename);
+        const fuzzyOptions = {
+          extract: (file: TemplateQuestion) => file.value.prettyName
+        };
+        const result = fuzzy
+          .filter(input, prettyFiles, fuzzyOptions)
+          .map(file => file.original);
+        return result;
+      }
+    };
 
-		this.propsPrompt = {
-			message: `List your template's key:value pairs separated by a semicolon, i.e. <key>:<value>; <key2>:<value2>;`,
-			type: 'input',
-			name: 'props',
-		};
-	}
+    this.outputNamePrompt = {
+      message: `What are we naming it?`,
+      type: 'input',
+      name: 'outputName',
+      validate: (answer: string): boolean => answer.trim() !== ''
+    };
 
-	/**
-	 * Asynchronously initialize prompts and store the data into the class
-	 * properties for use during `createPages`
-	 */
-	private async prompt() {
-		this.answers = {
-			...(await prompt(this.templatePrompt)),
-			...(await prompt(this.outputNamePrompt)),
-			...(await prompt(this.propsPrompt)),
-		};
+    this.propsPrompt = {
+      message: `List your template's key:value pairs separated by a semicolon, i.e. <key>:<value>; <key2>:<value2>;`,
+      type: 'input',
+      name: 'props'
+    };
 
-		this.templatePath = join(
-			__dirname,
-			'./templates',
-			this.answers.template.filename,
-		);
+    this.finishedPrompt = {
+      message: 'Create another page?',
+      type: 'confirm',
+      name: 'isFinished',
+      default: false
+    };
 
-		this.templateAsString = readFileSync(this.templatePath, 'utf8');
+    this.basePath = '';
+  }
 
-		this.templateRendered = render(this.templateAsString, {
-			props: formatProps(this.answers.props),
-			name: this.answers.outputName,
-		});
+  /**
+   * Asynchronously initialize prompts and store the data into the class
+   * properties for use during `createPages`
+   */
+  private async prompt() {
+    this.answers = {
+      ...this.answers,
+      ...(await prompt(this.templatePrompt)),
+      ...(await prompt(this.outputNamePrompt)),
+      ...(await prompt(this.propsPrompt)),
+      ...(await prompt(this.finishedPrompt))
+    };
 
-		// optional: nested filename passed when calling hendrix
-		this.directoryArg = process.argv[2] || '';
+    console.log(this.answers);
 
-		// optional: hendrix.baseDirectory in package.json as the starting directory
-		this.basePath = packageJSON.hendrix.baseDirectory || '';
+    this.templatePath = join(
+      __dirname,
+      './templates',
+      this.answers.template.filename
+    );
 
-		this.outputDirectory = join(
-			process.cwd(),
-			this.basePath,
-			this.directoryArg,
-		);
+    this.templateAsString = readFileSync(this.templatePath, 'utf8');
 
-		this.outputPath = join(
-			this.outputDirectory,
-			`${this.answers.outputName}.${this.answers.template.extension}`,
-		);
-	}
+    this.templateRendered = render(this.templateAsString, {
+      props: formatProps(this.answers.props),
+      name: this.answers.outputName
+    });
 
-	/**
-	 * Creates a new page using the data generated from the prompts
-	 */
-	private createPage() {
-		if (existsSync(this.outputDirectory)) {
-			writeFileSync(this.outputPath, this.templateRendered);
+    // optional: nested filename passed when calling hendrix
+    this.directoryArg = process.argv[2] || '';
 
-			return logSuccess(this.answers.template.prettyName, this.outputDirectory);
-		}
+    // optional: hendrix.baseDirectory in package.json as the starting directory
+    if (
+      packageJSON.hasOwnProperty('hendrix') &&
+      packageJSON.hendrix.hasOwnProperty('baseDirectory')
+    ) {
+      this.basePath = packageJSON.hendrix.baseDirectory;
+    }
 
-		// if the folder doesn't exist, create a new one
-		mkdirSync(this.outputDirectory);
+    this.outputDirectory = join(
+      process.cwd(),
+      this.basePath,
+      this.directoryArg
+    );
 
-		writeFileSync(this.outputPath, this.templateRendered);
+    this.outputPath = join(
+      this.outputDirectory,
+      `${this.answers.outputName}.${this.answers.template.extension}`
+    );
+  }
 
-		return logSuccess(this.answers.template.prettyName, this.outputDirectory);
-	}
+  /**
+   * Creates a new page using the data generated from the prompts
+   */
+  private createPage() {
+    if (existsSync(this.outputDirectory)) {
+      writeFileSync(this.outputPath, this.templateRendered);
 
-	/**
-	 * Initializes the program
-	 */
-	public async init() {
-		await this.prompt();
+      return logSuccess(this.answers.template.prettyName, this.outputDirectory);
+    }
 
-		this.createPage();
-	}
+    // if the folder doesn't exist, create a new one
+    mkdirSync(this.outputDirectory);
+
+    writeFileSync(this.outputPath, this.templateRendered);
+
+    return logSuccess(this.answers.template.prettyName, this.outputDirectory);
+  }
+
+  /**
+   * Initializes the program
+   */
+  public async init() {
+    await this.prompt();
+
+    this.createPage();
+  }
 }
