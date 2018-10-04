@@ -137,7 +137,7 @@ export const outputNamePrompt = {
 };
 
 export const propsPrompt = {
-  message: `List your template's props`,
+  message: `List your template's variables`,
   type: 'input',
   name: 'props',
   filter: (input: string) => formatProps(input)

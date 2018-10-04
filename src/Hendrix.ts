@@ -3,7 +3,6 @@ import inquirer, { prompt, Answers } from 'inquirer';
 import { render } from 'mustache';
 import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'fs';
 import {
-  formatProps,
   logSuccess,
   templatePrompt,
   outputNamePrompt,
@@ -66,8 +65,10 @@ export default class Hendrix {
 
     const templateAsString = readFileSync(templatePath, 'utf8');
 
-    console.log(props);
-    const templateRendered = render(templateAsString, props);
+    const templateRendered = render(templateAsString, {
+      name: outputName,
+      ...props
+    });
 
     // optional: nested filename passed when calling hendrix
     const directoryArg = process.argv[2] || '';
@@ -89,7 +90,7 @@ export default class Hendrix {
     if (existsSync(outputDirectory)) {
       writeFileSync(outputPath, templateRendered);
 
-      return logSuccess(name, outputDirectory);
+      return logSuccess(outputName, outputDirectory);
     }
 
     // if the folder doesn't exist, create a new one
@@ -97,7 +98,7 @@ export default class Hendrix {
 
     writeFileSync(outputPath, templateRendered);
 
-    return logSuccess(name, outputDirectory);
+    return logSuccess(outputName, outputDirectory);
   }
 
   /**

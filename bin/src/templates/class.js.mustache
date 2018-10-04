@@ -1,3 +1,7 @@
-class {{name}} {
-  constructor({{#props}} {{name}}, {{/props}}) {}
+export default class {{name}} {
+  constructor() {
+  {{#props}}
+    this.{{.}} = '';
+  {{/props}}
+  }
 }

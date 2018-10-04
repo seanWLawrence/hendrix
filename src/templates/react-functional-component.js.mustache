@@ -1,7 +1,14 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 
-const {{name}} = ({}) => {
+const {{name}} = ({ {{#props}}{{name}}, {{/props}} }) => {
   return ()
 }
+
+{{name}}.propTypes = {
+{{#props}}
+  {{name}}: {{value}},
+{{/props}}
+};
 
 export default {{name}};

@@ -1,23 +1,19 @@
 import * as React from 'react';
 
-{{#props}}
 export interface Props {
+{{#props}}
   {{name}}: {{value}};
-};
 {{/props}}
+};
 
 export default class {{name}} extends React.Component<Props, {}> {
   render() {
-    {{#props}}
     const {
+    {{#props}}
       {{name}},
-    } = this.props;
     {{/props}}
+    } = this.props;
 
-    return (
-      <div>
-        Happy coding on {{name}}!
-      </div>
-    )
+    return ()
   }
 };

@@ -1,15 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-/**
-* @class {{name}}
-* {{description}}
- */
 export default class {{name}} extends Component {
 
   static propTypes = {
   {{#props}}
-    {{name}}: PropTypes.{{type}}.isRequired,
+    {{name}}: PropTypes.{{value}}.isRequired,
   {{/props}}
   }
 
@@ -20,10 +16,6 @@ export default class {{name}} extends Component {
     {{/props}}
     } = this.props;
 
-    return (
-      <>
-      {{name}}
-      </>
-    )
+    return ()
   }
 };
