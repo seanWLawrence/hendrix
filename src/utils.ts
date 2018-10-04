@@ -28,6 +28,11 @@ export interface FileInfo {
   };
 }
 
+/**
+ * Converts a template filename into an object with a pretty version of the filename,
+ * (stored as name, so it can be seen by inquirer.js), the extension and template content
+ * @param filename
+ */
 function formatFilename(filename: string): FileInfo {
   const name = filename
     .split('.')[0]
