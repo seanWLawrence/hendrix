@@ -3,19 +3,22 @@ import inquirer, { prompt, Answers } from 'inquirer';
 import { render } from 'mustache';
 import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'fs';
 import {
-  logSuccess,
-  templatePrompt,
-  outputNamePrompt,
-  propsPrompt,
-  finishedPrompt
+    logSuccess,
+    templatePrompt,
+    outputNamePrompt,
+    propsPrompt,
+    finishedPrompt,
 } from './utils';
 
-const packageJSON = require(join(process.cwd(), 'package.json'));
+const hasPackageJSON = existsSync(join(process.cwd(), 'package.json'));
+const packageJSON = hasPackageJSON
+    ? require(join(process.cwd(), 'package.json'))
+    : null;
 
 // add autocomplete prompt type
 inquirer.registerPrompt(
-  'autocomplete',
-  require('inquirer-autocomplete-prompt')
+    'autocomplete',
+    require('inquirer-autocomplete-prompt')
 );
 
 /**
@@ -23,90 +26,91 @@ inquirer.registerPrompt(
  * Main program
  */
 export default class Hendrix {
-  filesToCreate: Answers[] = [];
-
-  /**
-   * Asynchronously initialize prompts and store the data into the class
-   * propertiy `filesToCreate` for use during the `createFiles` method
-   */
-  private async prompt(): Promise<void> {
-    this.filesToCreate.push({
-      ...(await prompt(templatePrompt)),
-      ...(await prompt(outputNamePrompt)),
-      ...(await prompt(propsPrompt))
-    });
-
-    const { createAnotherFile }: Answers = await prompt(finishedPrompt);
+    filesToCreate: Answers[] = [];
 
     /**
-     * Keeps running the prompt method until user
-     * says that they don't want to create any more files
+     * Asynchronously initialize prompts and store the data into the class
+     * propertiy `filesToCreate` for use during the `createFiles` method
      */
-    if (createAnotherFile === true) {
-      return this.prompt();
-    }
-  }
+    private async prompt(): Promise<void> {
+        this.filesToCreate.push({
+            ...(await prompt(templatePrompt)),
+            ...(await prompt(outputNamePrompt)),
+            ...(await prompt(propsPrompt)),
+        });
 
-  private createFiles() {
-    this.filesToCreate.forEach(this.createFile);
-  }
+        const { createAnotherFile }: Answers = await prompt(finishedPrompt);
 
-  /**
-   * Creates a new file using the data generated from the prompts
-   */
-  private createFile(file: Answers) {
-    const {
-      template: { filename, extension, name },
-      outputName,
-      props
-    } = file;
-
-    const templatePath = join(__dirname, './templates', filename);
-
-    const templateAsString = readFileSync(templatePath, 'utf8');
-
-    const templateRendered = render(templateAsString, {
-      name: outputName,
-      ...props
-    });
-
-    // optional: nested filename passed when calling hendrix
-    const directoryArg = process.argv[2] || '';
-
-    let basePath = '';
-
-    // optional: hendrix.baseDirectory in package.json as the starting directory
-    if (
-      packageJSON.hasOwnProperty('hendrix') &&
-      packageJSON.hendrix.hasOwnProperty('baseDirectory')
-    ) {
-      basePath = packageJSON.hendrix.baseDirectory;
+        /**
+         * Keeps running the prompt method until user
+         * says that they don't want to create any more files
+         */
+        if (createAnotherFile === true) {
+            return this.prompt();
+        }
     }
 
-    const outputDirectory = join(process.cwd(), basePath, directoryArg);
-
-    const outputPath = join(outputDirectory, `${outputName}.${extension}`);
-
-    if (existsSync(outputDirectory)) {
-      writeFileSync(outputPath, templateRendered);
-
-      return logSuccess(outputName, outputDirectory);
+    private createFiles() {
+        this.filesToCreate.forEach(this.createFile);
     }
 
-    // if the folder doesn't exist, create a new one
-    mkdirSync(outputDirectory);
+    /**
+     * Creates a new file using the data generated from the prompts
+     */
+    private createFile(file: Answers) {
+        const {
+            template: { filename, extension, name },
+            outputName,
+            props,
+        } = file;
 
-    writeFileSync(outputPath, templateRendered);
+        const templatePath = join(__dirname, './templates', filename);
 
-    return logSuccess(outputName, outputDirectory);
-  }
+        const templateAsString = readFileSync(templatePath, 'utf8');
 
-  /**
-   * Initializes the program
-   */
-  public async init() {
-    await this.prompt();
+        const templateRendered = render(templateAsString, {
+            name: outputName,
+            ...props,
+        });
 
-    this.createFiles();
-  }
+        // optional: nested filename passed when calling hendrix
+        const directoryArg = process.argv[2] || '';
+
+        let basePath = '';
+
+        // optional: hendrix.baseDirectory in package.json as the starting directory
+        if (
+            packageJSON !== null &&
+            packageJSON.hasOwnProperty('hendrix') &&
+            packageJSON.hendrix.hasOwnProperty('baseDirectory')
+        ) {
+            basePath = packageJSON.hendrix.baseDirectory;
+        }
+
+        const outputDirectory = join(process.cwd(), basePath, directoryArg);
+
+        const outputPath = join(outputDirectory, `${outputName}.${extension}`);
+
+        if (existsSync(outputDirectory)) {
+            writeFileSync(outputPath, templateRendered);
+
+            return logSuccess(outputName, outputDirectory);
+        }
+
+        // if the outputDirectory folder doesn't exist, create a new one
+        mkdirSync(outputDirectory, { recursive: true });
+
+        writeFileSync(outputPath, templateRendered);
+
+        return logSuccess(outputName, outputDirectory);
+    }
+
+    /**
+     * Initializes the program
+     */
+    public async init() {
+        await this.prompt();
+
+        this.createFiles();
+    }
 }

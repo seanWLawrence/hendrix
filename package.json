@@ -1,6 +1,6 @@
 {
   "name": "hendrix",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "A CLI scaffolding tool for creating new scripts, pages and configuration files.",
   "main": "bin/index.js",
   "bin": {
@@ -8,15 +8,10 @@
     "h": "./bin/index.js"
   },
   "scripts": {
-    "test": "jest",
-    "test:watch": "jest --watch",
     "lint": "tslint -c tslint.json 'src/**/*.ts' && tsfmt -r",
-    "develop": "nodemon",
     "build": "rm -rf bin/src/templates && cp -R src/templates bin/src/templates && cross-env NODE_ENV=production tsc",
     "start": "ts-node ./",
-    "commit": "npm run build && git add . && npx git-cz",
-    "ci": "npm run lint && npm run test && npm publish",
-    "docs": "rm -rf docs && npx jsdoc src -d ./docs -R README.md -P package.json "
+    "commit": "npm run build && git add . && npx git-cz"
   },
   "keywords": [
     "generator",

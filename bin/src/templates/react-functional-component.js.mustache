@@ -2,12 +2,12 @@ import React from 'react'
 import PropTypes from 'prop-types'
 
 const {{name}} = ({ {{#props}}{{name}}, {{/props}} }) => {
-  return ()
+  return <div />
 }
 
 {{name}}.propTypes = {
 {{#props}}
-  {{name}}: {{value}},
+  {{name}}: PropTypes.{{value}}.isRequired,
 {{/props}}
 };
 

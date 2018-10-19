@@ -1,12 +1,18 @@
 import * as React from 'react';
 
-export interface Props {
+interface Props {
 {{#props}}
   {{name}}: {{value}};
 {{/props}}
 };
 
-export default class {{name}} extends React.Component<Props, {}> {
+interface State {
+{{#state}}
+  {{name}}: {{value}};
+{{/state}}
+}
+
+export default class {{name}} extends React.Component<Props, State> {
   render() {
     const {
     {{#props}}
@@ -14,6 +20,6 @@ export default class {{name}} extends React.Component<Props, {}> {
     {{/props}}
     } = this.props;
 
-    return ()
+    return <div />
   }
 };
