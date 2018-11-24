@@ -1,6 +1,6 @@
-# Hendrix - Work in progress [not ready for use]
+# Hendrix
 
-An extensible CLI scaffolding tool for creating scripts, pages and configuration file boilerplates.
+A CLI scaffolding tool for creating scripts, pages and configuration file boilerplates.
 
 ## The problem
 
