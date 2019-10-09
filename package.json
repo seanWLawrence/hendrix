@@ -32,6 +32,7 @@
   },
   "dependencies": {
     "cowsay": "^1.4.0",
+    "mkdirp": "^0.5.1",
     "mustache": "^3.1.0"
   }
 }

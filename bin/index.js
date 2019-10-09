@@ -4,6 +4,7 @@ const path = require("path");
 const fs = require("fs");
 const { render } = require("mustache");
 const cowsay = require("cowsay");
+const mkdirp = require("mkdirp");
 
 const args = process.argv.slice(2);
 const currentWorkingDirectory = process.cwd();
@@ -12,15 +13,21 @@ const defaultHelpMessage = `
 ---------- Hendrix ---------
 
 Usage:
-  generate <template> <name> [...variables]
-
---- Assuming you have a template named view that accepts these variables ---
+hendrix <template> <name> <output-path> [...variables]
 
 Examples:
-    generate view Hello name:string age:number
+  - Assuming the following for this example:
+    - We have a template directory called "view"
+    - In this directory is a file named "index.js.mustache" that accepts a variable "age" of type "number"
+
+  generate view Person src/components/person age:number
+
+  # Generates a new file at "src/views/person/index.js" 
+
+  For more documentation and examples, visit: https://github.com/seanWLawrence/hendrix#readme
 `;
 
-const needsHelp = args.length < 2 || args.includes("--help");
+const needsHelp = args.length < 3 || args.includes("--help");
 const configPath = path.join(currentWorkingDirectory, ".hendrixrc.js");
 
 if (needsHelp) {
@@ -33,7 +40,7 @@ if (needsHelp) {
   }
 }
 
-const [generatorName, name, ...variablesArray] = args;
+const [generatorName, name, relativeOutputPath, ...variablesArray] = args;
 
 const variables = variablesArray.map(variable => {
   const [name, value] = variable.split(":");
@@ -78,22 +85,35 @@ const generateFiles = ({ templatesPath, outputPaths = {} }) => {
               .filter(name => name !== "mustache")
               .join(".");
 
-            const relativeOutputPath = outputPaths[generatorName] || "";
+            const baseOutputPath = path.join(
+              outputPaths[generatorName] || "",
+              relativeOutputPath
+            );
+
+            const outputDirPath = path.join(
+              currentWorkingDirectory,
+              baseOutputPath
+            );
 
             const fullOutputPath = path.join(
-              currentWorkingDirectory,
-              relativeOutputPath,
+              outputDirPath,
               fileNameWithoutMustacheExtension
             );
 
             const renderedTemplate = render(fileContent, { name, variables });
 
-            fs.writeFile(fullOutputPath, renderedTemplate, (err, _result) => {
+            mkdirp(outputDirPath, err => {
               if (err) {
-                throw Error(
-                  `Failed to write "${fileNameWithoutMustacheExtension}" file`
-                );
+                throw Error(`Couldn't create folder "${outputDirPath}"`);
               }
+
+              fs.writeFile(fullOutputPath, renderedTemplate, (err, _result) => {
+                if (err) {
+                  throw Error(
+                    `Failed to write "${fileNameWithoutMustacheExtension}" file`
+                  );
+                }
+              });
             });
           });
         });
