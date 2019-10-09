@@ -22,9 +22,9 @@ Examples:
 
   generate view Person src/components/person age:number
 
-  # Generates a new file at "src/views/person/index.js" 
+  # Generates a new file at "src/views/person/index.js" with this object passed to the template as {variables: [{name: 'age', value: 'number'}]}
 
-  For more documentation and examples, visit: https://github.com/seanWLawrence/hendrix#readme
+  For documentation and examples, visit: https://github.com/seanWLawrence/hendrix#readme
 `;
 
 const needsHelp = args.length < 3 || args.includes("--help");
@@ -55,7 +55,9 @@ const generateFiles = ({ templatesPath, outputPaths = {} }) => {
 
     if (err || !templateDirectory) {
       throw Error(
-        `Failed to find "${generatorName}" templates in the "${templatesPath}" directory`
+        `Failed to find "${generatorName}" templates in the "${templatesPath}" directory
+          --------------
+          ${err}`
       );
     }
 
@@ -64,7 +66,11 @@ const generateFiles = ({ templatesPath, outputPaths = {} }) => {
       "utf8",
       (err, files) => {
         if (err) {
-          throw Error(`Failed to read "${templateDirectory}" templates`);
+          throw Error(
+            `Failed to read "${templateDirectory}" templates
+              --------------
+              ${err}`
+          );
         }
 
         files.forEach(fileName => {
@@ -76,7 +82,11 @@ const generateFiles = ({ templatesPath, outputPaths = {} }) => {
 
           fs.readFile(filePath, "utf8", (err, fileContent) => {
             if (err) {
-              throw Error(`Failed to read "${fileName}" template`);
+              throw Error(
+                `Failed to read "${fileName}" template
+                --------------
+                ${err}`
+              );
             }
 
             const splitFileName = fileName.split(".");
@@ -104,13 +114,19 @@ const generateFiles = ({ templatesPath, outputPaths = {} }) => {
 
             mkdirp(outputDirPath, err => {
               if (err) {
-                throw Error(`Couldn't create folder "${outputDirPath}"`);
+                throw Error(
+                  `Couldn't create folder "${outputDirPath}"
+                    --------------
+                    ${err}`
+                );
               }
 
               fs.writeFile(fullOutputPath, renderedTemplate, (err, _result) => {
                 if (err) {
                   throw Error(
-                    `Failed to write "${fileNameWithoutMustacheExtension}" file`
+                    `Failed to write "${fileNameWithoutMustacheExtension}" file. 
+                      --------------
+                      ${err}`
                   );
                 }
               });
@@ -125,7 +141,7 @@ const generateFiles = ({ templatesPath, outputPaths = {} }) => {
     cowsay.say({
       text: `
       ---------------------------------------------
-      ----- Generated ${name}, happy coding! ------
+      ----- Generated new "${name}", happy coding! ------
       ---------------------------------------------
       `
     })
