@@ -301,6 +301,8 @@ hendrix helper home /home # creates files at /src/helpers/home/
 - Improve help message on CLI
 - Create generator command to scaffold basic hendrix template to get started
   quicker
+- Add prettier to rendered templates before creating the file
+- Create packages for common templates for easier setup
 
 ## Contributing
 

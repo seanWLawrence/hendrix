@@ -1,7 +1,7 @@
 {
   "name": "hendrix",
-  "version": "1.0.4",
-  "description": "Simple, Rails-like scaffolding tool for quickly scaffolding files.",
+  "version": "1.0.5",
+  "description": "Simple, Rails-like scaffolding tool for quickly scaffolding files with minimal configuration.",
   "main": "bin/index.js",
   "engines": {
     "node": ">=8"
