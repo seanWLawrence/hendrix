@@ -47,7 +47,112 @@ const variables = variablesArray.map(variable => {
   return { name, value };
 });
 
-const generateFiles = ({ templatesPath, outputPaths = {} }) => {
+const createFile = ({
+  outputDirPath,
+  fullOutputPath,
+  renderedTemplate,
+  fileNameWithoutMustacheExtension
+}) => {
+  mkdirp(outputDirPath, err => {
+    if (err) {
+      throw Error(
+        `Couldn't create folder "${outputDirPath}"
+          --------------
+          ${err}`
+      );
+    }
+
+    fs.writeFile(fullOutputPath, renderedTemplate, (err, _result) => {
+      if (err) {
+        throw Error(
+          `Failed to write "${fileNameWithoutMustacheExtension}" file. 
+            --------------
+            ${err}`
+        );
+      }
+    });
+  });
+};
+
+const readTemplateFile = ({ filePath, fileName, outputPaths }) => {
+  fs.readFile(filePath, "utf8", (err, fileContent) => {
+    if (err) {
+      throw Error(
+        `Failed to read "${fileName}" template
+          --------------
+          ${err}`
+      );
+    }
+
+    const splitFileName = fileName.split(".");
+
+    const fileNameWithoutMustacheExtension = splitFileName
+      .filter(name => name !== "mustache")
+      .join(".");
+
+    const baseOutputPath = path.join(
+      outputPaths[generatorName] || "",
+      relativeOutputPath
+    );
+
+    const outputDirPath = path.join(currentWorkingDirectory, baseOutputPath);
+
+    const fullOutputPath = path.join(
+      outputDirPath,
+      fileNameWithoutMustacheExtension
+    );
+
+    const renderedTemplate = render(fileContent, { name, variables });
+
+    createFile({
+      outputDirPath,
+      fullOutputPath,
+      renderedTemplate,
+      fileNameWithoutMustacheExtension
+    });
+  });
+};
+
+const getTemplateFiles = ({
+  files,
+  templatesPath,
+  templateDirectory,
+  outputPaths
+}) => {
+  files.forEach(fileName => {
+    const filePath = path.join(templatesPath, templateDirectory, fileName);
+
+    readTemplateFile({ outputPaths, filePath, fileName });
+  });
+};
+
+const getTemplateDirectory = ({
+  templatesPath,
+  templateDirectory,
+  outputPaths
+}) =>
+  fs.readdir(
+    path.join(templatesPath, templateDirectory),
+    "utf8",
+    (err, files) => {
+      if (err) {
+        throw Error(
+          `Failed to read "${templateDirectory}" templates
+            --------------
+            ${err}`
+        );
+      }
+
+      getTemplateFiles({
+        files,
+        templatesPath,
+        templateDirectory,
+        outputPaths
+      });
+    }
+  );
+
+const generateFiles = ({ templatesPath, outputPaths }) => {
   fs.readdir(templatesPath, (err, templateDirectories) => {
     const [templateDirectory] = templateDirectories.filter(
       templateDirectory => templateDirectory === generatorName
@@ -61,80 +166,7 @@ const generateFiles = ({ templatesPath, outputPaths = {} }) => {
       );
     }
 
-    fs.readdir(
-      path.join(templatesPath, templateDirectory),
-      "utf8",
-      (err, files) => {
-        if (err) {
-          throw Error(
-            `Failed to read "${templateDirectory}" templates
-              --------------
-              ${err}`
-          );
-        }
-
-        files.forEach(fileName => {
-          const filePath = path.join(
-            templatesPath,
-            templateDirectory,
-            fileName
-          );
-
-          fs.readFile(filePath, "utf8", (err, fileContent) => {
-            if (err) {
-              throw Error(
-                `Failed to read "${fileName}" template
-                --------------
-                ${err}`
-              );
-            }
-
-            const splitFileName = fileName.split(".");
-
-            const fileNameWithoutMustacheExtension = splitFileName
-              .filter(name => name !== "mustache")
-              .join(".");
-
-            const baseOutputPath = path.join(
-              outputPaths[generatorName] || "",
-              relativeOutputPath
-            );
-
-            const outputDirPath = path.join(
-              currentWorkingDirectory,
-              baseOutputPath
-            );
-
-            const fullOutputPath = path.join(
-              outputDirPath,
-              fileNameWithoutMustacheExtension
-            );
-
-            const renderedTemplate = render(fileContent, { name, variables });
-
-            mkdirp(outputDirPath, err => {
-              if (err) {
-                throw Error(
-                  `Couldn't create folder "${outputDirPath}"
-                    --------------
-                    ${err}`
-                );
-              }
-
-              fs.writeFile(fullOutputPath, renderedTemplate, (err, _result) => {
-                if (err) {
-                  throw Error(
-                    `Failed to write "${fileNameWithoutMustacheExtension}" file. 
-                      --------------
-                      ${err}`
-                  );
-                }
-              });
-            });
-          });
-        });
-      }
-    );
+    getTemplateDirectory({ templatesPath, templateDirectory, outputPaths });
   });
 
   console.log(
@@ -148,7 +180,7 @@ const generateFiles = ({ templatesPath, outputPaths = {} }) => {
   );
 };
 
-const defaultConfig = { templatesPath: "hendrix" };
+const defaultConfig = { templatesPath: "hendrix", outputPaths: {} };
 
 const main = () => {
   try {
@@ -159,7 +191,7 @@ const main = () => {
 
     generateFiles(config);
   } catch (e) {
-    console.log("No custom config, using default...", e);
+    console.log("No custom config, using default...");
 
     generateFiles(defaultConfig);
   }
