@@ -41,6 +41,8 @@ hendrix <template> <name> <output-path> [...variables]
 
 ## Getting started
 
+[![asciicast](https://asciinema.org/a/5mS0vj3FS3uH5gLVbk1xLFzSg.svg)](https://asciinema.org/a/5mS0vj3FS3uH5gLVbk1xLFzSg)
+
 Let's create simple generator that scaffolds a basic React component.
 
 1. Create template(s)
