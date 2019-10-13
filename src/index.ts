@@ -9,7 +9,7 @@ const mkdirp = require("mkdirp");
 const args = process.argv.slice(2);
 const currentWorkingDirectory = process.cwd();
 
-const helpMessageTemplate = availableGenerators => `
+const helpMessageTemplate = (availableGenerators: string) => `
 Usage:
   hendrix <template> <name> <output-path> [...variables]
 
@@ -32,7 +32,7 @@ Example (assuming we have a template called 'view' in our templates folder):
 For more documentation and examples, visit: https://github.com/seanWLawrence/hendrix#readme
 `;
 
-const defaultHelpMessage = (generators = []) => {
+const defaultHelpMessage = (generators: string[] = []) => {
   const hasGenerators = generators.length > 0;
   const availableGenerators = hasGenerators
     ? generators.map(g => `  ${g}`).join("\n")
@@ -44,33 +44,38 @@ const defaultHelpMessage = (generators = []) => {
 const needsHelp = args.length < 3 || args.includes("--help");
 const configPath = path.join(currentWorkingDirectory, ".hendrixrc.js");
 
-if (needsHelp) {
-  try {
-    const { helpMessage, templatesPath = "hendrix" } = require(configPath);
+const displayHelpIfNeeded = () => {
+  if (needsHelp) {
+    try {
+      const { helpMessage, templatesPath = "hendrix" } = require(configPath);
 
-    return fs.readdir(
-      path.join(currentWorkingDirectory, templatesPath),
-      (err, generators) => {
-        if (err) {
-          throw Error(
-            `No templates directory found. 
+      return fs.readdir(
+        path.join(currentWorkingDirectory, templatesPath),
+        (err, generators) => {
+          if (err) {
+            throw Error(
+              `No templates directory found. 
             ---------------
             ${err.stack}`
-          );
+            );
+          }
+          return console.log(helpMessage || defaultHelpMessage(generators));
         }
-        return console.log(helpMessage || defaultHelpMessage(generators));
-      }
-    );
-  } catch (e) {
-    throw Error(
-      `No templates directory found. 
+      );
+    } catch (err) {
+      throw Error(
+        `No templates directory found. 
         ---------------
         ${err.stack}`
-    );
+      );
+    }
+    return console.log(defaultHelpMessage);
   }
-  return console.log(defaultHelpMessage);
-}
+};
 
+displayHelpIfNeeded();
+
+// @ts-ignore
 const [generatorName, name, relativeOutputPath, ...variablesArray] = args;
 
 const variables = variablesArray.map(variable => {
