@@ -9,31 +9,34 @@ const mkdirp = require("mkdirp");
 const args = process.argv.slice(2);
 const currentWorkingDirectory = process.cwd();
 
-const defaultHelpMessage = (generators = []) => {
-  const firstGenerator = generators[0];
-  const restOfGenerators = generators.slice(1).join("\n\t");
-
-  return `
----------- Hendrix ---------
-
+const helpMessageTemplate = availableGenerators => `
 Usage:
-hendrix <template> <name> <output-path> [...variables]
-
-Examples:
-  - Assuming the following for this example:
-    - We have a template directory called "view"
-    - In this directory is a file named "index.js.mustache" that accepts a variable "age" of type "number"
-
-  generate view Person src/components/person age:number
-
-  # Generates a new file at "src/views/person/index.js" with this object passed to the template as {variables: [{name: 'age', value: 'number'}]}
+  hendrix <template> <name> <output-path> [...variables]
 
 Available generators:
-  ${firstGenerator}
-  ${restOfGenerators}
+${availableGenerators}
 
-For documentation and examples, visit: https://github.com/seanWLawrence/hendrix#readme
+Example (assuming the following):
+  - We have a template directory called "view"
+  - In this directory is a file named "index.js.mustache" 
+    that accepts a variable "age" of type "number"
+
+  hendrix view Person src/components/person age:number
+
+  Generates a new file at "src/views/person/index.js" with
+  this object passed to the template as 
+  {variables: [{name: 'age', value: 'number'}]}
+
+For more documentation and examples, visit: https://github.com/seanWLawrence/hendrix#readme
 `;
+
+const defaultHelpMessage = (generators = []) => {
+  const hasGenerators = generators.length > 0;
+  const availableGenerators = hasGenerators
+    ? generators.map(g => `  ${g}`).join("\n")
+    : "No templates found in templates path";
+
+  return helpMessageTemplate(availableGenerators);
 };
 
 const needsHelp = args.length < 3 || args.includes("--help");
@@ -43,7 +46,7 @@ if (needsHelp) {
   try {
     const { helpMessage, templatesPath = "hendrix" } = require(configPath);
 
-    fs.readdir(
+    return fs.readdir(
       path.join(currentWorkingDirectory, templatesPath),
       (err, generators) => {
         if (err) {
