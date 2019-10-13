@@ -28,7 +28,8 @@
   },
   "homepage": "https://github.com/seanWLawrence/hendrix/#README.md",
   "bin": {
-    "hendrix": "bin/index.js"
+    "hendrix": "bin/index.js",
+    "h": "bin/index.js"
   },
   "dependencies": {
     "cowsay": "^1.4.0",
