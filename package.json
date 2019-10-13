@@ -6,9 +6,13 @@
   "engines": {
     "node": ">=8"
   },
-  "scripts": {},
+  "scripts": {
+    "watch": "tsc -w",
+    "build": "tsc",
+    "lint": "tsc --noEmit && eslint \"**/*.{js,ts}\" --quiet --fix"
+  },
   "files": [
-    "index.js"
+    "bin/index.js"
   ],
   "keywords": [
     "generator",
@@ -17,7 +21,19 @@
   ],
   "author": "Sean W. Lawrence <sean.w.lawrence@gmail.com> (https://slawrence.tech/)",
   "license": "MIT",
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/eslint": "^6.1.2",
+    "@types/jest": "^24.0.18",
+    "@types/mkdirp": "^0.5.2",
+    "@types/mustache": "^0.8.32",
+    "@types/node": "^12.7.12",
+    "@typescript-eslint/eslint-plugin": "^2.3.3",
+    "@typescript-eslint/parser": "^2.3.3",
+    "eslint": "^6.5.1",
+    "jest": "^24.9.0",
+    "ts-jest": "^24.1.0",
+    "typescript": "^3.6.4"
+  },
   "peerDependencies": {},
   "repository": {
     "type": "git",
@@ -32,6 +48,7 @@
     "h": "bin/index.js"
   },
   "dependencies": {
+    "commander": "^3.0.2",
     "cowsay": "^1.4.0",
     "mkdirp": "^0.5.1",
     "mustache": "^3.1.0"
