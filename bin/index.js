@@ -13,19 +13,21 @@ const helpMessageTemplate = availableGenerators => `
 Usage:
   hendrix <template> <name> <output-path> [...variables]
 
+Note:
+  You can also use the alias 'h' instead of 'hendrix', for example:
+
+  h <template> <name> <output-path> [...variables]
+
 Available generators:
 ${availableGenerators}
 
-Example (assuming the following):
-  - We have a template directory called "view"
-  - In this directory is a file named "index.js.mustache" 
-    that accepts a variable "age" of type "number"
+Example (assuming we have a template called 'view' in our templates folder):
 
   hendrix view Person src/components/person age:number
 
   Generates a new file at "src/views/person/index.js" with
-  this object passed to the template as 
-  {variables: [{name: 'age', value: 'number'}]}
+  the object {variables: [{name: 'age', value: 'number'}]}
+  passed to the 'view' template
 
 For more documentation and examples, visit: https://github.com/seanWLawrence/hendrix#readme
 `;
