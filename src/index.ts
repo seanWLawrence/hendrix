@@ -5,10 +5,13 @@ import { promisify } from "util";
 import fs from "fs";
 import { join } from "path";
 import { pipe } from "lodash/fp";
+import chalk from "chalk";
 
 const readDir = promisify(fs.readdir);
 
-const safeAsync = async (callback, onError = console.error) => {
+const defaultErrorLog = (msg: string): void => console.error(chalk.red(msg));
+
+const safeAsync = async (callback, onError = defaultErrorLog) => {
   try {
     return await callback();
   } catch (error) {
@@ -16,7 +19,7 @@ const safeAsync = async (callback, onError = console.error) => {
   }
 };
 
-const safeRequire = (filePath, onError: any = console.error) => {
+const safeRequire = (filePath, onError: any = defaultErrorLog) => {
   try {
     return require(filePath);
   } catch (error) {
@@ -57,7 +60,9 @@ Note:
 Available generators:
 ${availableGenerators}
 
-For more documentation and examples, visit: https://github.com/seanWLawrence/hendrix#readme
+${chalk.underline(
+  "For more documentation and examples, visit: https://github.com/seanWLawrence/hendrix#readme"
+)}
 `;
 
 const main = async () => {

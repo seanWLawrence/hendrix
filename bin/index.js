@@ -18,8 +18,10 @@ const util_1 = require("util");
 const fs_1 = __importDefault(require("fs"));
 const path_1 = require("path");
 const fp_1 = require("lodash/fp");
+const chalk_1 = __importDefault(require("chalk"));
 const readDir = util_1.promisify(fs_1.default.readdir);
-const safeAsync = (callback, onError = console.error) => __awaiter(void 0, void 0, void 0, function* () {
+const defaultErrorLog = (msg) => console.error(chalk_1.default.red(msg));
+const safeAsync = (callback, onError = defaultErrorLog) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         return yield callback();
     }
@@ -27,7 +29,7 @@ const safeAsync = (callback, onError = console.error) => __awaiter(void 0, void 
         onError(error);
     }
 });
-const safeRequire = (filePath, onError = console.error) => {
+const safeRequire = (filePath, onError = defaultErrorLog) => {
     try {
         return require(filePath);
     }
@@ -60,7 +62,7 @@ Note:
 Available generators:
 ${availableGenerators}
 
-For more documentation and examples, visit: https://github.com/seanWLawrence/hendrix#readme
+${chalk_1.default.underline("For more documentation and examples, visit: https://github.com/seanWLawrence/hendrix#readme")}
 `;
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     const availableGenerators = yield safeAsync(() => readDir(templatesPath));
