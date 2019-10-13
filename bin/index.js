@@ -9,7 +9,11 @@ const mkdirp = require("mkdirp");
 const args = process.argv.slice(2);
 const currentWorkingDirectory = process.cwd();
 
-const defaultHelpMessage = `
+const defaultHelpMessage = (generators = []) => {
+  const firstGenerator = generators[0];
+  const restOfGenerators = generators.slice(1).join("\n\t");
+
+  return `
 ---------- Hendrix ---------
 
 Usage:
@@ -24,20 +28,42 @@ Examples:
 
   # Generates a new file at "src/views/person/index.js" with this object passed to the template as {variables: [{name: 'age', value: 'number'}]}
 
-  For documentation and examples, visit: https://github.com/seanWLawrence/hendrix#readme
+Available generators:
+  ${firstGenerator}
+  ${restOfGenerators}
+
+For documentation and examples, visit: https://github.com/seanWLawrence/hendrix#readme
 `;
+};
 
 const needsHelp = args.length < 3 || args.includes("--help");
 const configPath = path.join(currentWorkingDirectory, ".hendrixrc.js");
 
 if (needsHelp) {
   try {
-    const { helpMessage } = require(configPath);
+    const { helpMessage, templatesPath = "hendrix" } = require(configPath);
 
-    return console.log(helpMessage || defaultHelpMessage);
+    fs.readdir(
+      path.join(currentWorkingDirectory, templatesPath),
+      (err, generators) => {
+        if (err) {
+          throw Error(
+            `No templates directory found. 
+            ---------------
+            ${err.stack}`
+          );
+        }
+        return console.log(helpMessage || defaultHelpMessage(generators));
+      }
+    );
   } catch (e) {
-    return console.log(defaultHelpMessage);
+    throw Error(
+      `No templates directory found. 
+        ---------------
+        ${err.stack}`
+    );
   }
+  return console.log(defaultHelpMessage);
 }
 
 const [generatorName, name, relativeOutputPath, ...variablesArray] = args;
