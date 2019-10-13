@@ -27,7 +27,12 @@ npx hendrix <template> <name> <output-path> [...variables]
 
 ## Usage
 
+> Note: you can also use the alias `h` instead of `hendrix` if you prefer.
+> We only use the fully spelled out `hendrix` command in these examples for clarity.
+
 Getting help
+
+> This will print out usage instructions, a list of avilable generators and an example.
 
 ```bash
 hendrix --help
@@ -41,23 +46,16 @@ hendrix <template> <name> <output-path> [...variables]
 
 ## Getting started
 
-[![asciicast](https://asciinema.org/a/5mS0vj3FS3uH5gLVbk1xLFzSg.svg)](https://asciinema.org/a/5mS0vj3FS3uH5gLVbk1xLFzSg)
+[![Hendrix intro](https://asciinema.org/a/5mS0vj3FS3uH5gLVbk1xLFzSg.svg)](https://asciinema.org/a/5mS0vj3FS3uH5gLVbk1xLFzSg)
 
 Let's create simple generator that scaffolds a basic React component.
 
 1. Create template(s)
 
-Create a folder called 'hendrix'
+Create a folder called 'hendrix' and a new directory inside it with the name of your first template. We'll use "reactClass" as an example, but it can be anything.
 
 ```bash
-mkdir hendrix
-```
-
-Create a folder in the 'hendrix' directory with the name of your first template. We'll use
-"reactClass" as an example, but it can be anything.
-
-```bash
-mkdir hendrix/reactClass
+mkdir -p hendrix/reactClass
 ```
 
 Create at least one file in this folder with a template. Make sure the file name
@@ -103,7 +101,8 @@ export default class Person extends Component {
 
 Let's make our first example a little better and add prop types.
 
-1. Let's make a new template directory and file called `reactClassWithVariable`
+1. Let's make a new template directory called `reactClassWithVariables` and add
+   a file inside of it called `index.js.mustache`
 
 ```bash
 mkdir hendrix/reactClassWithVariables && touch
@@ -241,22 +240,26 @@ const config = {
   templatesPath: "hendrix",
   outputPaths: {},
   helpMessage: `
-    ---------- Hendrix ---------
-
     Usage:
-    hendrix <template> <name> <output-path> [...variables]
+      hendrix <template> <name> <output-path> [...variables]
 
-    Examples:
-      - Assuming the following for this example:
-        - We have a template directory called "view"
-        - In this directory is a file named "index.js.mustache" that accepts a variable "age" of type "number"
+    Note:
+      You can also use the alias 'h' instead of 'hendrix', for example:
 
-      generate view Person src/components/person age:number
+      h <template> <name> <output-path> [...variables]
 
-      # Generates a new file at "src/views/person/index.js" with this object passed to the template as {variables: [{name: 'age', value: 'number'}]}
+    Available generators:
+      {{ listofAvailableGenerators }}
 
-      For documentation and examples, visit: https://github.com/seanWLawrence/hendrix#readme
-  `
+    Example (assuming we have a template called 'view' in our templates folder):
+
+      hendrix view Person src/components/person age:number
+
+      Generates a new file at "src/views/person/index.js" with
+      the object {variables: [{name: 'age', value: 'number'}]}
+      passed to the 'view' template
+
+    For more documentation and examples, visit: https://github.com/seanWLawrence/hendrix#readme`
 };
 
 module.exports = config;
@@ -300,7 +303,6 @@ hendrix helper home /home # creates files at /src/helpers/home/
 ## TODO
 
 - Add ability to generate named files
-- Improve help message on CLI
 - Create generator command to scaffold basic hendrix template to get started
   quicker
 - Add prettier to rendered templates before creating the file
