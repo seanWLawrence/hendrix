@@ -19,6 +19,9 @@ const fs_1 = __importDefault(require("fs"));
 const path_1 = require("path");
 const fp_1 = require("lodash/fp");
 const chalk_1 = __importDefault(require("chalk"));
+/**
+ * Utils
+ */
 const readDir = util_1.promisify(fs_1.default.readdir);
 const defaultErrorLog = (msg) => console.error(chalk_1.default.red(msg));
 const safeAsync = (callback, onError = defaultErrorLog) => __awaiter(void 0, void 0, void 0, function* () {
@@ -37,19 +40,17 @@ const safeRequire = (filePath, onError = defaultErrorLog) => {
         return onError(error);
     }
 };
-const cli = new commander_1.default.Command();
 const currentWorkingDirectory = process.cwd();
 const configPath = path_1.join(currentWorkingDirectory, ".hendrixrc.js");
 const DEFAULT_CONFIG = { templatesPath: "hendrix" };
 const { templatesPath } = safeRequire(configPath, () => DEFAULT_CONFIG);
-const prettifyAvailableGenerators = (availableGenerators) => {
+const prettifyAvailableGenerators = fp_1.pipe(fp_1.map(generator => {
+    return `  ${generator}`;
+}), fp_1.join("\n"));
+const getAvailableGenerators = (availableGenerators) => {
     const hasAvailableGenerators = availableGenerators.length > 0;
     if (hasAvailableGenerators) {
-        return availableGenerators
-            .map(generator => {
-            return `  ${generator}`;
-        })
-            .join("\n");
+        return prettifyAvailableGenerators(availableGenerators);
     }
     return "No available generators";
 };
@@ -64,15 +65,23 @@ ${availableGenerators}
 
 ${chalk_1.default.underline("For more documentation and examples, visit: https://github.com/seanWLawrence/hendrix#readme")}
 `;
+const displayAvailableGenerators = fp_1.pipe(prettifyAvailableGenerators, additionalHelpMessage, console.log);
+const formatVariables = fp_1.pipe(fp_1.head, fp_1.map(variableString => {
+    const [variableName, variableValue] = variableString.split(":");
+    return { [variableName]: variableValue };
+}));
+const cli = new commander_1.default.Command();
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     const availableGenerators = yield safeAsync(() => readDir(templatesPath));
     cli
         .version("1.0.6")
         .description("Generate files from your templates directory. Default: './hendrix'")
-        .arguments("<template> <output-path> [variables...]")
-        .action((template, outputPath, ...variables) => { });
+        .arguments("<template> <name> <output-path> [variables...]")
+        .action((template, name, outputPath, ...variables) => {
+        console.log("TEMPLATE: ", template, "NAME: ", name, "OUTPUT PATH: ", outputPath, "VARIABLES: ", formatVariables(variables));
+    });
     cli.on("--help", () => {
-        console.log(fp_1.pipe(prettifyAvailableGenerators, additionalHelpMessage)(availableGenerators));
+        displayAvailableGenerators(availableGenerators);
     });
     cli.parse(process.argv);
 });

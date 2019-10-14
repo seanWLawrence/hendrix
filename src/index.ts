@@ -4,9 +4,12 @@ import commander from "commander";
 import { promisify } from "util";
 import fs from "fs";
 import { join } from "path";
-import { pipe } from "lodash/fp";
+import { pipe, map, join as joinStrings, head } from "lodash/fp";
 import chalk from "chalk";
 
+/**
+ * Utils
+ */
 const readDir = promisify(fs.readdir);
 
 const defaultErrorLog = (msg: string): void => console.error(chalk.red(msg));
@@ -27,8 +30,6 @@ const safeRequire = (filePath, onError: any = defaultErrorLog) => {
   }
 };
 
-const cli = new commander.Command();
-
 const currentWorkingDirectory = process.cwd();
 
 const configPath = join(currentWorkingDirectory, ".hendrixrc.js");
@@ -37,15 +38,18 @@ const DEFAULT_CONFIG = { templatesPath: "hendrix" };
 
 const { templatesPath } = safeRequire(configPath, () => DEFAULT_CONFIG);
 
-const prettifyAvailableGenerators = (availableGenerators: string[]) => {
+const prettifyAvailableGenerators = pipe(
+  map(generator => {
+    return `  ${generator}`;
+  }),
+  joinStrings("\n")
+);
+
+const getAvailableGenerators = (availableGenerators: string[]) => {
   const hasAvailableGenerators = availableGenerators.length > 0;
 
   if (hasAvailableGenerators) {
-    return availableGenerators
-      .map(generator => {
-        return `  ${generator}`;
-      })
-      .join("\n");
+    return prettifyAvailableGenerators(availableGenerators);
   }
 
   return "No available generators";
@@ -65,6 +69,23 @@ ${chalk.underline(
 )}
 `;
 
+const displayAvailableGenerators = pipe(
+  prettifyAvailableGenerators,
+  additionalHelpMessage,
+  console.log
+);
+
+const formatVariables = pipe(
+  head,
+  map(variableString => {
+    const [variableName, variableValue] = variableString.split(":");
+
+    return { [variableName]: variableValue };
+  })
+);
+
+const cli = new commander.Command();
+
 const main = async () => {
   const availableGenerators = await safeAsync(() => readDir(templatesPath));
 
@@ -73,18 +94,29 @@ const main = async () => {
     .description(
       "Generate files from your templates directory. Default: './hendrix'"
     )
-    .arguments("<template> <output-path> [variables...]")
+    .arguments("<template> <name> <output-path> [variables...]")
     .action(
-      (template: string, outputPath: string, ...variables: string[]) => {}
+      (
+        template: string,
+        name: string,
+        outputPath: string,
+        ...variables: string[]
+      ) => {
+        console.log(
+          "TEMPLATE: ",
+          template,
+          "NAME: ",
+          name,
+          "OUTPUT PATH: ",
+          outputPath,
+          "VARIABLES: ",
+          formatVariables(variables)
+        );
+      }
     );
 
   cli.on("--help", () => {
-    console.log(
-      pipe(
-        prettifyAvailableGenerators,
-        additionalHelpMessage
-      )(availableGenerators)
-    );
+    displayAvailableGenerators(availableGenerators);
   });
 
   cli.parse(process.argv);
