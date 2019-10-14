@@ -9,7 +9,8 @@
   "scripts": {
     "watch": "tsc -w",
     "build": "tsc",
-    "lint": "tsc --noEmit && eslint \"**/*.{js,ts}\" --quiet --fix"
+    "lint": "tsc --noEmit && eslint \"**/*.{js,ts}\" --quiet --fix",
+    "test": "jest"
   },
   "files": [
     "bin/index.js"

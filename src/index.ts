@@ -58,7 +58,16 @@ const prettifyAvailableGenerators = pipe(
   joinStrings("\n")
 );
 
-const getAvailableGenerators = (availableGenerators: string[]) => {
+const getAvailableGenerators = async () => {
+  const availableGenerators = await safeAsync(async () => {
+    const files = await readDir(templatesPath, { withFileTypes: true });
+    const generatorDirectoryNames = files
+      .filter(dirEnt => dirEnt.isDirectory())
+      .map(({ name }) => name);
+
+    return generatorDirectoryNames;
+  });
+
   const hasAvailableGenerators = availableGenerators.length > 0;
 
   if (hasAvailableGenerators) {
@@ -83,7 +92,6 @@ ${chalk.underline(
 `;
 
 const displayAvailableGenerators = pipe(
-  prettifyAvailableGenerators,
   additionalHelpMessage,
   console.log
 );
@@ -148,7 +156,7 @@ const cli = new commander.Command();
  * CLI
  */
 const main = async () => {
-  const availableGenerators = await safeAsync(() => readDir(templatesPath));
+  const availableGenerators = await getAvailableGenerators();
 
   cli
     .version("1.0.6")
@@ -185,3 +193,5 @@ const main = async () => {
 };
 
 main();
+
+export default main;
