@@ -1,21 +1,11 @@
 #!/usr/bin/env node
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const commander_1 = __importDefault(require("commander"));
-const util_1 = require("util");
-const fs_1 = __importDefault(require("fs"));
+const fs_1 = require("fs");
 const mkdirp_1 = __importDefault(require("mkdirp"));
 const ncp_1 = require("ncp");
 const path_1 = require("path");
@@ -23,26 +13,7 @@ const fp_1 = require("lodash/fp");
 const lodash_1 = require("lodash");
 const chalk_1 = __importDefault(require("chalk"));
 const mustache_1 = require("mustache");
-/**
- * Utils
- */
-const readDir = util_1.promisify(fs_1.default.readdir);
-const readFile = util_1.promisify(fs_1.default.readFile);
-const writeFile = util_1.promisify(fs_1.default.writeFile);
-const exists = util_1.promisify(fs_1.default.exists);
-const mkdir = util_1.promisify(mkdirp_1.default);
 const addMargin = str => `${str}\n`;
-const safeAsync = (callback, { shouldThrowError } = { shouldThrowError: false }) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        return yield callback();
-    }
-    catch (error) {
-        if (shouldThrowError) {
-            throw Error(error);
-        }
-        console.error(chalk_1.default.red(error));
-    }
-});
 const safeRequire = (filePath, defaultValue = void 0) => {
     try {
         return require(filePath);
@@ -58,20 +29,18 @@ const { templatesPath, outputPaths } = safeRequire(configPath, DEFAULT_CONFIG);
 const prettifyAvailableGenerators = fp_1.pipe(fp_1.map(generator => {
     return `  ${generator}`;
 }), fp_1.join("\n"));
-const getAvailableGenerators = () => __awaiter(void 0, void 0, void 0, function* () {
-    const availableGenerators = yield safeAsync(() => __awaiter(void 0, void 0, void 0, function* () {
-        const files = yield readDir(templatesPath, { withFileTypes: true });
-        const generatorDirectoryNames = files
-            .filter(dirEnt => dirEnt.isDirectory())
-            .map(({ name }) => name);
-        return generatorDirectoryNames;
-    }));
+const getAvailableGenerators = () => {
+    const availableGenerators = fs_1.readdirSync(path_1.join(currentWorkingDirectory, templatesPath), {
+        withFileTypes: true
+    })
+        .filter(dirEnt => dirEnt.isDirectory())
+        .map(({ name }) => name);
     const hasAvailableGenerators = availableGenerators.length > 0;
     if (hasAvailableGenerators) {
         return prettifyAvailableGenerators(availableGenerators);
     }
     return "  No available generators";
-});
+};
 const additionalHelpMessage = (availableGenerators) => `
 Note:
   You can also use the alias 'h' instead of 'hendrix', for example:
@@ -89,64 +58,72 @@ const formatVariables = fp_1.pipe(fp_1.head, fp_1.map(variableString => {
     return { [variableName]: variableValue };
 }));
 const stripTemplateExtension = fp_1.pipe(fp_1.split("."), fp_1.filter(word => word !== "mustache"), fp_1.join("."));
-const createTemplatesDirectoryIfDoesNotExist = () => __awaiter(void 0, void 0, void 0, function* () {
-    const templatesDirectoryExists = yield safeAsync(() => exists(templatesPath));
+const createTemplatesDirectoryIfDoesNotExist = () => {
+    const templatesDirectoryExists = fs_1.existsSync(templatesPath);
     if (!templatesDirectoryExists) {
-        console.log(addMargin(chalk_1.default.yellow("Templates directory does not exist, creating default one...")));
+        console.log(addMargin(chalk_1.default.yellow("Templates directory does not exist, creating one for you...")));
         const examplesPath = path_1.join(__dirname, "../src/examples");
-        yield safeAsync(() => ncp_1.ncp(examplesPath, templatesPath, err => console.log(err)));
-        console.log(addMargin(chalk_1.default.green(`Successfully created new templates directory with some examples at "${templatesPath}"`)));
+        return new Promise((resolve, reject) => ncp_1.ncp(examplesPath, templatesPath, error => {
+            if (error) {
+                console.log(chalk_1.default.red(error.message));
+                reject(error);
+            }
+            console.log(addMargin(chalk_1.default.green(`Successfully created new templates directory at "${templatesPath}" with some examples!`)));
+            resolve();
+        }));
     }
-});
-const generateFiles = ({ template, outputPath, name, variables }) => __awaiter(void 0, void 0, void 0, function* () {
+};
+const generateFiles = ({ template, outputPath, name, variables }) => {
     const templateFilesPath = path_1.join(templatesPath, template);
-    yield createTemplatesDirectoryIfDoesNotExist();
-    const templateFiles = yield safeAsync(() => readDir(templateFilesPath));
-    templateFiles.forEach((templateFile) => __awaiter(void 0, void 0, void 0, function* () {
-        const templateFilePath = path_1.join(templateFilesPath, templateFile);
-        const templateContent = yield readFile(templateFilePath, "utf8");
-        const renderedTemplate = mustache_1.render(templateContent, { variables, name });
-        const baseFileOutputPath = lodash_1.get(outputPaths, templateFile, "");
-        const directoryOutputPath = path_1.join(currentWorkingDirectory, baseFileOutputPath, outputPath);
-        yield safeAsync(() => mkdir(directoryOutputPath));
-        const fileOutputPath = path_1.join(directoryOutputPath, stripTemplateExtension(templateFile));
-        yield safeAsync(() => writeFile(fileOutputPath, renderedTemplate));
-        console.log(chalk_1.default.green(`
+    createTemplatesDirectoryIfDoesNotExist().then(() => {
+        const templateFiles = fs_1.readdirSync(templateFilesPath);
+        templateFiles.forEach(templateFile => {
+            const templateFilePath = path_1.join(templateFilesPath, templateFile);
+            const templateContent = fs_1.readFileSync(templateFilePath, "utf8");
+            const renderedTemplate = mustache_1.render(templateContent, { variables, name });
+            const baseFileOutputPath = lodash_1.get(outputPaths, templateFile, "");
+            const directoryOutputPath = path_1.join(currentWorkingDirectory, baseFileOutputPath, outputPath);
+            mkdirp_1.default.sync(directoryOutputPath);
+            const fileOutputPath = path_1.join(directoryOutputPath, stripTemplateExtension(templateFile));
+            fs_1.writeFileSync(fileOutputPath, renderedTemplate);
+            console.log(chalk_1.default.green(`
        ----------------------------------------------------------------
           Successfully generated "${template}" files - happy coding!
        ----------------------------------------------------------------
         `));
-    }));
-});
+        });
+    });
+};
 const noCommandsEntered = process.argv.slice(2).length === 0;
 const cli = new commander_1.default.Command();
 /**
  * CLI
  */
-const main = () => __awaiter(void 0, void 0, void 0, function* () {
-    yield createTemplatesDirectoryIfDoesNotExist();
-    const availableGenerators = yield getAvailableGenerators();
-    cli
-        .version("1.0.6")
-        .usage("<template> <name> <output-path> [variables...]")
-        .description("Generate files from your templates directory. Default: './hendrix'")
-        .arguments("<template> <name> <output-path> [variables...]")
-        .action((template, name, outputPath, ...variables) => {
-        generateFiles({
-            template,
-            outputPath,
-            name,
-            variables: formatVariables(variables)
+const main = () => {
+    createTemplatesDirectoryIfDoesNotExist().then(() => {
+        const availableGenerators = getAvailableGenerators();
+        cli
+            .version("1.0.6")
+            .usage("<template> <name> <output-path> [variables...]")
+            .description("Generate files from your templates directory. Default: './hendrix'")
+            .arguments("<template> <name> <output-path> [variables...]")
+            .action((template, name, outputPath, ...variables) => {
+            generateFiles({
+                template,
+                outputPath,
+                name,
+                variables: formatVariables(variables)
+            });
         });
+        cli.on("--help", () => {
+            displayAvailableGenerators(availableGenerators);
+        });
+        if (noCommandsEntered) {
+            cli.outputHelp();
+        }
+        cli.parse(process.argv);
     });
-    cli.on("--help", () => {
-        displayAvailableGenerators(availableGenerators);
-    });
-    if (noCommandsEntered) {
-        cli.outputHelp();
-    }
-    cli.parse(process.argv);
-});
+};
 main();
 exports.default = main;
 //# sourceMappingURL=index.js.map
