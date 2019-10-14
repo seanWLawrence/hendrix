@@ -18,6 +18,7 @@ const util_1 = require("util");
 const fs_1 = __importDefault(require("fs"));
 const path_1 = require("path");
 const fp_1 = require("lodash/fp");
+const lodash_1 = require("lodash");
 const chalk_1 = __importDefault(require("chalk"));
 /**
  * Utils
@@ -43,8 +44,8 @@ const safeRequire = (filePath, onError = defaultErrorLog) => {
 };
 const currentWorkingDirectory = process.cwd();
 const configPath = path_1.join(currentWorkingDirectory, ".hendrixrc.js");
-const DEFAULT_CONFIG = { templatesPath: "hendrix" };
-const { templatesPath } = safeRequire(configPath, () => DEFAULT_CONFIG);
+const DEFAULT_CONFIG = { templatesPath: "hendrix", outputPaths: {} };
+const { templatesPath, outputPaths } = safeRequire(configPath, () => DEFAULT_CONFIG);
 const prettifyAvailableGenerators = fp_1.pipe(fp_1.map(generator => {
     return `  ${generator}`;
 }), fp_1.join("\n"));
@@ -71,13 +72,16 @@ const formatVariables = fp_1.pipe(fp_1.head, fp_1.map(variableString => {
     const [variableName, variableValue] = variableString.split(":");
     return { [variableName]: variableValue };
 }));
-const templateDirectory = (template) => __awaiter(void 0, void 0, void 0, function* () {
+const stripTemplateExtension = fp_1.pipe(fp_1.split("."), fp_1.filter(word => word !== "mustache"), fp_1.join("."));
+const templateDirectory = ({ template, outputPath }) => __awaiter(void 0, void 0, void 0, function* () {
     const templateFilesPath = path_1.join(templatesPath, template);
     const templateFiles = yield safeAsync(() => readDir(templateFilesPath));
     templateFiles.forEach((templateFile) => __awaiter(void 0, void 0, void 0, function* () {
         const templateFilePath = path_1.join(templateFilesPath, templateFile);
         const templateContent = yield readFile(templateFilePath, "utf8");
-        console.log(templateContent);
+        const baseFileOutputPath = lodash_1.get(outputPaths, templateFile, "");
+        const fileOutputPath = path_1.join(currentWorkingDirectory, baseFileOutputPath, outputPath, stripTemplateExtension(templateFile));
+        console.log(fileOutputPath);
     }));
 });
 const cli = new commander_1.default.Command();
@@ -91,7 +95,7 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
         .description("Generate files from your templates directory. Default: './hendrix'")
         .arguments("<template> <name> <output-path> [variables...]")
         .action((template, name, outputPath, ...variables) => {
-        templateDirectory(template);
+        templateDirectory({ template, outputPath });
     });
     cli.on("--help", () => {
         displayAvailableGenerators(availableGenerators);
@@ -99,11 +103,6 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
     cli.parse(process.argv);
 });
 main();
-// const path = require("path");
-// const fs = require("fs");
-// const { render } = require("mustache");
-// const cowsay = require("cowsay");
-// const mkdirp = require("mkdirp");
 // const createFile = ({
 //   outputDirPath,
 //   fullOutputPath,
@@ -160,77 +159,4 @@ main();
 //     });
 //   });
 // };
-// const getTemplateFiles = ({
-//   files,
-//   templatesPath,
-//   templateDirectory,
-//   outputPaths
-// }) => {
-//   files.forEach(fileName => {
-//     const filePath = path.join(templatesPath, templateDirectory, fileName);
-//     readTemplateFile({ outputPaths, filePath, fileName });
-//   });
-// };
-// const getTemplateDirectory = ({
-//   templatesPath,
-//   templateDirectory,
-//   outputPaths
-// }) =>
-//   fs.readdir(
-//     path.join(templatesPath, templateDirectory),
-//     "utf8",
-//     (err, files) => {
-//       if (err) {
-//         throw Error(
-//           `Failed to read "${templateDirectory}" templates
-//             --------------
-//             ${err}`
-//         );
-//       }
-//       getTemplateFiles({
-//         files,
-//         templatesPath,
-//         templateDirectory,
-//         outputPaths
-//       });
-//     }
-//   );
-// const generateFiles = ({ templatesPath, outputPaths }) => {
-//   fs.readdir(templatesPath, (err, templateDirectories) => {
-//     const [templateDirectory] = templateDirectories.filter(
-//       templateDirectory => templateDirectory === generatorName
-//     );
-//     if (err || !templateDirectory) {
-//       throw Error(
-//         `Failed to find "${generatorName}" templates in the "${templatesPath}" directory
-//           --------------
-//           ${err}`
-//       );
-//     }
-//     getTemplateDirectory({ templatesPath, templateDirectory, outputPaths });
-//   });
-//   console.log(
-//     cowsay.say({
-//       text: `
-//       ---------------------------------------------
-//       ----- Generated new "${name}", happy coding! ------
-//       ---------------------------------------------
-//       `
-//     })
-//   );
-// };
-// const defaultConfig = { templatesPath: "hendrix", outputPaths: {} };
-// const main = () => {
-//   try {
-//     const config = {
-//       ...defaultConfig,
-//       ...require(configPath)
-//     };
-//     generateFiles(config);
-//   } catch (e) {
-//     console.log("No custom config, using default...");
-//     generateFiles(defaultConfig);
-//   }
-// };
-// main();
 //# sourceMappingURL=index.js.map
