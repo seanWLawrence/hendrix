@@ -17,6 +17,7 @@ const commander_1 = __importDefault(require("commander"));
 const util_1 = require("util");
 const fs_1 = __importDefault(require("fs"));
 const mkdirp_1 = __importDefault(require("mkdirp"));
+const ncp_1 = require("ncp");
 const path_1 = require("path");
 const fp_1 = require("lodash/fp");
 const lodash_1 = require("lodash");
@@ -28,31 +29,32 @@ const mustache_1 = require("mustache");
 const readDir = util_1.promisify(fs_1.default.readdir);
 const readFile = util_1.promisify(fs_1.default.readFile);
 const writeFile = util_1.promisify(fs_1.default.writeFile);
+const exists = util_1.promisify(fs_1.default.exists);
 const mkdir = util_1.promisify(mkdirp_1.default);
-const defaultErrorHandler = (msg) => {
-    console.error(chalk_1.default.red(msg));
-    throw Error(msg);
-};
-const safeAsync = (callback, onError = defaultErrorHandler) => __awaiter(void 0, void 0, void 0, function* () {
+const addMargin = str => `${str}\n`;
+const safeAsync = (callback, { shouldThrowError } = { shouldThrowError: false }) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         return yield callback();
     }
     catch (error) {
-        onError(error);
+        if (shouldThrowError) {
+            throw Error(error);
+        }
+        console.error(chalk_1.default.red(error));
     }
 });
-const safeRequire = (filePath, onError = defaultErrorHandler) => {
+const safeRequire = (filePath, defaultValue = void 0) => {
     try {
         return require(filePath);
     }
-    catch (error) {
-        return onError(error);
+    catch (_error) {
+        return defaultValue;
     }
 };
 const currentWorkingDirectory = process.cwd();
 const configPath = path_1.join(currentWorkingDirectory, ".hendrixrc.js");
 const DEFAULT_CONFIG = { templatesPath: "hendrix", outputPaths: {} };
-const { templatesPath, outputPaths } = safeRequire(configPath, () => DEFAULT_CONFIG);
+const { templatesPath, outputPaths } = safeRequire(configPath, DEFAULT_CONFIG);
 const prettifyAvailableGenerators = fp_1.pipe(fp_1.map(generator => {
     return `  ${generator}`;
 }), fp_1.join("\n"));
@@ -68,7 +70,7 @@ const getAvailableGenerators = () => __awaiter(void 0, void 0, void 0, function*
     if (hasAvailableGenerators) {
         return prettifyAvailableGenerators(availableGenerators);
     }
-    return "No available generators";
+    return "  No available generators";
 });
 const additionalHelpMessage = (availableGenerators) => `
 Note:
@@ -87,8 +89,18 @@ const formatVariables = fp_1.pipe(fp_1.head, fp_1.map(variableString => {
     return { [variableName]: variableValue };
 }));
 const stripTemplateExtension = fp_1.pipe(fp_1.split("."), fp_1.filter(word => word !== "mustache"), fp_1.join("."));
+const createTemplatesDirectoryIfDoesNotExist = () => __awaiter(void 0, void 0, void 0, function* () {
+    const templatesDirectoryExists = yield safeAsync(() => exists(templatesPath));
+    if (!templatesDirectoryExists) {
+        console.log(addMargin(chalk_1.default.yellow("Templates directory does not exist, creating default one...")));
+        const examplesPath = path_1.join(__dirname, "../src/examples");
+        yield safeAsync(() => ncp_1.ncp(examplesPath, templatesPath, err => console.log(err)));
+        console.log(addMargin(chalk_1.default.green(`Successfully created new templates directory with some examples at "${templatesPath}"`)));
+    }
+});
 const generateFiles = ({ template, outputPath, name, variables }) => __awaiter(void 0, void 0, void 0, function* () {
     const templateFilesPath = path_1.join(templatesPath, template);
+    yield createTemplatesDirectoryIfDoesNotExist();
     const templateFiles = yield safeAsync(() => readDir(templateFilesPath));
     templateFiles.forEach((templateFile) => __awaiter(void 0, void 0, void 0, function* () {
         const templateFilePath = path_1.join(templateFilesPath, templateFile);
@@ -112,6 +124,7 @@ const cli = new commander_1.default.Command();
  * CLI
  */
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
+    yield createTemplatesDirectoryIfDoesNotExist();
     const availableGenerators = yield getAvailableGenerators();
     cli
         .version("1.0.6")
