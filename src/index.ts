@@ -3,6 +3,7 @@
 import commander from "commander";
 import { promisify } from "util";
 import fs from "fs";
+import mkdirp from "mkdirp";
 import { join } from "path";
 import { pipe, map, join as joinStrings, head, split, filter } from "lodash/fp";
 import { get } from "lodash";
@@ -13,6 +14,7 @@ import chalk from "chalk";
  */
 const readDir = promisify(fs.readdir);
 const readFile = promisify(fs.readFile);
+const mkdir = promisify(mkdirp);
 
 const defaultErrorLog = (msg: string): void => console.error(chalk.red(msg));
 
@@ -105,10 +107,16 @@ const templateDirectory = async ({ template, outputPath }) => {
 
     const baseFileOutputPath = get(outputPaths, templateFile, "");
 
-    const fileOutputPath = join(
+    const directoryOutputPath = join(
       currentWorkingDirectory,
       baseFileOutputPath,
-      outputPath,
+      outputPath
+    );
+
+    await mkdir(directoryOutputPath);
+
+    const fileOutputPath = join(
+      directoryOutputPath,
       stripTemplateExtension(templateFile)
     );
 
@@ -149,69 +157,3 @@ const main = async () => {
 };
 
 main();
-
-// const createFile = ({
-//   outputDirPath,
-//   fullOutputPath,
-//   renderedTemplate,
-//   fileNameWithoutMustacheExtension
-// }) => {
-//   mkdirp(outputDirPath, err => {
-//     if (err) {
-//       throw Error(
-//         `Couldn't create folder "${outputDirPath}"
-//           --------------
-//           ${err}`
-//       );
-//     }
-
-//     fs.writeFile(fullOutputPath, renderedTemplate, (err, _result) => {
-//       if (err) {
-//         throw Error(
-//           `Failed to write "${fileNameWithoutMustacheExtension}" file.
-//             --------------
-//             ${err}`
-//         );
-//       }
-//     });
-//   });
-// };
-
-// const readTemplateFile = ({ filePath, fileName, outputPaths }) => {
-//   fs.readFile(filePath, "utf8", (err, fileContent) => {
-//     if (err) {
-//       throw Error(
-//         `Failed to read "${fileName}" template
-//           --------------
-//           ${err}`
-//       );
-//     }
-
-//     const splitFileName = fileName.split(".");
-
-//     const fileNameWithoutMustacheExtension = splitFileName
-//       .filter(name => name !== "mustache")
-//       .join(".");
-
-//     const baseOutputPath = path.join(
-//       outputPaths[generatorName] || "",
-//       relativeOutputPath
-//     );
-
-//     const outputDirPath = path.join(currentWorkingDirectory, baseOutputPath);
-
-//     const fullOutputPath = path.join(
-//       outputDirPath,
-//       fileNameWithoutMustacheExtension
-//     );
-
-//     const renderedTemplate = render(fileContent, { name, variables });
-
-//     createFile({
-//       outputDirPath,
-//       fullOutputPath,
-//       renderedTemplate,
-//       fileNameWithoutMustacheExtension
-//     });
-//   });
-// };

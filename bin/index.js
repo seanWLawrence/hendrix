@@ -16,6 +16,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const commander_1 = __importDefault(require("commander"));
 const util_1 = require("util");
 const fs_1 = __importDefault(require("fs"));
+const mkdirp_1 = __importDefault(require("mkdirp"));
 const path_1 = require("path");
 const fp_1 = require("lodash/fp");
 const lodash_1 = require("lodash");
@@ -25,6 +26,7 @@ const chalk_1 = __importDefault(require("chalk"));
  */
 const readDir = util_1.promisify(fs_1.default.readdir);
 const readFile = util_1.promisify(fs_1.default.readFile);
+const mkdir = util_1.promisify(mkdirp_1.default);
 const defaultErrorLog = (msg) => console.error(chalk_1.default.red(msg));
 const safeAsync = (callback, onError = defaultErrorLog) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -80,7 +82,9 @@ const templateDirectory = ({ template, outputPath }) => __awaiter(void 0, void 0
         const templateFilePath = path_1.join(templateFilesPath, templateFile);
         const templateContent = yield readFile(templateFilePath, "utf8");
         const baseFileOutputPath = lodash_1.get(outputPaths, templateFile, "");
-        const fileOutputPath = path_1.join(currentWorkingDirectory, baseFileOutputPath, outputPath, stripTemplateExtension(templateFile));
+        const directoryOutputPath = path_1.join(currentWorkingDirectory, baseFileOutputPath, outputPath);
+        yield mkdir(directoryOutputPath);
+        const fileOutputPath = path_1.join(directoryOutputPath, stripTemplateExtension(templateFile));
         console.log(fileOutputPath);
     }));
 });
@@ -103,60 +107,4 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
     cli.parse(process.argv);
 });
 main();
-// const createFile = ({
-//   outputDirPath,
-//   fullOutputPath,
-//   renderedTemplate,
-//   fileNameWithoutMustacheExtension
-// }) => {
-//   mkdirp(outputDirPath, err => {
-//     if (err) {
-//       throw Error(
-//         `Couldn't create folder "${outputDirPath}"
-//           --------------
-//           ${err}`
-//       );
-//     }
-//     fs.writeFile(fullOutputPath, renderedTemplate, (err, _result) => {
-//       if (err) {
-//         throw Error(
-//           `Failed to write "${fileNameWithoutMustacheExtension}" file.
-//             --------------
-//             ${err}`
-//         );
-//       }
-//     });
-//   });
-// };
-// const readTemplateFile = ({ filePath, fileName, outputPaths }) => {
-//   fs.readFile(filePath, "utf8", (err, fileContent) => {
-//     if (err) {
-//       throw Error(
-//         `Failed to read "${fileName}" template
-//           --------------
-//           ${err}`
-//       );
-//     }
-//     const splitFileName = fileName.split(".");
-//     const fileNameWithoutMustacheExtension = splitFileName
-//       .filter(name => name !== "mustache")
-//       .join(".");
-//     const baseOutputPath = path.join(
-//       outputPaths[generatorName] || "",
-//       relativeOutputPath
-//     );
-//     const outputDirPath = path.join(currentWorkingDirectory, baseOutputPath);
-//     const fullOutputPath = path.join(
-//       outputDirPath,
-//       fileNameWithoutMustacheExtension
-//     );
-//     const renderedTemplate = render(fileContent, { name, variables });
-//     createFile({
-//       outputDirPath,
-//       fullOutputPath,
-//       renderedTemplate,
-//       fileNameWithoutMustacheExtension
-//     });
-//   });
-// };
 //# sourceMappingURL=index.js.map
