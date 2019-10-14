@@ -228,7 +228,7 @@ describe("CLI", () => {
         cleanTestOutputPath();
       });
 
-      it("creates files at the specified path", async () => {
+      it("creates files starting from the current working directory", async () => {
         const result = await cli(["reactClass", "Person", "test-output"], ".");
 
         const outputPath = join(__dirname, "../test-output");
@@ -238,7 +238,7 @@ describe("CLI", () => {
         testReactClass(outputPath);
       });
 
-      it("creates a file at a nested path", async () => {
+      it("creates files at a nested path", async () => {
         const result = await cli(
           ["reactClass", "Person", "test-output/nested-path"],
           "."
@@ -251,7 +251,7 @@ describe("CLI", () => {
         testReactClass(outputPath);
       });
 
-      it("creates a file at a deeply nested path", async () => {
+      it("creates files at a deeply nested path", async () => {
         const result = await cli(
           [
             "reactClass",
@@ -302,7 +302,7 @@ describe("CLI", () => {
         cleanTestOutputPath();
       });
 
-      it("creates files at the specified path", async () => {
+      it("creates files starting from the base path in the config file", async () => {
         const result = await cli(["reactClass", "Person", "test-output"], ".");
 
         const outputPath = join(__dirname, "../test-output");
@@ -312,7 +312,7 @@ describe("CLI", () => {
         testReactClass(outputPath);
       });
 
-      it("creates a file at a nested path", async () => {
+      it("creates files at a nested path", async () => {
         const result = await cli(
           ["reactClass", "Person", "test-output/nested-path"],
           "."
@@ -325,7 +325,7 @@ describe("CLI", () => {
         testReactClass(outputPath);
       });
 
-      it("creates a file at a deeply nested path", async () => {
+      it("creates files at a deeply nested path", async () => {
         const result = await cli(
           [
             "reactClass",
