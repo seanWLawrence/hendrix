@@ -79,7 +79,7 @@ const formatVariables = pipe(
   map(variableString => {
     const [variableName, variableValue] = variableString.split(":");
 
-    return { [variableName]: variableValue };
+    return { name: variableName, value: variableValue };
   })
 );
 
@@ -104,7 +104,7 @@ const createTemplatesDirectoryIfDoesNotExist = () => {
     )
   );
 
-  const examplesPath = join(__dirname, "../src/examples");
+  const examplesPath = join(__dirname, "../examples");
 
   return new Promise((resolve, reject) => {
     return ncp(examplesPath, templatesPath, error => {
