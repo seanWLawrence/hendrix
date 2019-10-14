@@ -27,6 +27,7 @@
     "@types/jest": "^24.0.18",
     "@types/mkdirp": "^0.5.2",
     "@types/mustache": "^0.8.32",
+    "@types/ncp": "^2.0.2",
     "@types/node": "^12.7.12",
     "@typescript-eslint/eslint-plugin": "^2.3.3",
     "@typescript-eslint/parser": "^2.3.3",
@@ -53,6 +54,7 @@
     "commander": "^3.0.2",
     "cowsay": "^1.4.0",
     "mkdirp": "^0.5.1",
-    "mustache": "^3.1.0"
+    "mustache": "^3.1.0",
+    "ncp": "^2.0.0"
   }
 }

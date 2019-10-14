@@ -4,6 +4,7 @@ import commander from "commander";
 import { promisify } from "util";
 import fs from "fs";
 import mkdirp from "mkdirp";
+import { ncp } from "ncp";
 import { join } from "path";
 import { pipe, map, join as joinStrings, head, split, filter } from "lodash/fp";
 import { get } from "lodash";
@@ -16,27 +17,31 @@ import { render } from "mustache";
 const readDir = promisify(fs.readdir);
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
+const exists = promisify(fs.exists);
 const mkdir = promisify(mkdirp);
 
-const defaultErrorHandler = (msg: string): void => {
-  console.error(chalk.red(msg));
+const addMargin = str => `${str}\n`;
 
-  throw Error(msg);
-};
-
-const safeAsync = async (callback, onError = defaultErrorHandler) => {
+const safeAsync = async (
+  callback,
+  { shouldThrowError } = { shouldThrowError: false }
+) => {
   try {
     return await callback();
   } catch (error) {
-    onError(error);
+    if (shouldThrowError) {
+      throw Error(error);
+    }
+
+    console.error(chalk.red(error));
   }
 };
 
-const safeRequire = (filePath, onError: any = defaultErrorHandler) => {
+const safeRequire = (filePath, defaultValue = void 0) => {
   try {
     return require(filePath);
-  } catch (error) {
-    return onError(error);
+  } catch (_error) {
+    return defaultValue;
   }
 };
 
@@ -46,10 +51,7 @@ const configPath = join(currentWorkingDirectory, ".hendrixrc.js");
 
 const DEFAULT_CONFIG = { templatesPath: "hendrix", outputPaths: {} };
 
-const { templatesPath, outputPaths } = safeRequire(
-  configPath,
-  () => DEFAULT_CONFIG
-);
+const { templatesPath, outputPaths } = safeRequire(configPath, DEFAULT_CONFIG);
 
 const prettifyAvailableGenerators = pipe(
   map(generator => {
@@ -74,7 +76,7 @@ const getAvailableGenerators = async () => {
     return prettifyAvailableGenerators(availableGenerators);
   }
 
-  return "No available generators";
+  return "  No available generators";
 };
 
 const additionalHelpMessage = (availableGenerators: string) => `
@@ -111,8 +113,39 @@ const stripTemplateExtension = pipe(
   joinStrings(".")
 );
 
+const createTemplatesDirectoryIfDoesNotExist = async () => {
+  const templatesDirectoryExists = await safeAsync(() => exists(templatesPath));
+
+  if (!templatesDirectoryExists) {
+    console.log(
+      addMargin(
+        chalk.yellow(
+          "Templates directory does not exist, creating default one..."
+        )
+      )
+    );
+
+    const examplesPath = join(__dirname, "../src/examples");
+
+    await safeAsync(() =>
+      ncp(examplesPath, templatesPath, err => console.log(err))
+    );
+
+    console.log(
+      addMargin(
+        chalk.green(
+          `Successfully created new templates directory with some examples at "${templatesPath}"`
+        )
+      )
+    );
+  }
+};
+
 const generateFiles = async ({ template, outputPath, name, variables }) => {
   const templateFilesPath = join(templatesPath, template);
+
+  await createTemplatesDirectoryIfDoesNotExist();
+
   const templateFiles = await safeAsync(() => readDir(templateFilesPath));
 
   templateFiles.forEach(async templateFile => {
@@ -156,6 +189,8 @@ const cli = new commander.Command();
  * CLI
  */
 const main = async () => {
+  await createTemplatesDirectoryIfDoesNotExist();
+
   const availableGenerators = await getAvailableGenerators();
 
   cli
