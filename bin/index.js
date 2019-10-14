@@ -70,7 +70,15 @@ const formatVariables = fp_1.pipe(fp_1.head, fp_1.map(variableString => {
     const [variableName, variableValue] = variableString.split(":");
     return { [variableName]: variableValue };
 }));
+const templateDirectory = (template) => __awaiter(void 0, void 0, void 0, function* () {
+    const templateFilesPath = path_1.join(templatesPath, template);
+    const templateFiles = yield safeAsync(() => readDir(templateFilesPath));
+    console.log(templateFiles);
+});
 const cli = new commander_1.default.Command();
+/**
+ * CLI
+ */
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     const availableGenerators = yield safeAsync(() => readDir(templatesPath));
     cli
@@ -78,7 +86,7 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
         .description("Generate files from your templates directory. Default: './hendrix'")
         .arguments("<template> <name> <output-path> [variables...]")
         .action((template, name, outputPath, ...variables) => {
-        console.log("TEMPLATE: ", template, "NAME: ", name, "OUTPUT PATH: ", outputPath, "VARIABLES: ", formatVariables(variables));
+        templateDirectory(template);
     });
     cli.on("--help", () => {
         displayAvailableGenerators(availableGenerators);
@@ -91,53 +99,6 @@ main();
 // const { render } = require("mustache");
 // const cowsay = require("cowsay");
 // const mkdirp = require("mkdirp");
-// const args = process.argv.slice(2);
-// const helpMessageTemplate = (availableGenerators: string) => `;
-// Usage:
-//   hendrix <template> <name> <output-path> [...variables]
-// const defaultHelpMessage = (generators: string[] = []) => {
-//   const hasGenerators = generators.length > 0;
-//   const availableGenerators = hasGenerators
-//     ? generators.map(g => `  ${g}`).join("\n")
-//     : "No templates found in templates path";
-//   return helpMessageTemplate(availableGenerators);
-// };
-// const needsHelp = args.length < 3 || args.includes("--help");
-// const configPath = path.join(currentWorkingDirectory, ".hendrixrc.js");
-// const displayHelpIfNeeded = () => {
-//   if (needsHelp) {
-//     try {
-//       const { helpMessage, templatesPath = "hendrix" } = require(configPath);
-//       return fs.readdir(
-//         path.join(currentWorkingDirectory, templatesPath),
-//         (err, generators) => {
-//           if (err) {
-//             throw Error(
-//               `No templates directory found.
-//             ---------------
-//             ${err.stack}`
-//             );
-//           }
-//           return console.log(helpMessage || defaultHelpMessage(generators));
-//         }
-//       );
-//     } catch (err) {
-//       throw Error(
-//         `No templates directory found.
-//         ---------------
-//         ${err.stack}`
-//       );
-//     }
-//     return console.log(defaultHelpMessage);
-//   }
-// };
-// displayHelpIfNeeded();
-// // @ts-ignore
-// const [generatorName, name, relativeOutputPath, ...variablesArray] = args;
-// const variables = variablesArray.map(variable => {
-//   const [name, value] = variable.split(":");
-//   return { name, value };
-// });
 // const createFile = ({
 //   outputDirPath,
 //   fullOutputPath,

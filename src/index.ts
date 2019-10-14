@@ -84,8 +84,18 @@ const formatVariables = pipe(
   })
 );
 
+const templateDirectory = async (template: string) => {
+  const templateFilesPath = join(templatesPath, template);
+  const templateFiles = await safeAsync(() => readDir(templateFilesPath));
+
+  console.log(templateFiles);
+};
+
 const cli = new commander.Command();
 
+/**
+ * CLI
+ */
 const main = async () => {
   const availableGenerators = await safeAsync(() => readDir(templatesPath));
 
@@ -102,16 +112,7 @@ const main = async () => {
         outputPath: string,
         ...variables: string[]
       ) => {
-        console.log(
-          "TEMPLATE: ",
-          template,
-          "NAME: ",
-          name,
-          "OUTPUT PATH: ",
-          outputPath,
-          "VARIABLES: ",
-          formatVariables(variables)
-        );
+        templateDirectory(template);
       }
     );
 
@@ -129,63 +130,6 @@ main();
 // const { render } = require("mustache");
 // const cowsay = require("cowsay");
 // const mkdirp = require("mkdirp");
-
-// const args = process.argv.slice(2);
-
-// const helpMessageTemplate = (availableGenerators: string) => `;
-// Usage:
-//   hendrix <template> <name> <output-path> [...variables]
-
-// const defaultHelpMessage = (generators: string[] = []) => {
-//   const hasGenerators = generators.length > 0;
-//   const availableGenerators = hasGenerators
-//     ? generators.map(g => `  ${g}`).join("\n")
-//     : "No templates found in templates path";
-
-//   return helpMessageTemplate(availableGenerators);
-// };
-
-// const needsHelp = args.length < 3 || args.includes("--help");
-// const configPath = path.join(currentWorkingDirectory, ".hendrixrc.js");
-
-// const displayHelpIfNeeded = () => {
-//   if (needsHelp) {
-//     try {
-//       const { helpMessage, templatesPath = "hendrix" } = require(configPath);
-
-//       return fs.readdir(
-//         path.join(currentWorkingDirectory, templatesPath),
-//         (err, generators) => {
-//           if (err) {
-//             throw Error(
-//               `No templates directory found.
-//             ---------------
-//             ${err.stack}`
-//             );
-//           }
-//           return console.log(helpMessage || defaultHelpMessage(generators));
-//         }
-//       );
-//     } catch (err) {
-//       throw Error(
-//         `No templates directory found.
-//         ---------------
-//         ${err.stack}`
-//       );
-//     }
-//     return console.log(defaultHelpMessage);
-//   }
-// };
-
-// displayHelpIfNeeded();
-
-// // @ts-ignore
-// const [generatorName, name, relativeOutputPath, ...variablesArray] = args;
-
-// const variables = variablesArray.map(variable => {
-//   const [name, value] = variable.split(":");
-//   return { name, value };
-// });
 
 // const createFile = ({
 //   outputDirPath,
