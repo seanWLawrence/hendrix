@@ -23,6 +23,7 @@ const chalk_1 = __importDefault(require("chalk"));
  * Utils
  */
 const readDir = util_1.promisify(fs_1.default.readdir);
+const readFile = util_1.promisify(fs_1.default.readFile);
 const defaultErrorLog = (msg) => console.error(chalk_1.default.red(msg));
 const safeAsync = (callback, onError = defaultErrorLog) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -73,7 +74,11 @@ const formatVariables = fp_1.pipe(fp_1.head, fp_1.map(variableString => {
 const templateDirectory = (template) => __awaiter(void 0, void 0, void 0, function* () {
     const templateFilesPath = path_1.join(templatesPath, template);
     const templateFiles = yield safeAsync(() => readDir(templateFilesPath));
-    console.log(templateFiles);
+    templateFiles.forEach((templateFile) => __awaiter(void 0, void 0, void 0, function* () {
+        const templateFilePath = path_1.join(templateFilesPath, templateFile);
+        const templateContent = yield readFile(templateFilePath, "utf8");
+        console.log(templateContent);
+    }));
 });
 const cli = new commander_1.default.Command();
 /**

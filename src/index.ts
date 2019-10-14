@@ -11,6 +11,7 @@ import chalk from "chalk";
  * Utils
  */
 const readDir = promisify(fs.readdir);
+const readFile = promisify(fs.readFile);
 
 const defaultErrorLog = (msg: string): void => console.error(chalk.red(msg));
 
@@ -88,7 +89,12 @@ const templateDirectory = async (template: string) => {
   const templateFilesPath = join(templatesPath, template);
   const templateFiles = await safeAsync(() => readDir(templateFilesPath));
 
-  console.log(templateFiles);
+  templateFiles.forEach(async templateFile => {
+    const templateFilePath = join(templateFilesPath, templateFile);
+    const templateContent = await readFile(templateFilePath, "utf8");
+
+    console.log(templateContent);
+  });
 };
 
 const cli = new commander.Command();
