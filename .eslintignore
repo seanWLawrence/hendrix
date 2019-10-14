@@ -7,3 +7,4 @@ coverage/*
 # 3rd party libs
 # custom definition files
 /src/types/
+**/*.js
