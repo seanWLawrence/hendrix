@@ -76,12 +76,13 @@ describe("CLI", () => {
     });
 
     describe("no generators", () => {
-      it("displays 'has no generators' error message", async () => {
+      it("creates example generators and displays them", async () => {
         const result = await cli([], "../../");
 
         expectHelpMessage(result);
 
-        expect(result.stdout).toContain("No available generators");
+        expect(result.stdout).toContain("reactClass");
+        expect(result.stdout).toContain("reactClassWithVariables");
       });
     });
   });

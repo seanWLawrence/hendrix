@@ -60,18 +60,21 @@ const formatVariables = fp_1.pipe(fp_1.head, fp_1.map(variableString => {
 const stripTemplateExtension = fp_1.pipe(fp_1.split("."), fp_1.filter(word => word !== "mustache"), fp_1.join("."));
 const createTemplatesDirectoryIfDoesNotExist = () => {
     const templatesDirectoryExists = fs_1.existsSync(templatesPath);
-    if (!templatesDirectoryExists) {
-        console.log(addMargin(chalk_1.default.yellow("Templates directory does not exist, creating one for you...")));
-        const examplesPath = path_1.join(__dirname, "../src/examples");
-        return new Promise((resolve, reject) => ncp_1.ncp(examplesPath, templatesPath, error => {
+    if (templatesDirectoryExists) {
+        return new Promise(resolve => resolve());
+    }
+    console.log(addMargin(chalk_1.default.yellow("Templates directory does not exist, creating one for you...")));
+    const examplesPath = path_1.join(__dirname, "../src/examples");
+    return new Promise((resolve, reject) => {
+        return ncp_1.ncp(examplesPath, templatesPath, error => {
             if (error) {
                 console.log(chalk_1.default.red(error.message));
                 reject(error);
             }
             console.log(addMargin(chalk_1.default.green(`Successfully created new templates directory at "${templatesPath}" with some examples!`)));
-            resolve();
-        }));
-    }
+            return resolve("asd");
+        });
+    });
 };
 const generateFiles = ({ template, outputPath, name, variables }) => {
     const templateFilesPath = path_1.join(templatesPath, template);

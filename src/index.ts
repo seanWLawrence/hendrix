@@ -92,36 +92,38 @@ const stripTemplateExtension = pipe(
 const createTemplatesDirectoryIfDoesNotExist = () => {
   const templatesDirectoryExists = existsSync(templatesPath);
 
-  if (!templatesDirectoryExists) {
-    console.log(
-      addMargin(
-        chalk.yellow(
-          "Templates directory does not exist, creating one for you..."
-        )
-      )
-    );
-
-    const examplesPath = join(__dirname, "../src/examples");
-
-    return new Promise((resolve, reject) =>
-      ncp(examplesPath, templatesPath, error => {
-        if (error) {
-          console.log(chalk.red(error.message));
-          reject(error);
-        }
-
-        console.log(
-          addMargin(
-            chalk.green(
-              `Successfully created new templates directory at "${templatesPath}" with some examples!`
-            )
-          )
-        );
-
-        resolve();
-      })
-    );
+  if (templatesDirectoryExists) {
+    return new Promise(resolve => resolve());
   }
+
+  console.log(
+    addMargin(
+      chalk.yellow(
+        "Templates directory does not exist, creating one for you..."
+      )
+    )
+  );
+
+  const examplesPath = join(__dirname, "../src/examples");
+
+  return new Promise((resolve, reject) => {
+    return ncp(examplesPath, templatesPath, error => {
+      if (error) {
+        console.log(chalk.red(error.message));
+        reject(error);
+      }
+
+      console.log(
+        addMargin(
+          chalk.green(
+            `Successfully created new templates directory at "${templatesPath}" with some examples!`
+          )
+        )
+      );
+
+      return resolve("asd");
+    });
+  });
 };
 
 const generateFiles = ({ template, outputPath, name, variables }) => {
