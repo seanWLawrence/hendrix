@@ -77,7 +77,7 @@ const formatVariables = fp_1.pipe(fp_1.head, fp_1.map(variableString => {
     return { [variableName]: variableValue };
 }));
 const stripTemplateExtension = fp_1.pipe(fp_1.split("."), fp_1.filter(word => word !== "mustache"), fp_1.join("."));
-const templateDirectory = ({ template, outputPath, name, variables }) => __awaiter(void 0, void 0, void 0, function* () {
+const generateFiles = ({ template, outputPath, name, variables }) => __awaiter(void 0, void 0, void 0, function* () {
     const templateFilesPath = path_1.join(templatesPath, template);
     const templateFiles = yield safeAsync(() => readDir(templateFilesPath));
     templateFiles.forEach((templateFile) => __awaiter(void 0, void 0, void 0, function* () {
@@ -88,7 +88,7 @@ const templateDirectory = ({ template, outputPath, name, variables }) => __await
         const directoryOutputPath = path_1.join(currentWorkingDirectory, baseFileOutputPath, outputPath);
         yield safeAsync(() => mkdir(directoryOutputPath));
         const fileOutputPath = path_1.join(directoryOutputPath, stripTemplateExtension(templateFile));
-        safeAsync(() => writeFile(fileOutputPath, renderedTemplate));
+        yield safeAsync(() => writeFile(fileOutputPath, renderedTemplate));
     }));
 });
 const cli = new commander_1.default.Command();
@@ -102,7 +102,7 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
         .description("Generate files from your templates directory. Default: './hendrix'")
         .arguments("<template> <name> <output-path> [variables...]")
         .action((template, name, outputPath, ...variables) => {
-        templateDirectory({
+        generateFiles({
             template,
             outputPath,
             name,

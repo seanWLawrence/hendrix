@@ -99,7 +99,7 @@ const stripTemplateExtension = pipe(
   joinStrings(".")
 );
 
-const templateDirectory = async ({ template, outputPath, name, variables }) => {
+const generateFiles = async ({ template, outputPath, name, variables }) => {
   const templateFilesPath = join(templatesPath, template);
   const templateFiles = await safeAsync(() => readDir(templateFilesPath));
 
@@ -124,7 +124,7 @@ const templateDirectory = async ({ template, outputPath, name, variables }) => {
       stripTemplateExtension(templateFile)
     );
 
-    safeAsync(() => writeFile(fileOutputPath, renderedTemplate));
+    await safeAsync(() => writeFile(fileOutputPath, renderedTemplate));
   });
 };
 
@@ -149,7 +149,7 @@ const main = async () => {
         outputPath: string,
         ...variables: string[]
       ) => {
-        templateDirectory({
+        generateFiles({
           template,
           outputPath,
           name,
