@@ -2,7 +2,7 @@
 
 import commander from "commander";
 import { promisify } from "util";
-import fs from "fs";
+import { readdirSync, existsSync, readFileSync, writeFileSync } from "fs";
 import mkdirp from "mkdirp";
 import { ncp } from "ncp";
 import { join } from "path";
@@ -11,31 +11,7 @@ import { get } from "lodash";
 import chalk from "chalk";
 import { render } from "mustache";
 
-/**
- * Utils
- */
-const readDir = promisify(fs.readdir);
-const readFile = promisify(fs.readFile);
-const writeFile = promisify(fs.writeFile);
-const exists = promisify(fs.exists);
-const mkdir = promisify(mkdirp);
-
 const addMargin = str => `${str}\n`;
-
-const safeAsync = async (
-  callback,
-  { shouldThrowError } = { shouldThrowError: false }
-) => {
-  try {
-    return await callback();
-  } catch (error) {
-    if (shouldThrowError) {
-      throw Error(error);
-    }
-
-    console.error(chalk.red(error));
-  }
-};
 
 const safeRequire = (filePath, defaultValue = void 0) => {
   try {
@@ -60,15 +36,15 @@ const prettifyAvailableGenerators = pipe(
   joinStrings("\n")
 );
 
-const getAvailableGenerators = async () => {
-  const availableGenerators = await safeAsync(async () => {
-    const files = await readDir(templatesPath, { withFileTypes: true });
-    const generatorDirectoryNames = files
-      .filter(dirEnt => dirEnt.isDirectory())
-      .map(({ name }) => name);
-
-    return generatorDirectoryNames;
-  });
+const getAvailableGenerators = () => {
+  const availableGenerators = readdirSync(
+    join(currentWorkingDirectory, templatesPath),
+    {
+      withFileTypes: true
+    }
+  )
+    .filter(dirEnt => dirEnt.isDirectory())
+    .map(({ name }) => name);
 
   const hasAvailableGenerators = availableGenerators.length > 0;
 
@@ -113,71 +89,78 @@ const stripTemplateExtension = pipe(
   joinStrings(".")
 );
 
-const createTemplatesDirectoryIfDoesNotExist = async () => {
-  const templatesDirectoryExists = await safeAsync(() => exists(templatesPath));
+const createTemplatesDirectoryIfDoesNotExist = () => {
+  const templatesDirectoryExists = existsSync(templatesPath);
 
   if (!templatesDirectoryExists) {
     console.log(
       addMargin(
         chalk.yellow(
-          "Templates directory does not exist, creating default one..."
+          "Templates directory does not exist, creating one for you..."
         )
       )
     );
 
     const examplesPath = join(__dirname, "../src/examples");
 
-    await safeAsync(() =>
-      ncp(examplesPath, templatesPath, err => console.log(err))
-    );
+    return new Promise((resolve, reject) =>
+      ncp(examplesPath, templatesPath, error => {
+        if (error) {
+          console.log(chalk.red(error.message));
+          reject(error);
+        }
 
-    console.log(
-      addMargin(
-        chalk.green(
-          `Successfully created new templates directory with some examples at "${templatesPath}"`
-        )
-      )
+        console.log(
+          addMargin(
+            chalk.green(
+              `Successfully created new templates directory at "${templatesPath}" with some examples!`
+            )
+          )
+        );
+
+        resolve();
+      })
     );
   }
 };
 
-const generateFiles = async ({ template, outputPath, name, variables }) => {
+const generateFiles = ({ template, outputPath, name, variables }) => {
   const templateFilesPath = join(templatesPath, template);
 
-  await createTemplatesDirectoryIfDoesNotExist();
+  createTemplatesDirectoryIfDoesNotExist().then(() => {
+    const templateFiles = readdirSync(templateFilesPath);
 
-  const templateFiles = await safeAsync(() => readDir(templateFilesPath));
+    templateFiles.forEach(templateFile => {
+      const templateFilePath = join(templateFilesPath, templateFile);
+      const templateContent = readFileSync(templateFilePath, "utf8");
 
-  templateFiles.forEach(async templateFile => {
-    const templateFilePath = join(templateFilesPath, templateFile);
-    const templateContent = await readFile(templateFilePath, "utf8");
+      const renderedTemplate = render(templateContent, { variables, name });
 
-    const renderedTemplate = render(templateContent, { variables, name });
+      const baseFileOutputPath = get(outputPaths, templateFile, "");
 
-    const baseFileOutputPath = get(outputPaths, templateFile, "");
+      const directoryOutputPath = join(
+        currentWorkingDirectory,
+        baseFileOutputPath,
+        outputPath
+      );
 
-    const directoryOutputPath = join(
-      currentWorkingDirectory,
-      baseFileOutputPath,
-      outputPath
-    );
+      mkdirp.sync(directoryOutputPath);
 
-    await safeAsync(() => mkdir(directoryOutputPath));
+      const fileOutputPath = join(
+        directoryOutputPath,
+        stripTemplateExtension(templateFile)
+      );
 
-    const fileOutputPath = join(
-      directoryOutputPath,
-      stripTemplateExtension(templateFile)
-    );
+      writeFileSync(fileOutputPath, renderedTemplate);
 
-    await safeAsync(() => writeFile(fileOutputPath, renderedTemplate));
-
-    console.log(
-      chalk.green(`
+      console.log(
+        chalk.green(`
        ----------------------------------------------------------------
           Successfully generated "${template}" files - happy coding!
        ----------------------------------------------------------------
         `)
-    );
+      );
+    });
   });
 };
 
@@ -188,43 +171,43 @@ const cli = new commander.Command();
 /**
  * CLI
  */
-const main = async () => {
-  await createTemplatesDirectoryIfDoesNotExist();
+const main = () => {
+  createTemplatesDirectoryIfDoesNotExist().then(() => {
+    const availableGenerators = getAvailableGenerators();
 
-  const availableGenerators = await getAvailableGenerators();
+    cli
+      .version("1.0.6")
+      .usage("<template> <name> <output-path> [variables...]")
+      .description(
+        "Generate files from your templates directory. Default: './hendrix'"
+      )
+      .arguments("<template> <name> <output-path> [variables...]")
+      .action(
+        (
+          template: string,
+          name: string,
+          outputPath: string,
+          ...variables: string[]
+        ) => {
+          generateFiles({
+            template,
+            outputPath,
+            name,
+            variables: formatVariables(variables)
+          });
+        }
+      );
 
-  cli
-    .version("1.0.6")
-    .usage("<template> <name> <output-path> [variables...]")
-    .description(
-      "Generate files from your templates directory. Default: './hendrix'"
-    )
-    .arguments("<template> <name> <output-path> [variables...]")
-    .action(
-      (
-        template: string,
-        name: string,
-        outputPath: string,
-        ...variables: string[]
-      ) => {
-        generateFiles({
-          template,
-          outputPath,
-          name,
-          variables: formatVariables(variables)
-        });
-      }
-    );
+    cli.on("--help", () => {
+      displayAvailableGenerators(availableGenerators);
+    });
 
-  cli.on("--help", () => {
-    displayAvailableGenerators(availableGenerators);
+    if (noCommandsEntered) {
+      cli.outputHelp();
+    }
+
+    cli.parse(process.argv);
   });
-
-  if (noCommandsEntered) {
-    cli.outputHelp();
-  }
-
-  cli.parse(process.argv);
 };
 
 main();
