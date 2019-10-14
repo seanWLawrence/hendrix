@@ -4,3 +4,4 @@ public
 coverage
 bin/
 test-output/
+.hendrixrc.js

@@ -1,7 +1,7 @@
 import { exec } from "child_process";
 import { join, resolve as resolvePath } from "path";
 import rimraf from "rimraf";
-import { readdirSync, readFileSync } from "fs";
+import { readdirSync, readFileSync, writeFileSync, renameSync } from "fs";
 import * as mkdirp from "mkdirp";
 
 const success = 0;
@@ -90,12 +90,30 @@ describe("CLI", () => {
   });
 
   describe("generator", () => {
-    beforeEach(() => {
+    const configFilePath = join(__dirname, "../.hendrixrc.js");
+    const hendrixTemplatesPath = join(__dirname, "../hendrix");
+    const customTemplatesPath = join(__dirname, "../examples");
+
+    const cleanConfigFile = () => {
+      rimraf.sync(configFilePath);
+    };
+
+    const createConfigFile = () => {
+      const configFileContent = `
+          module.exports = {
+            templatesPath: "examples",
+            outputPaths: { reactClass: "examples-output" }
+          };`;
+
+      writeFileSync(configFilePath, configFileContent);
+    };
+
+    const cleanTestOutputPath = () => {
       const testOutputPath = join(__dirname, "../test-output");
 
       rimraf.sync(testOutputPath);
       mkdirp.sync(testOutputPath);
-    });
+    };
 
     const testCss = fileContent => {
       const line1 = ".Person {}";
@@ -200,66 +218,151 @@ describe("CLI", () => {
       });
     };
 
-    it("creates files at the specified path", async () => {
-      const result = await cli(["reactClass", "Person", "test-output"], ".");
+    describe("without config file", () => {
+      beforeAll(() => {
+        cleanConfigFile();
+        renameSync(customTemplatesPath, hendrixTemplatesPath);
+      });
 
-      const outputPath = join(__dirname, "../test-output");
+      beforeEach(() => {
+        cleanTestOutputPath();
+      });
 
-      expect(result.code).toBe(success);
+      it("creates files at the specified path", async () => {
+        const result = await cli(["reactClass", "Person", "test-output"], ".");
 
-      testReactClass(outputPath);
+        const outputPath = join(__dirname, "../test-output");
+
+        expect(result.code).toBe(success);
+
+        testReactClass(outputPath);
+      });
+
+      it("creates a file at a nested path", async () => {
+        const result = await cli(
+          ["reactClass", "Person", "test-output/nested-path"],
+          "."
+        );
+
+        const outputPath = join(__dirname, "../test-output/nested-path");
+
+        expect(result.code).toBe(success);
+
+        testReactClass(outputPath);
+      });
+
+      it("creates a file at a deeply nested path", async () => {
+        const result = await cli(
+          [
+            "reactClass",
+            "Person",
+            "test-output/nested-path/and-another-one/and-another-one"
+          ],
+          "."
+        );
+
+        const outputPath = join(
+          __dirname,
+          "../test-output/nested-path/and-another-one/and-another-one"
+        );
+
+        expect(result.code).toBe(success);
+
+        testReactClass(outputPath);
+      });
+
+      it("passes in the optional variables as {{ variables }} in the template", async () => {
+        const result = await cli(
+          [
+            "reactClassWithVariables",
+            "Person",
+            "test-output",
+            "firstName:string",
+            "age:number"
+          ],
+          "."
+        );
+
+        const outputPath = join(__dirname, "../test-output");
+
+        expect(result.code).toBe(success);
+
+        testReactClasswithVariables(outputPath);
+      });
     });
 
-    it("creates a file at a nested path", async () => {
-      const result = await cli(
-        ["reactClass", "Person", "test-output/nested-path"],
-        "."
-      );
+    describe("with config file", () => {
+      beforeAll(() => {
+        cleanConfigFile();
+        createConfigFile();
+        renameSync(hendrixTemplatesPath, customTemplatesPath);
+      });
 
-      const outputPath = join(__dirname, "../test-output/nested-path");
+      beforeEach(() => {
+        cleanTestOutputPath();
+      });
 
-      expect(result.code).toBe(success);
+      it("creates files at the specified path", async () => {
+        const result = await cli(["reactClass", "Person", "test-output"], ".");
 
-      testReactClass(outputPath);
-    });
+        const outputPath = join(__dirname, "../test-output");
 
-    it("creates a file at a deeply nested path", async () => {
-      const result = await cli(
-        [
-          "reactClass",
-          "Person",
-          "test-output/nested-path/and-another-one/and-another-one"
-        ],
-        "."
-      );
+        expect(result.code).toBe(success);
 
-      const outputPath = join(
-        __dirname,
-        "../test-output/nested-path/and-another-one/and-another-one"
-      );
+        testReactClass(outputPath);
+      });
 
-      expect(result.code).toBe(success);
+      it("creates a file at a nested path", async () => {
+        const result = await cli(
+          ["reactClass", "Person", "test-output/nested-path"],
+          "."
+        );
 
-      testReactClass(outputPath);
-    });
+        const outputPath = join(__dirname, "../test-output/nested-path");
 
-    it("passes in the optional variables as {{ variables }} in the template", async () => {
-      const result = await cli(
-        [
-          "reactClassWithVariables",
-          "Person",
-          "test-output",
-          "firstName:string",
-          "age:number"
-        ],
-        "."
-      );
+        expect(result.code).toBe(success);
 
-      const outputPath = join(__dirname, "../test-output");
+        testReactClass(outputPath);
+      });
 
-      expect(result.code).toBe(success);
+      it("creates a file at a deeply nested path", async () => {
+        const result = await cli(
+          [
+            "reactClass",
+            "Person",
+            "test-output/nested-path/and-another-one/and-another-one"
+          ],
+          "."
+        );
 
-      testReactClasswithVariables(outputPath);
+        const outputPath = join(
+          __dirname,
+          "../test-output/nested-path/and-another-one/and-another-one"
+        );
+
+        expect(result.code).toBe(success);
+
+        testReactClass(outputPath);
+      });
+
+      it("passes in the optional variables as {{ variables }} in the template", async () => {
+        const result = await cli(
+          [
+            "reactClassWithVariables",
+            "Person",
+            "test-output",
+            "firstName:string",
+            "age:number"
+          ],
+          "."
+        );
+
+        const outputPath = join(__dirname, "../test-output");
+
+        expect(result.code).toBe(success);
+
+        testReactClasswithVariables(outputPath);
+      });
     });
   });
 });
