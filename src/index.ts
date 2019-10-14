@@ -18,9 +18,13 @@ const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
 const mkdir = promisify(mkdirp);
 
-const defaultErrorLog = (msg: string): void => console.error(chalk.red(msg));
+const defaultErrorHandler = (msg: string): void => {
+  console.error(chalk.red(msg));
 
-const safeAsync = async (callback, onError = defaultErrorLog) => {
+  throw Error(msg);
+};
+
+const safeAsync = async (callback, onError = defaultErrorHandler) => {
   try {
     return await callback();
   } catch (error) {
@@ -28,7 +32,7 @@ const safeAsync = async (callback, onError = defaultErrorLog) => {
   }
 };
 
-const safeRequire = (filePath, onError: any = defaultErrorLog) => {
+const safeRequire = (filePath, onError: any = defaultErrorHandler) => {
   try {
     return require(filePath);
   } catch (error) {
@@ -125,6 +129,14 @@ const generateFiles = async ({ template, outputPath, name, variables }) => {
     );
 
     await safeAsync(() => writeFile(fileOutputPath, renderedTemplate));
+
+    console.log(
+      chalk.green(`
+       ----------------------------------------------------------------
+          Successfully generated "${template}" files - happy coding!
+       ----------------------------------------------------------------
+        `)
+    );
   });
 };
 
@@ -138,6 +150,7 @@ const main = async () => {
 
   cli
     .version("1.0.6")
+    .usage("<template> <name> <output-path> [variables...]")
     .description(
       "Generate files from your templates directory. Default: './hendrix'"
     )
