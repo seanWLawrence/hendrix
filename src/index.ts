@@ -8,6 +8,7 @@ import { join } from "path";
 import { pipe, map, join as joinStrings, head, split, filter } from "lodash/fp";
 import { get } from "lodash";
 import chalk from "chalk";
+import { render } from "mustache";
 
 /**
  * Utils
@@ -97,13 +98,17 @@ const stripTemplateExtension = pipe(
   joinStrings(".")
 );
 
-const templateDirectory = async ({ template, outputPath }) => {
+const templateDirectory = async ({ template, outputPath, name, variables }) => {
   const templateFilesPath = join(templatesPath, template);
   const templateFiles = await safeAsync(() => readDir(templateFilesPath));
 
   templateFiles.forEach(async templateFile => {
     const templateFilePath = join(templateFilesPath, templateFile);
     const templateContent = await readFile(templateFilePath, "utf8");
+
+    const renderedTemplate = render(templateContent, { variables, name });
+
+    console.log(renderedTemplate);
 
     const baseFileOutputPath = get(outputPaths, templateFile, "");
 
@@ -119,8 +124,6 @@ const templateDirectory = async ({ template, outputPath }) => {
       directoryOutputPath,
       stripTemplateExtension(templateFile)
     );
-
-    console.log(fileOutputPath);
   });
 };
 
@@ -145,7 +148,12 @@ const main = async () => {
         outputPath: string,
         ...variables: string[]
       ) => {
-        templateDirectory({ template, outputPath });
+        templateDirectory({
+          template,
+          outputPath,
+          name,
+          variables: formatVariables(variables)
+        });
       }
     );
 
