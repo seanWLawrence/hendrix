@@ -67,7 +67,7 @@ const additionalHelpMessage = (availableGenerators) => `
 Note:
   You can also use the alias 'h' instead of 'hendrix', for example:
 
-  h [options] <template> <name> <output-path> [...variables]
+  h <template> <name> <output-path> [...variables]
 
 Available generators:
 ${availableGenerators}
@@ -107,6 +107,7 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
     const availableGenerators = yield safeAsync(() => readDir(templatesPath));
     cli
         .version("1.0.6")
+        .usage("<template> <name> <output-path> [variables...]")
         .description("Generate files from your templates directory. Default: './hendrix'")
         .arguments("<template> <name> <output-path> [variables...]")
         .action((template, name, outputPath, ...variables) => {
