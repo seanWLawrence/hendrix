@@ -56,13 +56,20 @@ const { templatesPath, outputPaths } = safeRequire(configPath, () => DEFAULT_CON
 const prettifyAvailableGenerators = fp_1.pipe(fp_1.map(generator => {
     return `  ${generator}`;
 }), fp_1.join("\n"));
-const getAvailableGenerators = (availableGenerators) => {
+const getAvailableGenerators = () => __awaiter(void 0, void 0, void 0, function* () {
+    const availableGenerators = yield safeAsync(() => __awaiter(void 0, void 0, void 0, function* () {
+        const files = yield readDir(templatesPath, { withFileTypes: true });
+        const generatorDirectoryNames = files
+            .filter(dirEnt => dirEnt.isDirectory())
+            .map(({ name }) => name);
+        return generatorDirectoryNames;
+    }));
     const hasAvailableGenerators = availableGenerators.length > 0;
     if (hasAvailableGenerators) {
         return prettifyAvailableGenerators(availableGenerators);
     }
     return "No available generators";
-};
+});
 const additionalHelpMessage = (availableGenerators) => `
 Note:
   You can also use the alias 'h' instead of 'hendrix', for example:
@@ -74,7 +81,7 @@ ${availableGenerators}
 
 ${chalk_1.default.underline("For more documentation and examples, visit: https://github.com/seanWLawrence/hendrix#readme")}
 `;
-const displayAvailableGenerators = fp_1.pipe(prettifyAvailableGenerators, additionalHelpMessage, console.log);
+const displayAvailableGenerators = fp_1.pipe(additionalHelpMessage, console.log);
 const formatVariables = fp_1.pipe(fp_1.head, fp_1.map(variableString => {
     const [variableName, variableValue] = variableString.split(":");
     return { [variableName]: variableValue };
@@ -105,7 +112,7 @@ const cli = new commander_1.default.Command();
  * CLI
  */
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
-    const availableGenerators = yield safeAsync(() => readDir(templatesPath));
+    const availableGenerators = yield getAvailableGenerators();
     cli
         .version("1.0.6")
         .usage("<template> <name> <output-path> [variables...]")
@@ -128,4 +135,5 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
     cli.parse(process.argv);
 });
 main();
+exports.default = main;
 //# sourceMappingURL=index.js.map
