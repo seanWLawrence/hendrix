@@ -9,12 +9,12 @@ export default class {{ name }} extends Component {
     {{ /variables }}
     } = this.props;
 
-    return
-  }
-}
+    return;
+  };
+};
 
 {{ name }}.propTypes = {
 {{ #variables }}
   {{name}}: Types.{{value}},
 {{ /variables }}
-}
+};
