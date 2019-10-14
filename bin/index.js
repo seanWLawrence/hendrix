@@ -67,7 +67,7 @@ const additionalHelpMessage = (availableGenerators) => `
 Note:
   You can also use the alias 'h' instead of 'hendrix', for example:
 
-  h <template> <name> <output-path> [...variables]
+  h [options] <template> <name> <output-path> [...variables]
 
 Available generators:
 ${availableGenerators}
