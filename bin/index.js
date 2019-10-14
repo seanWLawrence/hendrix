@@ -29,8 +29,11 @@ const readDir = util_1.promisify(fs_1.default.readdir);
 const readFile = util_1.promisify(fs_1.default.readFile);
 const writeFile = util_1.promisify(fs_1.default.writeFile);
 const mkdir = util_1.promisify(mkdirp_1.default);
-const defaultErrorLog = (msg) => console.error(chalk_1.default.red(msg));
-const safeAsync = (callback, onError = defaultErrorLog) => __awaiter(void 0, void 0, void 0, function* () {
+const defaultErrorHandler = (msg) => {
+    console.error(chalk_1.default.red(msg));
+    throw Error(msg);
+};
+const safeAsync = (callback, onError = defaultErrorHandler) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         return yield callback();
     }
@@ -38,7 +41,7 @@ const safeAsync = (callback, onError = defaultErrorLog) => __awaiter(void 0, voi
         onError(error);
     }
 });
-const safeRequire = (filePath, onError = defaultErrorLog) => {
+const safeRequire = (filePath, onError = defaultErrorHandler) => {
     try {
         return require(filePath);
     }
@@ -89,6 +92,11 @@ const generateFiles = ({ template, outputPath, name, variables }) => __awaiter(v
         yield safeAsync(() => mkdir(directoryOutputPath));
         const fileOutputPath = path_1.join(directoryOutputPath, stripTemplateExtension(templateFile));
         yield safeAsync(() => writeFile(fileOutputPath, renderedTemplate));
+        console.log(chalk_1.default.green(`
+       ----------------------------------------------------------------
+          Successfully generated "${template}" files - happy coding!
+       ----------------------------------------------------------------
+        `));
     }));
 });
 const cli = new commander_1.default.Command();
