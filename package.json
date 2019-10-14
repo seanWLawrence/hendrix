@@ -1,6 +1,6 @@
 {
   "name": "hendrix",
-  "version": "1.0.5",
+  "version": "0.0.0-development",
   "description": "Simple, Rails-like scaffolding tool for quickly scaffolding files with minimal configuration.",
   "main": "bin/index.js",
   "engines": {
@@ -11,7 +11,9 @@
     "build": "tsc",
     "lint": "tsc --noEmit && eslint \"**/*.{js,ts}\" --quiet --fix",
     "test": "jest",
-    "prepublish": "tsc"
+    "prepublish": "tsc",
+    "commit": "git-cz",
+    "semantic-release": "semantic-release"
   },
   "files": [
     "bin/index.js"
@@ -32,12 +34,15 @@
     "@types/node": "^12.7.12",
     "@typescript-eslint/eslint-plugin": "^2.3.3",
     "@typescript-eslint/parser": "^2.3.3",
+    "commitizen": "^4.0.3",
+    "cz-conventional-changelog": "3.0.2",
     "eslint": "^6.5.1",
     "husky": "^3.0.9",
     "jest": "^24.9.0",
     "rimraf": "^3.0.0",
     "ts-jest": "^24.1.0",
-    "typescript": "^3.6.4"
+    "typescript": "^3.6.4",
+    "semantic-release": "^15.13.24"
   },
   "peerDependencies": {},
   "repository": {
@@ -63,6 +68,11 @@
   "husky": {
     "hooks": {
       "pre-push": "yarn lint && yarn test"
+    }
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
     }
   }
 }
