@@ -27,6 +27,7 @@ const mustache_1 = require("mustache");
  */
 const readDir = util_1.promisify(fs_1.default.readdir);
 const readFile = util_1.promisify(fs_1.default.readFile);
+const writeFile = util_1.promisify(fs_1.default.writeFile);
 const mkdir = util_1.promisify(mkdirp_1.default);
 const defaultErrorLog = (msg) => console.error(chalk_1.default.red(msg));
 const safeAsync = (callback, onError = defaultErrorLog) => __awaiter(void 0, void 0, void 0, function* () {
@@ -76,18 +77,18 @@ const formatVariables = fp_1.pipe(fp_1.head, fp_1.map(variableString => {
     return { [variableName]: variableValue };
 }));
 const stripTemplateExtension = fp_1.pipe(fp_1.split("."), fp_1.filter(word => word !== "mustache"), fp_1.join("."));
-const templateDirectory = ({ template, outputPath, name, variables }) => __awaiter(void 0, void 0, void 0, function* () {
+const generateFiles = ({ template, outputPath, name, variables }) => __awaiter(void 0, void 0, void 0, function* () {
     const templateFilesPath = path_1.join(templatesPath, template);
     const templateFiles = yield safeAsync(() => readDir(templateFilesPath));
     templateFiles.forEach((templateFile) => __awaiter(void 0, void 0, void 0, function* () {
         const templateFilePath = path_1.join(templateFilesPath, templateFile);
         const templateContent = yield readFile(templateFilePath, "utf8");
         const renderedTemplate = mustache_1.render(templateContent, { variables, name });
-        console.log(renderedTemplate);
         const baseFileOutputPath = lodash_1.get(outputPaths, templateFile, "");
         const directoryOutputPath = path_1.join(currentWorkingDirectory, baseFileOutputPath, outputPath);
-        yield mkdir(directoryOutputPath);
+        yield safeAsync(() => mkdir(directoryOutputPath));
         const fileOutputPath = path_1.join(directoryOutputPath, stripTemplateExtension(templateFile));
+        yield safeAsync(() => writeFile(fileOutputPath, renderedTemplate));
     }));
 });
 const cli = new commander_1.default.Command();
@@ -101,7 +102,7 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
         .description("Generate files from your templates directory. Default: './hendrix'")
         .arguments("<template> <name> <output-path> [variables...]")
         .action((template, name, outputPath, ...variables) => {
-        templateDirectory({
+        generateFiles({
             template,
             outputPath,
             name,

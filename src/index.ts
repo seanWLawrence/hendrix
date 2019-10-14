@@ -15,6 +15,7 @@ import { render } from "mustache";
  */
 const readDir = promisify(fs.readdir);
 const readFile = promisify(fs.readFile);
+const writeFile = promisify(fs.writeFile);
 const mkdir = promisify(mkdirp);
 
 const defaultErrorLog = (msg: string): void => console.error(chalk.red(msg));
@@ -98,7 +99,7 @@ const stripTemplateExtension = pipe(
   joinStrings(".")
 );
 
-const templateDirectory = async ({ template, outputPath, name, variables }) => {
+const generateFiles = async ({ template, outputPath, name, variables }) => {
   const templateFilesPath = join(templatesPath, template);
   const templateFiles = await safeAsync(() => readDir(templateFilesPath));
 
@@ -108,8 +109,6 @@ const templateDirectory = async ({ template, outputPath, name, variables }) => {
 
     const renderedTemplate = render(templateContent, { variables, name });
 
-    console.log(renderedTemplate);
-
     const baseFileOutputPath = get(outputPaths, templateFile, "");
 
     const directoryOutputPath = join(
@@ -118,12 +117,14 @@ const templateDirectory = async ({ template, outputPath, name, variables }) => {
       outputPath
     );
 
-    await mkdir(directoryOutputPath);
+    await safeAsync(() => mkdir(directoryOutputPath));
 
     const fileOutputPath = join(
       directoryOutputPath,
       stripTemplateExtension(templateFile)
     );
+
+    await safeAsync(() => writeFile(fileOutputPath, renderedTemplate));
   });
 };
 
@@ -148,7 +149,7 @@ const main = async () => {
         outputPath: string,
         ...variables: string[]
       ) => {
-        templateDirectory({
+        generateFiles({
           template,
           outputPath,
           name,
