@@ -27,6 +27,7 @@ const mustache_1 = require("mustache");
  */
 const readDir = util_1.promisify(fs_1.default.readdir);
 const readFile = util_1.promisify(fs_1.default.readFile);
+const writeFile = util_1.promisify(fs_1.default.writeFile);
 const mkdir = util_1.promisify(mkdirp_1.default);
 const defaultErrorLog = (msg) => console.error(chalk_1.default.red(msg));
 const safeAsync = (callback, onError = defaultErrorLog) => __awaiter(void 0, void 0, void 0, function* () {
@@ -83,11 +84,11 @@ const templateDirectory = ({ template, outputPath, name, variables }) => __await
         const templateFilePath = path_1.join(templateFilesPath, templateFile);
         const templateContent = yield readFile(templateFilePath, "utf8");
         const renderedTemplate = mustache_1.render(templateContent, { variables, name });
-        console.log(renderedTemplate);
         const baseFileOutputPath = lodash_1.get(outputPaths, templateFile, "");
         const directoryOutputPath = path_1.join(currentWorkingDirectory, baseFileOutputPath, outputPath);
-        yield mkdir(directoryOutputPath);
+        yield safeAsync(() => mkdir(directoryOutputPath));
         const fileOutputPath = path_1.join(directoryOutputPath, stripTemplateExtension(templateFile));
+        safeAsync(() => writeFile(fileOutputPath, renderedTemplate));
     }));
 });
 const cli = new commander_1.default.Command();
