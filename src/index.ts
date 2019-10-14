@@ -140,6 +140,8 @@ const generateFiles = async ({ template, outputPath, name, variables }) => {
   });
 };
 
+const noCommandsEntered = process.argv.slice(2).length === 0;
+
 const cli = new commander.Command();
 
 /**
@@ -174,6 +176,10 @@ const main = async () => {
   cli.on("--help", () => {
     displayAvailableGenerators(availableGenerators);
   });
+
+  if (noCommandsEntered) {
+    cli.outputHelp();
+  }
 
   cli.parse(process.argv);
 };

@@ -99,6 +99,7 @@ const generateFiles = ({ template, outputPath, name, variables }) => __awaiter(v
         `));
     }));
 });
+const noCommandsEntered = process.argv.slice(2).length === 0;
 const cli = new commander_1.default.Command();
 /**
  * CLI
@@ -121,6 +122,9 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
     cli.on("--help", () => {
         displayAvailableGenerators(availableGenerators);
     });
+    if (noCommandsEntered) {
+        cli.outputHelp();
+    }
     cli.parse(process.argv);
 });
 main();
