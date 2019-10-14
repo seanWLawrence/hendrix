@@ -26,6 +26,11 @@
   "author": "Sean W. Lawrence <sean.w.lawrence@gmail.com> (https://slawrence.tech/)",
   "license": "MIT",
   "devDependencies": {
+    "@semantic-release/changelog": "^3.0.4",
+    "@semantic-release/commit-analyzer": "^6.3.0",
+    "@semantic-release/git": "^7.0.16",
+    "@semantic-release/npm": "^5.2.0",
+    "@semantic-release/release-notes-generator": "^7.3.0",
     "@types/eslint": "^6.1.2",
     "@types/jest": "^24.0.18",
     "@types/mkdirp": "^0.5.2",
@@ -35,14 +40,14 @@
     "@typescript-eslint/eslint-plugin": "^2.3.3",
     "@typescript-eslint/parser": "^2.3.3",
     "commitizen": "^4.0.3",
+    "coveralls": "^3.0.7",
     "cz-conventional-changelog": "3.0.2",
     "eslint": "^6.5.1",
-    "husky": "^3.0.9",
     "jest": "^24.9.0",
     "rimraf": "^3.0.0",
+    "semantic-release": "^15.13.24",
     "ts-jest": "^24.1.0",
-    "typescript": "^3.6.4",
-    "semantic-release": "^15.13.24"
+    "typescript": "^3.6.4"
   },
   "peerDependencies": {},
   "repository": {
@@ -65,14 +70,18 @@
     "mustache": "^3.1.0",
     "ncp": "^2.0.0"
   },
-  "husky": {
-    "hooks": {
-      "pre-push": "yarn lint && yarn test"
-    }
-  },
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
+  },
+  "release": {
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      "@semantic-release/changelog",
+      "@semantic-release/npm",
+      "@semantic-release/git"
+    ]
   }
 }
