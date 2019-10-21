@@ -123,7 +123,7 @@ const createTemplatesDirectoryIfDoesNotExist = () => {
     )
   );
 
-  const examplesPath = join(__dirname, "../examples");
+  const examplesPath = join(__dirname, "../examples-mustache");
 
   return new Promise((resolve, reject) => {
     return ncp(examplesPath, templatesPath, error => {
@@ -136,6 +136,14 @@ const createTemplatesDirectoryIfDoesNotExist = () => {
         addMargin(
           chalk.green(
             `Successfully created new templates directory at "${templatesPath}" with some examples!`
+          )
+        )
+      );
+
+      console.log(
+        addMargin(
+          chalk.blue(
+            "Run \"hendrix\" command again to see a list of available generators."
           )
         )
       );
