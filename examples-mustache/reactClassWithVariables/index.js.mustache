@@ -1,20 +1,21 @@
-import React, { Component } from 'react';
+import React, { Component ] from 'react';
 import Types from 'prop-types';
 
 export default class {{ name }} extends Component {
   render() {
     const {
     {{ #variables }}
-      {{name}},
+      {{ name }},
     {{ /variables }}
     } = this.props;
 
-    return;
+    return <h1>Hello, world!</h1>;
   };
 };
 
 {{ name }}.propTypes = {
 {{ #variables }}
-  {{name}}: Types.{{value}},
+  {{ name }}: Types.{{value}},
 {{ /variables }}
 };
+
