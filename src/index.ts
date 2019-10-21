@@ -25,9 +25,17 @@ const currentWorkingDirectory = process.cwd();
 
 const configPath = join(currentWorkingDirectory, ".hendrixrc.js");
 
-const DEFAULT_CONFIG = { templatesPath: "hendrix", outputPaths: {} };
+const DEFAULT_CONFIG = {
+  templatesPath: "hendrix",
+  outputPaths: {},
+  renderTemplate: render
+};
 
-const { templatesPath, outputPaths } = safeRequire(configPath, DEFAULT_CONFIG);
+const {
+  templatesPath = "hendrix",
+  outputPaths = {},
+  renderTemplate = render
+} = safeRequire(configPath, DEFAULT_CONFIG);
 
 const prettifyAvailableGenerators = pipe(
   map(generator => {
@@ -83,9 +91,20 @@ const formatVariables = pipe(
   })
 );
 
+const TEMPLATE_EXTENSIONS = [
+  "mustache",
+  "hbs",
+  "handlebars",
+  "ejs",
+  "pug",
+  "haml"
+];
+
+const isNotTemplateExtension = word => !TEMPLATE_EXTENSIONS.includes(word);
+
 const stripTemplateExtension = pipe(
   split("."),
-  filter(word => word !== "mustache"),
+  filter(isNotTemplateExtension),
   joinStrings(".")
 );
 
@@ -109,7 +128,7 @@ const createTemplatesDirectoryIfDoesNotExist = () => {
   return new Promise((resolve, reject) => {
     return ncp(examplesPath, templatesPath, error => {
       if (error) {
-        console.log(chalk.red(error.message));
+        console.error(error);
         reject(error);
       }
 
@@ -121,7 +140,7 @@ const createTemplatesDirectoryIfDoesNotExist = () => {
         )
       );
 
-      return resolve("asd");
+      return resolve();
     });
   });
 };
@@ -129,41 +148,50 @@ const createTemplatesDirectoryIfDoesNotExist = () => {
 const generateFiles = ({ template, outputPath, name, variables }) => {
   const templateFilesPath = join(templatesPath, template);
 
-  createTemplatesDirectoryIfDoesNotExist().then(() => {
-    const templateFiles = readdirSync(templateFilesPath);
+  createTemplatesDirectoryIfDoesNotExist()
+    .then(() => {
+      const templateFiles = readdirSync(templateFilesPath);
 
-    templateFiles.forEach(templateFile => {
-      const templateFilePath = join(templateFilesPath, templateFile);
-      const templateContent = readFileSync(templateFilePath, "utf8");
+      templateFiles.forEach(templateFile => {
+        const templateFilePath = join(templateFilesPath, templateFile);
+        const templateContent = readFileSync(templateFilePath, "utf8");
 
-      const renderedTemplate = render(templateContent, { variables, name });
+        const renderedTemplate = renderTemplate(templateContent, {
+          variables,
+          name
+        });
 
-      const baseFileOutputPath = get(outputPaths, templateFile, "");
+        const baseFileOutputPath = get(outputPaths, template, "");
 
-      const directoryOutputPath = join(
-        currentWorkingDirectory,
-        baseFileOutputPath,
-        outputPath
-      );
+        console.error(baseFileOutputPath, outputPaths, template);
 
-      mkdirp.sync(directoryOutputPath);
+        const directoryOutputPath = join(
+          currentWorkingDirectory,
+          baseFileOutputPath,
+          outputPath
+        );
 
-      const fileOutputPath = join(
-        directoryOutputPath,
-        stripTemplateExtension(templateFile)
-      );
+        mkdirp.sync(directoryOutputPath);
 
-      writeFileSync(fileOutputPath, renderedTemplate);
+        const fileOutputPath = join(
+          directoryOutputPath,
+          stripTemplateExtension(templateFile)
+        );
 
-      console.log(
-        chalk.green(`
+        writeFileSync(fileOutputPath, renderedTemplate);
+
+        console.log(
+          chalk.green(`
        ----------------------------------------------------------------
           Successfully generated "${template}" files - happy coding!
        ----------------------------------------------------------------
         `)
-      );
+        );
+      });
+    })
+    .catch(e => {
+      throw Error(e);
     });
-  });
 };
 
 const noCommandsEntered = process.argv.slice(2).length === 0;
@@ -174,42 +202,46 @@ const cli = new commander.Command();
  * CLI
  */
 const main = () => {
-  createTemplatesDirectoryIfDoesNotExist().then(() => {
-    const availableGenerators = getAvailableGenerators();
+  createTemplatesDirectoryIfDoesNotExist()
+    .then(() => {
+      const availableGenerators = getAvailableGenerators();
 
-    cli
-      .version("1.0.6")
-      .usage("<template> <name> <output-path> [variables...]")
-      .description(
-        "Generate files from your templates directory. Default: './hendrix'"
-      )
-      .arguments("<template> <name> <output-path> [variables...]")
-      .action(
-        (
-          template: string,
-          name: string,
-          outputPath: string,
-          ...variables: string[]
-        ) => {
-          generateFiles({
-            template,
-            outputPath,
-            name,
-            variables: formatVariables(variables)
-          });
-        }
-      );
+      cli
+        .version("1.0.6")
+        .usage("<template> <name> <output-path> [variables...]")
+        .description(
+          "Generate files from your templates directory. Default: './hendrix'"
+        )
+        .arguments("<template> <name> <output-path> [variables...]")
+        .action(
+          (
+            template: string,
+            name: string,
+            outputPath: string,
+            ...variables: string[]
+          ) => {
+            generateFiles({
+              template,
+              outputPath,
+              name,
+              variables: formatVariables(variables)
+            });
+          }
+        );
 
-    cli.on("--help", () => {
-      displayAvailableGenerators(availableGenerators);
+      cli.on("--help", () => {
+        displayAvailableGenerators(availableGenerators);
+      });
+
+      if (noCommandsEntered) {
+        cli.outputHelp();
+      }
+
+      cli.parse(process.argv);
+    })
+    .catch(e => {
+      throw Error(e);
     });
-
-    if (noCommandsEntered) {
-      cli.outputHelp();
-    }
-
-    cli.parse(process.argv);
-  });
 };
 
 main();
