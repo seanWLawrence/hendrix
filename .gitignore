@@ -4,5 +4,6 @@ public
 coverage
 bin/
 test-output/
+test-examples/
 hendrix/
 .hendrixrc.js

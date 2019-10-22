@@ -3,6 +3,7 @@ import { join, resolve as resolvePath } from "path";
 import rimraf from "rimraf";
 import { readdirSync, readFileSync, writeFileSync, renameSync } from "fs";
 import * as mkdirp from "mkdirp";
+import { ncp } from "ncp";
 
 export const success = 0;
 export const failure = 1;
@@ -35,7 +36,11 @@ export const cli = (args, cwd) => {
 
 export const configFilePath = join(__dirname, "../.hendrixrc.js");
 export const defaultTemplatesDirectoryPath = join(__dirname, "../hendrix/");
-export const customTemplatesDirectoryPath = join(__dirname, "../examples/");
+export const exampleTemplatesPath = join(__dirname, "../examples-mustache/");
+export const customTemplatesDirectoryPath = join(
+  __dirname,
+  "../test-examples/"
+);
 
 export const cleanConfigFile = () => {
   rimraf.sync(configFilePath);
@@ -47,14 +52,23 @@ export const cleanTemplatesDirectory = (
   rimraf.sync(templatesDirectoryPath);
 };
 
-export const createTemplatesDirectory = templatesDirectoryPath => {
-  mkdirp.sync(templatesDirectoryPath);
+export const copyTemplatesDirectory = outputPath => {
+  return new Promise((resolve, reject) => {
+    return ncp(defaultTemplatesDirectoryPath, outputPath, error => {
+      if (error) {
+        console.error(error);
+        reject(error);
+      }
+
+      return resolve();
+    });
+  });
 };
 
 export const createConfigFile = (
   configFileContent = `
           module.exports = {
-            templatesPath: "examples",
+            templatesPath: "test-examples",
             outputPaths: { 
               reactClass: "test-output", 
               reactClassWithVariables: "test-output" 
@@ -78,12 +92,12 @@ export const testCss = fileContent => {
 };
 
 export const testSpec = fileContent => {
-  const line1 = "import React from 'react'";
+  const line1 = "import React from 'react';";
   const line2 = "import Person from './';";
   const line3 = "describe('Person', () => {";
   const line4 = "  it('renders a greeting', () => {";
-  const line5 = "    const { getByText } = render(<Person />)";
-  const line6 = "    getByText('Hello, world!')";
+  const line5 = "    const { getByText } = render(<Person />);";
+  const line6 = "    getByText('Hello, world!');";
   const line7 = "  });";
   const line8 = "});";
 
@@ -99,7 +113,7 @@ export const testSpec = fileContent => {
 
 export const testReactClass = outputPath => {
   const testComponent = fileContent => {
-    const line1 = "import React, { Component } from 'react'";
+    const line1 = "import React, { Component } from 'react';";
     const line2 = "export default class Person extends Component {";
     const line3 = "  render() {";
     const line4 = "   return <h1>Hello, world!</h1>;";
@@ -132,7 +146,7 @@ export const testReactClass = outputPath => {
 
 export const testReactClassWithVariables = outputPath => {
   const testComponent = fileContent => {
-    const line1 = "import React, { Component } from 'react'";
+    const line1 = "import React, { Component } from 'react';";
     const line2 = "import Types from 'prop-types';";
     const line3 = "export default class Person extends Component {";
     const line4 = "  render() {";
@@ -140,7 +154,7 @@ export const testReactClassWithVariables = outputPath => {
     const line6 = "     firstName,";
     const line7 = "     age,";
     const line8 = "   } = this.props;";
-    const line9 = "   return;";
+    const line9 = "   return <h1>Hello, world!</h1>;";
     const line10 = "  };";
     const line11 = "};";
     const line12 = "Person.propTypes = {";
@@ -181,6 +195,3 @@ export const testReactClassWithVariables = outputPath => {
     }
   });
 };
-
-export const hendrixTemplatesPath = join(__dirname, "../hendrix");
-export const customTemplatesPath = join(__dirname, "../examples");
