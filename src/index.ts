@@ -171,8 +171,6 @@ const generateFiles = ({ template, outputPath, name, variables }) => {
 
         const baseFileOutputPath = get(outputPaths, template, "");
 
-        console.error(baseFileOutputPath, outputPaths, template);
-
         const directoryOutputPath = join(
           currentWorkingDirectory,
           baseFileOutputPath,

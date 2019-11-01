@@ -1,0 +1,19 @@
+# <%= name %>
+
+Description goes here
+
+## API
+
+```tsx
+interface <%= name %>Props {
+<% variables.forEach(function(variable) { %>
+  <%= variable.name %>: <%= variable.value %>;
+<% }) %>
+}
+```
+
+## Usage
+
+```tsx
+<<%= name %> />
+```

@@ -4,6 +4,7 @@ import { render as hbsRender, compile as hbsCompile } from "ejs";
 
 import {
   testReactClass,
+  testReactClassWithVariables,
   success,
   cli,
   cleanConfigFile,
@@ -36,22 +37,47 @@ describe("supports other template engines with `templateRender` function on conf
     testReactClass(outputPath);
   });
 
-  it("works with ejs", async () => {
-    createConfigFile(`
+  describe("ejs", () => {
+    beforeEach(() => {
+      createConfigFile(`
     const { compile } = require('ejs');
 
     module.exports = {
       templatesPath: 'examples-ejs',
-      outputPaths: { reactClass: "test-output" },
+      outputPaths: { reactClass: "test-output", reactClassWithVariables: "test-output" },
       renderTemplate: (templateContent, context) => compile(templateContent)(context)
     };`);
 
-    const result = await cli(["reactClass", "Person", "src"], ".");
+      cleanTestOutputPath();
+    });
 
-    const outputPath = join(__dirname, "../test-output/src");
+    it("works with reactClass templates", async () => {
+      const result = await cli(["reactClass", "Person", "src"], ".");
 
-    expect(result.code).toBe(success);
+      const outputPath = join(__dirname, "../test-output/src");
 
-    testReactClass(outputPath);
+      expect(result.code).toBe(success);
+
+      testReactClass(outputPath);
+    });
+
+    it("works with reactClassWithVariables templates", async () => {
+      const result = await cli(
+        [
+          "reactClassWithVariables",
+          "Person",
+          "src",
+          "firstName:string",
+          "age:number"
+        ],
+        "."
+      );
+
+      const outputPath = join(__dirname, "../test-output/src");
+
+      expect(result.code).toBe(success);
+
+      testReactClassWithVariables(outputPath);
+    });
   });
 });
