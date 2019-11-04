@@ -3,6 +3,7 @@ import { join, resolve as resolvePath } from "path";
 import rimraf from "rimraf";
 import { readdirSync, readFileSync, writeFileSync, renameSync } from "fs";
 import * as mkdirp from "mkdirp";
+import { pipe, head, split, last } from "lodash/fp";
 import { ncp } from "ncp";
 
 export const success = 0;
@@ -194,4 +195,15 @@ export const testReactClassWithVariables = outputPath => {
         return testSpec(fileContent);
     }
   });
+};
+
+export const getTemplateFileExtension = () => {
+  const firstTemplateFile = head(
+    readdirSync(join(defaultTemplatesDirectoryPath, "reactClass"))
+  );
+
+  return pipe(
+    split("."),
+    last
+  )(firstTemplateFile);
 };

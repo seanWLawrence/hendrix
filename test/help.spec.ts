@@ -1,8 +1,10 @@
 import {
   cleanConfigFile,
+  createConfigFile,
   cli,
   cleanTemplatesDirectory,
-  success
+  success,
+  getTemplateFileExtension
 } from "./utils";
 
 describe("help", () => {
@@ -19,11 +21,19 @@ describe("help", () => {
       "Generate files from your templates directory. Default: './hendrix'"
     );
     expect(result.stdout).toContain(
-      "You can also use the alias 'h' instead of 'hendrix', for example:"
+      "1. You can also use the alias 'h' instead of 'hendrix', for example:"
     );
     expect(result.stdout).toContain(
       "h <template> <name> <output-path> [...variables]"
     );
+    expect(result.stdout).toContain(
+      "2. Hendrix will generate example templates if none exist."
+    );
+    expect(result.stdout).toContain(
+      "You can choose between 'ejs', 'hbs', or 'mustache' (default) with"
+    );
+    expect(result.stdout).toContain("the '--template' flag. For example:");
+    expect(result.stdout).toContain("h reactClass Person src --template ejs");
     expect(result.stdout).toContain(
       "For more documentation and examples, visit: https://github.com/seanWLawrence/hendrix#readme"
     );
@@ -64,7 +74,7 @@ describe("help", () => {
       cleanTemplatesDirectory();
     });
 
-    it("creates example generators and displays them", async () => {
+    it("creates example generators and displays them (default 'mustache')", async () => {
       const result = await cli([], ".");
 
       expectHelpMessage(result);
@@ -77,6 +87,90 @@ describe("help", () => {
 
       expect(result2.stdout).toContain("reactClass");
       expect(result2.stdout).toContain("reactClassWithVariables");
+      expect(getTemplateFileExtension()).toBe("mustache");
+    });
+
+    describe("creates example generators and displays them with (allows custom --template flag)", () => {
+      beforeAll(() => {
+        cleanConfigFile();
+        createConfigFile(`module.exports = {
+          outputPaths: {
+            reactClass: 'test-output', 
+            reactClassWithVariables: 'test-output'
+          }
+        }`);
+      });
+
+      beforeEach(() => {
+        cleanTemplatesDirectory();
+      });
+
+      it("works with mustache", async () => {
+        const result = await cli(
+          [
+            "hendrix",
+            "Person",
+            "src",
+            "firstName:string",
+            "--template",
+            "mustache"
+          ],
+          "."
+        );
+
+        expect(result.stdout).toContain(
+          "Run \"hendrix\" command again to see a list of available generators."
+        );
+        const result2 = await cli([], ".");
+
+        expectHelpMessage(result2);
+        expect(result2.stdout).toContain("reactClass");
+        expect(result2.stdout).toContain("reactClassWithVariables");
+        expect(getTemplateFileExtension()).toBe("mustache");
+      });
+
+      it("works with handlebars", async () => {
+        const result = await cli(
+          [
+            "hendrix",
+            "Person",
+            "src",
+            "firstName:string",
+            "--template",
+            "handlebars"
+          ],
+          "."
+        );
+
+        expect(result.stdout).toContain(
+          "Run \"hendrix\" command again to see a list of available generators."
+        );
+
+        const result2 = await cli([], ".");
+
+        expectHelpMessage(result2);
+        expect(result2.stdout).toContain("reactClass");
+        expect(result2.stdout).toContain("reactClassWithVariables");
+        expect(getTemplateFileExtension()).toBe("hbs");
+      });
+
+      it("works with ejs", async () => {
+        const result = await cli(
+          ["hendrix", "Person", "src", "firstName:string", "--template", "ejs"],
+          "."
+        );
+
+        expect(result.stdout).toContain(
+          "Run \"hendrix\" command again to see a list of available generators."
+        );
+
+        const result2 = await cli([], ".");
+
+        expectHelpMessage(result2);
+        expect(result2.stdout).toContain("reactClass");
+        expect(result2.stdout).toContain("reactClassWithVariables");
+        expect(getTemplateFileExtension()).toBe("ejs");
+      });
     });
   });
 });

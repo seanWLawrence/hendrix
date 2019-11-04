@@ -1,6 +1,6 @@
 {
   "name": "hendrix",
-  "version": "0.0.0-development",
+  "version": "1.0.0",
   "description": "Simple, Rails-like scaffolding tool for quickly scaffolding files with minimal configuration.",
   "main": "bin/index.js",
   "engines": {
