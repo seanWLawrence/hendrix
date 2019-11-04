@@ -11,10 +11,37 @@ import {
   success,
   cli,
   testReactClass,
-  testReactClassWithVariables
+  testReactClassWithVariables,
+  customVariableValue
 } from "./utils";
 
 describe("generator", () => {
+  beforeEach(async () => {
+    cleanConfigFile();
+    cleanTestOutputPath();
+    cleanTemplatesDirectory();
+    await cli([], ".");
+  });
+
+  it("accepts custom variables", async () => {
+    const result = await cli(
+      [
+        "reactClass",
+        "Person",
+        "test-output",
+        "--description",
+        `'${customVariableValue}'`
+      ],
+      "."
+    );
+
+    const outputPath = join(__dirname, "../test-output");
+
+    expect(result.code).toBe(success);
+
+    testReactClass(outputPath, { withCustomVariable: true });
+  });
+
   describe("without config file", () => {
     beforeEach(async () => {
       cleanConfigFile();

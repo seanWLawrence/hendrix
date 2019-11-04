@@ -8,6 +8,7 @@ import { ncp } from "ncp";
 
 export const success = 0;
 export const failure = 1;
+export const customVariableValue = "custom variable value";
 
 export interface CLIResult {
   code: number;
@@ -112,7 +113,34 @@ export const testSpec = fileContent => {
   expect(fileContent).toContain(line8);
 };
 
-export const testReactClass = outputPath => {
+export const testReadMe = (fileContent, withCustomVariable) => {
+  const line1 = "# Person";
+  const line3 = "## API";
+  const line4 = "```tsx";
+  const line5 = "interface PersonProps {}";
+  const line6 = "```";
+  const line7 = "## Usage";
+  const line8 = "<Person />";
+
+  expect(fileContent).toContain(line1);
+  expect(fileContent).toContain(line3);
+  expect(fileContent).toContain(line4);
+  expect(fileContent).toContain(line5);
+  expect(fileContent).toContain(line6);
+  expect(fileContent).toContain(line7);
+  expect(fileContent).toContain(line8);
+
+  if (withCustomVariable) {
+    expect(fileContent).toContain(customVariableValue);
+  } else {
+    expect(fileContent).toContain("Description goes here");
+  }
+};
+
+export const testReactClass = (
+  outputPath,
+  options: { withCustomVariable?: boolean } = { withCustomVariable: false }
+) => {
   const testComponent = fileContent => {
     const line1 = "import React, { Component } from 'react';";
     const line2 = "export default class Person extends Component {";
@@ -141,6 +169,9 @@ export const testReactClass = outputPath => {
 
       case "index.spec.js":
         return testSpec(fileContent);
+
+      case "README.md":
+        testReadMe(fileContent, options.withCustomVariable);
     }
   });
 };

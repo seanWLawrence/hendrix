@@ -166,7 +166,8 @@ const generateFiles = ({ template, outputPath, name, variables }) => {
 
         const renderedTemplate = renderTemplate(templateContent, {
           variables,
-          name
+          name,
+          ...cliInput
         });
 
         const baseFileOutputPath = get(outputPaths, template, "");
@@ -185,15 +186,15 @@ const generateFiles = ({ template, outputPath, name, variables }) => {
         );
 
         writeFileSync(fileOutputPath, renderedTemplate);
+      });
 
-        console.log(
-          chalk.green(`
+      console.log(
+        chalk.green(`
        ----------------------------------------------------------------
           Successfully generated "${template}" files - happy coding!
        ----------------------------------------------------------------
         `)
-        );
-      });
+      );
     })
     .catch(e => {
       throw Error(e);
