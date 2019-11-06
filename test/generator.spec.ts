@@ -12,7 +12,8 @@ import {
   cli,
   testReactClass,
   testReactClassWithVariables,
-  customVariableValue
+  customVariableValue,
+  customFileName
 } from "./utils";
 
 describe("generator", () => {
@@ -40,6 +41,22 @@ describe("generator", () => {
     expect(result.code).toBe(success);
 
     testReactClass(outputPath, { withCustomVariable: true });
+  });
+
+  it("accepts custom file name", async () => {
+    const result = await cli(
+      ["reactClass", "Person", "test-output", "--fileName", customFileName],
+      "."
+    );
+
+    const outputPath = join(__dirname, "../test-output");
+
+    expect(result.code).toBe(success);
+
+    testReactClass(outputPath, {
+      withCustomVariable: true,
+      withCustomFileName: true
+    });
   });
 
   describe("without config file", () => {

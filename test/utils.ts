@@ -9,6 +9,7 @@ import { ncp } from "ncp";
 export const success = 0;
 export const failure = 1;
 export const customVariableValue = "custom variable value";
+export const customFileName = "custom-file";
 
 export interface CLIResult {
   code: number;
@@ -139,7 +140,10 @@ export const testReadMe = (fileContent, withCustomVariable) => {
 
 export const testReactClass = (
   outputPath,
-  options: { withCustomVariable?: boolean } = { withCustomVariable: false }
+  options: { withCustomVariable?: boolean; withCustomFileName?: boolean } = {
+    withCustomVariable: false,
+    withCustomFileName: false
+  }
 ) => {
   const testComponent = fileContent => {
     const line1 = "import React, { Component } from 'react';";
@@ -160,6 +164,10 @@ export const testReactClass = (
     const filePath = join(outputPath, file);
     const fileContent = readFileSync(filePath, "utf8");
 
+    if (options.withCustomFileName) {
+      expect(head(file.split("."))).toBe(customFileName);
+    }
+
     switch (file) {
       case "index.js":
         return testComponent(fileContent);
@@ -171,7 +179,7 @@ export const testReactClass = (
         return testSpec(fileContent);
 
       case "README.md":
-        testReadMe(fileContent, options.withCustomVariable);
+        return testReadMe(fileContent, options.withCustomVariable);
     }
   });
 };

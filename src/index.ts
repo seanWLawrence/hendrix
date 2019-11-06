@@ -108,6 +108,16 @@ const stripTemplateExtension = pipe(
   joinStrings(".")
 );
 
+const customFileName = ({ templateFileName, fileName }) => {
+  const baseFileName = stripTemplateExtension(templateFileName);
+  const fileExtension = baseFileName
+    .split(".")
+    .slice(1)
+    .join(".");
+
+  return [fileName, fileExtension].join(".");
+};
+
 const createTemplatesDirectoryIfDoesNotExist = () => {
   const templatesDirectoryExists = existsSync(templatesPath);
 
@@ -180,10 +190,14 @@ const generateFiles = ({ template, outputPath, name, variables }) => {
 
         mkdirp.sync(directoryOutputPath);
 
-        const fileOutputPath = join(
-          directoryOutputPath,
-          stripTemplateExtension(templateFile)
-        );
+        const fileName = cliInput.fileName
+          ? customFileName({
+              templateFileName: templateFile,
+              fileName: cliInput.fileName
+            })
+          : stripTemplateExtension(templateFile);
+
+        const fileOutputPath = join(directoryOutputPath, fileName);
 
         writeFileSync(fileOutputPath, renderedTemplate);
       });

@@ -2,6 +2,34 @@
 
 Simple, Rails-like CLI tool for generating files quickly.
 
+## Table of contents
+
+- [Hendrix](#hendrix)
+  * [Table of contents](#table-of-contents)
+  * [Installation](#installation)
+  * [How it works](#how-it-works)
+    + [Creating generators](#creating-generators)
+    + [Passing custom variables to your templates from the CLI](#passing-custom-variables-to-your-templates-from-the-cli)
+    + [Passing Rails-like variables to your templates from the CLI](#passing-rails-like-variables-to-your-templates-from-the-cli)
+    + [Customizing the file name](#customizing-the-file-name)
+  * [Quick start](#quick-start)
+    + [Generate starter templates and see instructions (recommended)](#generate-starter-templates-and-see-instructions--recommended-)
+    + [Generating files](#generating-files)
+    + [Generating files with `variables`](#generating-files-with--variables-)
+      - [Custom variables](#custom-variables)
+      - [Rails-like `variables` array](#rails-like--variables--array)
+  * [Creating new templates](#creating-new-templates)
+    + [Adding custom variables](#adding-custom-variables)
+    + [Adding special Rails-like `variables`](#adding-special-rails-like--variables-)
+  * [Configuring hendrix](#configuring-hendrix)
+    + [Configuration examples](#configuration-examples)
+      - [Custom templates directory](#custom-templates-directory)
+      - [Custom base directories](#custom-base-directories)
+      - [Custom help message add on](#custom-help-message-add-on)
+      - [Custom template engines](#custom-template-engines)
+  * [Contributing](#contributing)
+  * [License](#license)
+
 ## Installation
 
 In local project as dev dependency
@@ -25,150 +53,20 @@ or without installing
 npx hendrix <template> <name> <output-path> [...variables]
 ```
 
-## Usage
+## Overview
 
-> Note: you can also use the alias `h` instead of `hendrix` if you prefer.
-> We only use the fully spelled out `hendrix` command in these examples for clarity.
+### Creating generators
 
-Getting help
+Hendrix uses the following folder/file structure for generators. 
 
-> This will print out usage instructions, a list of avilable generators and an example.
-
-```bash
-hendrix --help
+```ascii
+generators-folder/
+  template-name-folder/
+    ...template-files
 ```
 
-Generating files
-
-```bash
-hendrix <template> <name> <output-path> [...variables]
-```
-
-## Getting started
-
-[![Hendrix intro](https://asciinema.org/a/5mS0vj3FS3uH5gLVbk1xLFzSg.svg)](https://asciinema.org/a/5mS0vj3FS3uH5gLVbk1xLFzSg)
-
-Let's create simple generator that scaffolds a basic React component.
-
-1. Create template(s)
-
-Create a folder called 'hendrix' and a new directory inside it with the name of your first template. We'll use "reactClass" as an example, but it can be anything.
-
-```bash
-mkdir -p hendrix/reactClass
-```
-
-Create at least one file in this folder with a template. Make sure the file name
-ends with '.mustache'
-
-```bash
-touch hendrix/reactClass/index.js.mustache
-```
-
-Add a [mustache](https://github.com/janl/mustache.js/) template to this file. Here's an example:
-
-```hbs
-import React, { Component } from 'react';
-
-export default class {{ name }} extends Component {
-  render() {
-    return
-  }
-}
-```
-
-2. Run the generator
-
-```bash
-hendrix reactClass Person /src/components/person
-```
-
-3. View your file
-
-You'll have a new file at `src/person/index.js` that looks like this:
-
-```tsx
-import React, { Component } from "react";
-
-export default class Person extends Component {
-  render() {
-    return;
-  }
-}
-```
-
-## Adding variables
-
-Let's make our first example a little better and add prop types.
-
-1. Let's make a new template directory called `reactClassWithVariables` and add
-   a file inside of it called `index.js.mustache`
-
-```bash
-mkdir hendrix/reactClassWithVariables && touch
-hendrix/reactClassWithVariables/index.js.mustache
-```
-
-2. Copy the old template and add variables to it
-
-```hbs
-import React, { Component } from 'react';
-import Types from 'prop-types';
-
-export default class {{ name }} extends Component {
-  render() {
-    const {
-    {{ #variables }}
-      {{name}},
-    {{ /variables }}
-    } = this.props;
-
-    return
-  }
-}
-
-{{ name }}.propTypes = {
-{{ #variables }}
-  {{name}}: Types.{{value}},
-{{ /variables }}
-}
-```
-
-3. Call hendrix with variables
-
-```bash
-hendrix react-class Person src/components/person firstName:string age:number
-```
-
-4. View the file
-
-Your file will look like this, cool!
-
-```tsx
-import React, { Component } from 'react';
-import Types from 'prop-types';
-
-export default class Person extends Component {
-  render() {
-    const {
-      firstName,
-      age
-    } = this.props;
-
-    return;
-  }
-}
-
-Person.propTypes = {
-  firstName: Types.string,
-  age: Types.number
-}
-```
-
-## Setting up hendrix
-
-To define a generator, create a folder in your templates folder with the name
-that you want to call it. Then create your templates inside that folder. 
+By default, Hendrix will search for your generators in a folder called `hendrix` in your project's root directory, though this can be changed in the
+[configuration](/#configuration).
 
 For example, with the following structure:
 
@@ -177,36 +75,89 @@ hendrix/
   reactClass/
     index.js.mustache
     index.spec.js.mustache
+    index.scss.mustache
+    README.md.mustache
 
   reactClassWithVariables/
     index.js.mustache
     index.spec.js.mustache
-
-  helper/
-    index.js.mustache
-    index.spec.js.mustache
+    index.scss.mustache
+    README.md.mustache
 ```
 
 You'll have access to the following generators:
 
 - `reactClass`
 - `reactClassWithVariables`
-- `helper`
 
-## Passing variables to your templates from the CLI
+That will generate the following files when called:
 
-Variables are passed in as an array of objects with the property `variables`,
+- `index.js`
+- `index.spec.js`
+- `index.scss`
+- `README.md`
+
+### Passing custom variables
+
+You can pass in custom variables using flags. You can have as many flags as you
+want and the value of them will be inserted directly into your template when you
+run the generator.
+
+```bash
+hendrix reactClass Person src/ --greeting hello
+```
+
+Inserts the following variables into your template:
+
+```tsx
+{
+  name: 'Person', 
+  greeting: 'hello'
+}
+```
+
+You can also use the flag with a single hyphen, like this:
+
+```bash
+hendrix reactClass Person src/ -greeting world
+```
+
+And it'll insert the variable into your template the same way:
+
+```tsx
+{
+  name: 'Person', 
+  greeting: 'world'
+}
+```
+
+__Important: make sure to wrap strings with spaces inside of quotes__:
+
+```bash
+hendrix reactClass Person src/ --greeting 'Hello, world!'
+```
+
+```tsx
+{
+  name: 'Person', 
+  greeting: 'Hello, world!'
+}
+```
+
+### Passing Rails-like variables
+
+The special Rails-like `variables` are passed in as an array of objects with the property `variables`,
 and use the format `name:value` in the CLI. 
 
-You can pass as many variables as you like.
+You can pass as many of these variables as you like. 
 
 For example:
 
 ```bash
-hendrix view Person firstName:string age:number
+hendrix reactClass Person src/ firstName:string age:number
 ```
 
-Will pass the following values into your template:
+Will pass the following values into your template under the name `variables`:
 
 ```tsx
 {
@@ -218,68 +169,113 @@ Will pass the following values into your template:
 }
 ```
 
-## Configuring hendrix
+### Customizing the file name
+
+You can pass in a custom file name using the `fileName` flag.
+
+```bash
+hendrix reactClass Person src/ --fileName hello
+```
+
+Which will output (based on the default `reactClass` generator):
+
+```ascii
+src/
+  Person/
+    hello.js
+    hello.spec.js
+    hello.scss
+    hello.md
+```
+
+## Getting started
+
+### Creating generators
+
+Running the `help` command for the first time without any defined generators will
+create a new folder called `hendrix` with two generator examples called `reactClass` and `reactClassWithVariables`.
+
+The _example_ generators will have `.mustache` files and require no additional
+setup, though other template engines can be used, such as Pug, Haml, etc. by adding a custom `templateRender` function in the
+[configuration](/#configuration). See [recipes](/#recipes) on the most popular
+template engines for some examples.
+
+```bash
+hendrix --help
+```
+
+As expected, the `help` command will also print out instructions on how to use
+Hendrix.
+
+> To run any Hendrix command, you can use either `h` or `hendrix`. 
+> We'll use `hendrix` in all of our examples, but feel free to use whatever version you
+> prefer.
+
+After running the `help` command for the first time, you'll see a message saying some example generators were created. 
+Let's run the `help` command again to confirm what generators are available now.
+
+```bash
+hendrix --help
+```
+
+You should see something like:
+
+```ascii
+Available generators:
+  reactClass
+  reactClassWithVariables
+```
+
+## Configuration
 
 Hendrix accepts a `.hendrixrc.js` config file in the root directory of your
 project with the following properties:
 
 ```tsx
 interface HendrixConfig {
-  // path of your templates directory
-  templatesPath?: string;
+  // path of your generators directory
+  generatorsPath?: string;
 
   // base directories for your templates to go into
   outputPaths?: { [templateName: string]: string };
 
-  // message printed to the console when `--help` is passed
-  helpMessage?: string
+  // hook for calling a function after the help message is called
+  // useful for adding extra information to the help message
+  onPostHelp?: () => void
+
+  // custom template render function
+  // so you can use other engines like Handlebars, EJS, etc.
+  renderTemplate?: (template, {[variableName: string]: any}) => string
 }
 
 // default configuration
+import { render } from 'mustache';
+
 const config = {
-  templatesPath: "hendrix",
+  generatorsPath: "hendrix",
   outputPaths: {},
-  helpMessage: `
-    Usage:
-      hendrix <template> <name> <output-path> [...variables]
-
-    Note:
-      You can also use the alias 'h' instead of 'hendrix', for example:
-
-      h <template> <name> <output-path> [...variables]
-
-    Available generators:
-      {{ listofAvailableGenerators }}
-
-    Example (assuming we have a template called 'view' in our templates folder):
-
-      hendrix view Person src/components/person age:number
-
-      Generates a new file at "src/views/person/index.js" with
-      the object {variables: [{name: 'age', value: 'number'}]}
-      passed to the 'view' template
-
-    For more documentation and examples, visit: https://github.com/seanWLawrence/hendrix#readme`
+  onPostHelp: () => {} /* noop */,
+  renderTemplate: (template, variables) => render(template, variables)
 };
 
 module.exports = config;
 ````
 
-### Configuration examples
+### Recipes
 
-#### Custom templates directory
+#### Custom generators directory
 
 ```tsx
 // .hendrixrc.js
 
 module.exports = {
-  templatesPath: "my-custom-templates"
+  generatorsPath: "my-custom-generators-folder"
 };
 ```
 
-Looks for templates in `./my-custom-templates`
+Looks for generators in `./my-custom-generators-folder/` instead of `./hendrix.`
 
-#### Custom base directories
+#### Custom output paths
 
 ```tsx
 // .hendrixrc.js
@@ -293,20 +289,91 @@ module.exports = {
 ```
 
 ```bash
-hendrix view Home /home # creates files at /src/views/home/
+hendrix view Home /home 
 ```
+
+Will now create files at `/src/views/home/` (instead of `/home` without any
+configuration)
 
 ```bash
-hendrix helper home /home # creates files at /src/helpers/home/
+hendrix helper home /home 
 ```
 
-## TODO
+Will now create files at `/src/helpers/home/` (instead of `/home` without any
+configuration)
 
-- Add ability to generate named files
-- Create generator command to scaffold basic hendrix template to get started
-  quicker
-- Add prettier to rendered templates before creating the file
-- Create packages for common templates for easier setup
+#### Adding additional text to help message
+
+```tsx
+// .hendrixrc.js
+
+module.exports = {
+  onPostHelp: () => console.log('Some extra help message information!')
+};
+```
+
+Outputs `Some extra help message information` at the bottom of the default help
+message when running `hendrix --help`.
+
+#### Custom template engines
+
+Any template engine that takes in a string of the template and an object of
+variables can be used, which should be all of them :)
+
+##### Handlebars
+
+```tsx
+// .hendrixrc.js
+const { compile } = require('handlebars');
+
+module.exports = {
+  renderTemplate: (templateFileContent, context) => compile(templateFileContent)(context)
+};
+```
+
+##### EJS
+
+```tsx
+// .hendrixrc.js
+const { compile } = require('ejs');
+
+module.exports = {
+  renderTemplate: (templateFileContent, context) => compile(templateFileContent)(context)
+};
+```
+
+##### Pug
+
+```tsx
+// .hendrixrc.js
+const { compile } = require('ejs');
+
+module.exports = {
+  renderTemplate: (templateFileContent, context) => compile(templateFileContent)(context)
+};
+```
+
+##### Haml
+
+```tsx
+// .hendrixrc.js
+const { compile } = require('ejs');
+
+module.exports = {
+  renderTemplate: (templateFileContent, context) => compile(templateFileContent)(context)
+};
+```
+
+##### Nunjucks
+
+```tsx
+// .hendrixrc.js
+const { compile } = require('ejs');
+
+module.exports = {
+  renderTemplate: (templateFileContent, context) => compile(templateFileContent)(context)
+};
+```
 
 ## Contributing
 
@@ -315,3 +382,13 @@ Contributions are welcome! Create an issue and let's talk!
 ## License
 
 MIT
+
+## TODO
+
+- Update Pug, Haml and Nunjucks recipes
+- Remove --template flag functionality
+- Add spec for onPostHelp
+- Change name from `templatesPath` to `generatorsPath`
+- Update the table of contents
+- Create a guide for creating generators from scratch, in a docs folder
+- Create branch for v1 and add v1 docs to README as a reference
