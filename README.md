@@ -385,10 +385,11 @@ MIT
 
 ## TODO
 
+Need internet
 - Update Pug, Haml and Nunjucks recipes
-- Remove --template flag functionality
-- Add spec for onPostHelp
-- Change name from `templatesPath` to `generatorsPath`
 - Update the table of contents
+
+- Add spec for onPostHelp
 - Create a guide for creating generators from scratch, in a docs folder
 - Create branch for v1 and add v1 docs to README as a reference
+- Change variable names from template to generator, where applicable
