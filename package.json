@@ -8,7 +8,6 @@
     "build": "tsc",
     "lint": "tsc --noEmit && eslint \"**/*.{js,ts}\" --quiet --fix",
     "test": "jest --runInBand",
-    "prepublish": "tsc",
     "commit": "git-cz",
     "semantic-release": "semantic-release"
   },
