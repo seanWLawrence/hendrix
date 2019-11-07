@@ -10,6 +10,9 @@ import { pipe, map, join as joinStrings, head, split, filter } from "lodash/fp";
 import { get } from "lodash";
 import chalk from "chalk";
 import { render } from "mustache";
+import argv from "yargs-parser";
+
+const cliInput = argv(process.argv.slice(2));
 
 const addMargin = str => `${str}\n`;
 

@@ -30,7 +30,29 @@ Simple, Rails-like CLI tool for generating files quickly.
       - [Custom help message add on](#custom-help-message-add-on)
       - [Custom template engines](#custom-template-engines)
   * [Contributing](#contributing)
-  * [License](#license)
+ - [Hendrix](#hendrix)
+  * [Table of contents](#table-of-contents)
+  * [Installation](#installation)
+  * [Overview](#overview)
+    + [Creating generators](#creating-generators)
+    + [Passing custom variables](#passing-custom-variables)
+    + [Passing Rails-like variables](#passing-rails-like-variables)
+    + [Customizing the file name](#customizing-the-file-name)
+  * [Getting started](#getting-started)
+    + [Creating generators](#creating-generators-1)
+  * [Configuration](#configuration)
+    + [Recipes](#recipes)
+      - [Custom generators directory](#custom-generators-directory)
+      - [Custom output paths](#custom-output-paths)
+      - [Adding additional text to help message](#adding-additional-text-to-help-message)
+      - [Custom template engines](#custom-template-engines)
+        * [Handlebars](#handlebars)
+        * [EJS](#ejs)
+        * [Pug](#pug)
+        * [Hogan](#hogan)
+        * [Nunjucks](#nunjucks)
+  * [Contributing](#contributing)
+  * [License](#license) * [License](#license)
 
 ## Installation
 
@@ -384,11 +406,3 @@ Contributions are welcome! Create an issue and let's talk!
 ## License
 
 MIT
-
-## TODO
-
-Need internet
-- Update Pug, Haml and Nunjucks recipes
-- Update the table of contents
-
-- Create a guide for creating generators from scratch, in a docs folder

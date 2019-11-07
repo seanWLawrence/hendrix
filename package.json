@@ -1,13 +1,10 @@
 {
   "name": "hendrix",
-  "version": "1.0.0",
+  "version": "0.0.0-semantically-released",
   "description": "Simple, Rails-like scaffolding tool for quickly scaffolding files with minimal configuration.",
   "main": "bin/index.js",
-  "engines": {
-    "node": ">=8"
-  },
   "scripts": {
-    "watch": "tsc -w",
+    "start": "tsc -w",
     "build": "tsc",
     "lint": "tsc --noEmit && eslint \"**/*.{js,ts}\" --quiet --fix",
     "test": "jest --runInBand",
@@ -65,12 +62,14 @@
     "h": "bin/index.js"
   },
   "dependencies": {
+    "@types/yargs-parser": "^13.1.0",
     "chalk": "^2.4.2",
     "commander": "^3.0.2",
-    "cowsay": "^1.4.0",
+    "lodash": "^4.17.15",
     "mkdirp": "^0.5.1",
     "mustache": "^3.1.0",
-    "ncp": "^2.0.0"
+    "ncp": "^2.0.0",
+    "yargs-parser": "^16.1.0"
   },
   "config": {
     "commitizen": {
