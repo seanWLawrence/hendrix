@@ -262,8 +262,6 @@ const main = () => {
 
       if (noCommandsEntered) {
         cli.outputHelp();
-
-        onPostHelp();
       }
 
       cli.parse(process.argv);

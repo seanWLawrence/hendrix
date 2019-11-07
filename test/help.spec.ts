@@ -84,12 +84,14 @@ describe("help", () => {
 
     it("creates example generators and displays them", async () => {
       cleanConfigFile();
+
       createConfigFile(`module.exports = {
           outputPaths: {
             reactClass: 'test-output', 
             reactClassWithVariables: 'test-output'
           }
         }`);
+
       cleanTemplatesDirectory();
 
       const result = await cli(
@@ -106,6 +108,19 @@ describe("help", () => {
       expect(result2.stdout).toContain("reactClass");
       expect(result2.stdout).toContain("reactClassWithVariables");
       expect(getTemplateFileExtension()).toBe("mustache");
+    });
+
+    it("calls onPostHelp after the help message", async () => {
+      cleanConfigFile();
+
+      createConfigFile(`module.exports = {
+        onPostHelp: () => console.log('extra help message')
+        }`);
+
+      const result = await cli(["--help"], ".");
+
+      expect(result.code).toBe(success);
+      expect(result.stdout).toContain("extra help message");
     });
   });
 });
