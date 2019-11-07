@@ -122,10 +122,10 @@ const customFileName = ({ templateFileName, fileName }) => {
   return [fileName, fileExtension].join(".");
 };
 
-const createTemplatesDirectoryIfDoesNotExist = () => {
-  const templatesDirectoryExists = existsSync(generatorsPath);
+const createGeneratorsDirectoryIfDoesNotExist = () => {
+  const generatorsDirectoryExists = existsSync(generatorsPath);
 
-  if (templatesDirectoryExists) {
+  if (generatorsDirectoryExists) {
     return new Promise(resolve => resolve());
   }
 
@@ -170,7 +170,7 @@ const createTemplatesDirectoryIfDoesNotExist = () => {
 const generateFiles = ({ template, outputPath, name, variables }) => {
   const templateFilesPath = join(generatorsPath, template);
 
-  createTemplatesDirectoryIfDoesNotExist()
+  createGeneratorsDirectoryIfDoesNotExist()
     .then(() => {
       const templateFiles = readdirSync(templateFilesPath);
 
@@ -227,7 +227,7 @@ const cli = new commander.Command();
  * CLI
  */
 const main = () => {
-  createTemplatesDirectoryIfDoesNotExist()
+  createGeneratorsDirectoryIfDoesNotExist()
     .then(() => {
       const availableGenerators = getAvailableGenerators();
 
