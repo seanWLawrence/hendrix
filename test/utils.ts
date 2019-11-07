@@ -71,7 +71,7 @@ export const copyTemplatesDirectory = outputPath => {
 export const createConfigFile = (
   configFileContent = `
           module.exports = {
-            templatesPath: "test-examples",
+            generatorsPath: "test-examples",
             outputPaths: { 
               reactClass: "test-output", 
               reactClassWithVariables: "test-output" 

@@ -25,16 +25,20 @@ const currentWorkingDirectory = process.cwd();
 
 const configPath = join(currentWorkingDirectory, ".hendrixrc.js");
 
+const noop = () => {};
+
 const DEFAULT_CONFIG = {
-  templatesPath: "hendrix",
+  generatorsPath: "hendrix",
   outputPaths: {},
-  renderTemplate: render
+  renderTemplate: render,
+  onPostHelp: noop
 };
 
 const {
-  templatesPath = "hendrix",
+  generatorsPath = "hendrix",
   outputPaths = {},
-  renderTemplate = render
+  renderTemplate = render,
+  onPostHelp = noop
 } = safeRequire(configPath, DEFAULT_CONFIG);
 
 const prettifyAvailableGenerators = pipe(
@@ -46,7 +50,7 @@ const prettifyAvailableGenerators = pipe(
 
 const getAvailableGenerators = () => {
   const availableGenerators = readdirSync(
-    join(currentWorkingDirectory, templatesPath),
+    join(currentWorkingDirectory, generatorsPath),
     {
       withFileTypes: true
     }
@@ -119,7 +123,7 @@ const customFileName = ({ templateFileName, fileName }) => {
 };
 
 const createTemplatesDirectoryIfDoesNotExist = () => {
-  const templatesDirectoryExists = existsSync(templatesPath);
+  const templatesDirectoryExists = existsSync(generatorsPath);
 
   if (templatesDirectoryExists) {
     return new Promise(resolve => resolve());
@@ -136,7 +140,7 @@ const createTemplatesDirectoryIfDoesNotExist = () => {
   const examplesPath = join(__dirname, "../examples-mustache");
 
   return new Promise((resolve, reject) => {
-    return ncp(examplesPath, templatesPath, error => {
+    return ncp(examplesPath, generatorsPath, error => {
       if (error) {
         console.error(error);
         reject(error);
@@ -145,7 +149,7 @@ const createTemplatesDirectoryIfDoesNotExist = () => {
       console.log(
         addMargin(
           chalk.green(
-            `Successfully created new templates directory at "${templatesPath}" with some examples!`
+            `Successfully created new templates directory at "${generatorsPath}" with some examples!`
           )
         )
       );
@@ -164,7 +168,7 @@ const createTemplatesDirectoryIfDoesNotExist = () => {
 };
 
 const generateFiles = ({ template, outputPath, name, variables }) => {
-  const templateFilesPath = join(templatesPath, template);
+  const templateFilesPath = join(generatorsPath, template);
 
   createTemplatesDirectoryIfDoesNotExist()
     .then(() => {
@@ -252,10 +256,14 @@ const main = () => {
 
       cli.on("--help", () => {
         displayAvailableGenerators(availableGenerators);
+
+        onPostHelp();
       });
 
       if (noCommandsEntered) {
         cli.outputHelp();
+
+        onPostHelp();
       }
 
       cli.parse(process.argv);

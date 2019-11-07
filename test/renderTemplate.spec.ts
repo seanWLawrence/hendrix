@@ -24,7 +24,7 @@ describe("supports other template engines with `templateRender` function on conf
     const { compile } = require('handlebars');
 
     module.exports = {
-      templatesPath: 'examples-handlebars',
+      generatorsPath: 'examples-handlebars',
       outputPaths: { reactClass: "test-output", reactClassWithVariables: "test-output"},
       renderTemplate: (templateContent, context) => compile(templateContent)(context)
     };`);
@@ -68,7 +68,7 @@ describe("supports other template engines with `templateRender` function on conf
     const { compile } = require('ejs');
 
     module.exports = {
-      templatesPath: 'examples-ejs',
+      generatorsPath: 'examples-ejs',
       outputPaths: { reactClass: "test-output", reactClassWithVariables: "test-output" },
       renderTemplate: (templateContent, context) => compile(templateContent)(context)
     };`);
