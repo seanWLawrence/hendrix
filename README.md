@@ -2,6 +2,8 @@
 
 Simple, Rails-like CLI tool for generating files quickly.
 
+[Version 1 documentation](https://github.com/seanWLawrence/hendrix/blob/master/docs/v1.md)
+
 ## Table of contents
 
 - [Hendrix](#hendrix)
@@ -346,18 +348,18 @@ module.exports = {
 
 ```tsx
 // .hendrixrc.js
-const { compile } = require('ejs');
+const { render } = require('pug');
 
 module.exports = {
-  renderTemplate: (templateFileContent, context) => compile(templateFileContent)(context)
+  renderTemplate: (templateFileContent, context) => render(templateFileContent, context)
 };
 ```
 
-##### Haml
+##### Hogan
 
 ```tsx
 // .hendrixrc.js
-const { compile } = require('ejs');
+const { compile } = require('hogan.js');
 
 module.exports = {
   renderTemplate: (templateFileContent, context) => compile(templateFileContent)(context)
@@ -368,10 +370,10 @@ module.exports = {
 
 ```tsx
 // .hendrixrc.js
-const { compile } = require('ejs');
+const { renderString } = require('nunjucks');
 
 module.exports = {
-  renderTemplate: (templateFileContent, context) => compile(templateFileContent)(context)
+  renderTemplate: (templateFileContent, context) => renderString(templateFileContent, context)
 };
 ```
 
@@ -390,4 +392,3 @@ Need internet
 - Update the table of contents
 
 - Create a guide for creating generators from scratch, in a docs folder
-- Create branch for v1 and add v1 docs to README as a reference
