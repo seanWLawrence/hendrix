@@ -1,8 +1,6 @@
 # Hendrix
 
-[![Coverage Status](https://coveralls.io/repos/github/seanWLawrence/hendrix/badge.svg?branch=master)](https://coveralls.io/github/seanWLawrence/hendrix?branch=master)
-
-[![Build status](https://travis-ci.org/seanWLawrence/hendrix.svg?branch=master)](https://travis-ci.org/seanWLawrence/hendrix.svg?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/seanWLawrence/hendrix/badge.svg?branch=master)](https://coveralls.io/github/seanWLawrence/hendrix?branch=master) [![Build status](https://travis-ci.org/seanWLawrence/hendrix.svg?branch=master)](https://travis-ci.org/seanWLawrence/hendrix.svg?branch=master)
 
 Simple, Rails-like CLI tool for generating files quickly.
 
@@ -10,30 +8,6 @@ Simple, Rails-like CLI tool for generating files quickly.
 
 ## Table of contents
 
-- [Hendrix](#hendrix)
-  * [Table of contents](#table-of-contents)
-  * [Installation](#installation)
-  * [How it works](#how-it-works)
-    + [Creating generators](#creating-generators)
-    + [Passing custom variables to your templates from the CLI](#passing-custom-variables-to-your-templates-from-the-cli)
-    + [Passing Rails-like variables to your templates from the CLI](#passing-rails-like-variables-to-your-templates-from-the-cli)
-    + [Customizing the file name](#customizing-the-file-name)
-  * [Quick start](#quick-start)
-    + [Generate starter templates and see instructions (recommended)](#generate-starter-templates-and-see-instructions--recommended-)
-    + [Generating files](#generating-files)
-    + [Generating files with `variables`](#generating-files-with--variables-)
-      - [Custom variables](#custom-variables)
-      - [Rails-like `variables` array](#rails-like--variables--array)
-  * [Creating new templates](#creating-new-templates)
-    + [Adding custom variables](#adding-custom-variables)
-    + [Adding special Rails-like `variables`](#adding-special-rails-like--variables-)
-  * [Configuring hendrix](#configuring-hendrix)
-    + [Configuration examples](#configuration-examples)
-      - [Custom templates directory](#custom-templates-directory)
-      - [Custom base directories](#custom-base-directories)
-      - [Custom help message add on](#custom-help-message-add-on)
-      - [Custom template engines](#custom-template-engines)
-  * [Contributing](#contributing)
  - [Hendrix](#hendrix)
   * [Table of contents](#table-of-contents)
   * [Installation](#installation)
@@ -185,6 +159,8 @@ For example:
 hendrix reactClass Person src/ firstName:string age:number
 ```
 
+> Note: that __no__ flag is used for these special variables!
+
 Will pass the following values into your template under the name `variables`:
 
 ```tsx
@@ -225,8 +201,7 @@ create a new folder called `hendrix` with two generator examples called `reactCl
 
 The _example_ generators will have `.mustache` files and require no additional
 setup, though other template engines can be used, such as Pug, Haml, etc. by adding a custom `templateRender` function in the
-[configuration](/#configuration). See [recipes](/#recipes) on the most popular
-template engines for some examples.
+[configuration](/#configuration). See [recipes](/#recipes) for some examples using some of the most popular template engines.
 
 ```bash
 hendrix --help
