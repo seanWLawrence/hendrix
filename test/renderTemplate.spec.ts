@@ -1,6 +1,4 @@
 import { join } from "path";
-import { render as ejsRender, compile as ejsCompile } from "ejs";
-import { render as hbsRender, compile as hbsCompile } from "ejs";
 
 import {
   testReactClass,
@@ -104,5 +102,27 @@ describe("supports other template engines with `templateRender` function on conf
 
       testReactClassWithVariables(outputPath);
     });
+  });
+
+  it("works with templates engiens", async () => {
+    const greeting = "Hello, world";
+
+    const result = "Hello, world works!";
+
+    const { renderString } = require("nunjucks");
+
+    expect(renderString("{{greeting}} works!", { greeting })).toBe(result);
+
+    const hogan = require("hogan.js");
+
+    expect(hogan.compile("{{greeting}} works!").render({ greeting })).toBe(
+      result
+    );
+
+    const { render } = require("pug");
+
+    expect(render("p #{greeting} works!", { greeting })).toBe(
+      `<p>${result}</p>`
+    );
   });
 });

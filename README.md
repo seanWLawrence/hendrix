@@ -8,31 +8,47 @@ Simple, Rails-like CLI tool for generating files quickly.
 
 ## Table of contents
 
- - [Hendrix](#hendrix)
-  * [Table of contents](#table-of-contents)
-  * [Installation](#installation)
-  * [Overview](#overview)
-    + [Creating generators](#creating-generators)
-    + [Passing custom variables](#passing-custom-variables)
-    + [Passing Rails-like variables](#passing-rails-like-variables)
-    + [Customizing the file name](#customizing-the-file-name)
-  * [Getting started](#getting-started)
-    + [Creating generators](#creating-generators-1)
-  * [Configuration](#configuration)
-    + [Recipes](#recipes)
-      - [Custom generators directory](#custom-generators-directory)
-      - [Custom output paths](#custom-output-paths)
-      - [Adding additional text to help message](#adding-additional-text-to-help-message)
-      - [Custom template engines](#custom-template-engines)
-        * [Handlebars](#handlebars)
-        * [EJS](#ejs)
-        * [Pug](#pug)
-        * [Hogan](#hogan)
-        * [Nunjucks](#nunjucks)
-  * [Contributing](#contributing)
-  * [License](#license) * [License](#license)
+* [Table of contents](#table-of-contents)
+* [Installation](#installation)
+* [Overview](#overview)
+  + [Creating generators](#creating-generators)
+  + [Passing custom variables](#passing-custom-variables)
+  + [Passing Rails-like variables](#passing-rails-like-variables)
+  + [Customizing the file name](#customizing-the-file-name)
+* [Getting started](#getting-started)
+  + [Creating generators](#creating-generators-1)
+* [Configuration](#configuration)
+  + [Recipes](#recipes)
+    - [Custom generators directory](#custom-generators-directory)
+    - [Custom output paths](#custom-output-paths)
+    - [Adding additional text to help message](#adding-additional-text-to-help-message)
+    - [Custom template engines](#custom-template-engines)
+      * [Handlebars](#handlebars)
+      * [EJS](#ejs)
+      * [Pug](#pug)
+      * [Hogan](#hogan)
+      * [Nunjucks](#nunjucks)
+* [Contributing](#contributing)
+* [License](#license)
 
 ## Installation
+
+### Option 1: Install globally
+
+```bash
+yarn global add hendrix
+```
+
+or 
+
+```bash
+npm install --global hendrix
+```
+
+Then you can run `hendrix` (or `h`) anywhere in your terminal. This is
+recommended when working on projects _without_ a team.
+
+### Option 2: Local project
 
 In local project as dev dependency
 
@@ -46,14 +62,17 @@ or
 npm install --save-dev hendrix
 ```
 
-or without installing
+Then you can can run `yarn hendrix` or `npm run hendrix` from your project
+directory. This is recommended for projects _with_ a team so that the version of hendrix is
+always the same for each user.
 
-> Note: with this method, all commands will need to be prefixed with `npx` to
-> run.
+### Option 3: Without installing
 
 ```bash
 npx hendrix <template> <name> <output-path> [...variables]
 ```
+
+This is recommended for trying out Hendrix before installing.
 
 ## Overview
 
@@ -67,8 +86,9 @@ generators-folder/
     ...template-files
 ```
 
-By default, Hendrix will search for your generators in a folder called `hendrix` in your project's root directory, though this can be changed in the
-[configuration](/#configuration).
+By default, Hendrix will search for your generators in a folder called `hendrix` in your project's root directory. 
+
+> The directory name can be changed in the [configuration](#configuration).
 
 For example, with the following structure:
 
@@ -159,7 +179,7 @@ For example:
 hendrix reactClass Person src/ firstName:string age:number
 ```
 
-> Note: that __no__ flag is used for these special variables!
+> Note: __no__ flag is used!
 
 Will pass the following values into your template under the name `variables`:
 
@@ -200,8 +220,10 @@ Running the `help` command for the first time without any defined generators wil
 create a new folder called `hendrix` with two generator examples called `reactClass` and `reactClassWithVariables`.
 
 The _example_ generators will have `.mustache` files and require no additional
-setup, though other template engines can be used, such as Pug, Haml, etc. by adding a custom `templateRender` function in the
-[configuration](/#configuration). See [recipes](/#recipes) for some examples using some of the most popular template engines.
+setup.
+
+> Other template engines can be used, such as Pug, Haml, etc. by adding a custom `templateRender` function in the
+> [configuration](#configuration). See the [recipes](#recipes) section for examples using the most popular template engines.
 
 ```bash
 hendrix --help
@@ -215,13 +237,12 @@ Hendrix.
 > prefer.
 
 After running the `help` command for the first time, you'll see a message saying some example generators were created. 
-Let's run the `help` command again to confirm what generators are available now.
 
 ```bash
 hendrix --help
 ```
 
-You should see something like:
+Afterwards, you should see something like this in your terminal:
 
 ```ascii
 Available generators:
@@ -239,7 +260,7 @@ interface HendrixConfig {
   // path of your generators directory
   generatorsPath?: string;
 
-  // base directories for your templates to go into
+  // base paths for your generated files to go into
   outputPaths?: { [templateName: string]: string };
 
   // hook for calling a function after the help message is called
@@ -252,7 +273,7 @@ interface HendrixConfig {
 }
 
 // default configuration
-import { render } from 'mustache';
+const { render } = require('mustache');
 
 const config = {
   generatorsPath: "hendrix",
@@ -291,19 +312,21 @@ module.exports = {
 };
 ```
 
-```bash
-hendrix view Home /home 
-```
-
-Will now create files at `/src/views/home/` (instead of `/home` without any
-configuration)
+Will now create files from the `view` generator starting from `src/views/`, i.e. to generate files in `src/views/home` you can now run:
 
 ```bash
-hendrix helper home /home 
+hendrix view Home home 
 ```
 
-Will now create files at `/src/helpers/home/` (instead of `/home` without any
-configuration)
+> Note: the path in the command is just `home`, and not `src/views/home`.
+
+Or similarly, to generate files in `src/helpers/home` you can now run:
+
+```bash
+hendrix helper home home 
+```
+
+> Note: as in the previous command, the path is just `home`, and not `src/helpers/home` with this configuration.
 
 #### Adding additional text to help message
 
@@ -315,7 +338,7 @@ module.exports = {
 };
 ```
 
-Outputs `Some extra help message information` at the bottom of the default help
+Outputs "`Some extra help message information!`" at the bottom of the default help
 message when running `hendrix --help`.
 
 #### Custom template engines
@@ -360,10 +383,10 @@ module.exports = {
 
 ```tsx
 // .hendrixrc.js
-const { compile } = require('hogan.js');
+const hogan = require('hogan.js');
 
 module.exports = {
-  renderTemplate: (templateFileContent, context) => compile(templateFileContent)(context)
+  renderTemplate: (templateFileContent, context) => hogan.compile(templateFileContent).render(context)
 };
 ```
 
@@ -380,7 +403,7 @@ module.exports = {
 
 ## Contributing
 
-Contributions are welcome! Create an issue and let's talk!
+Contributions are welcome! [Create an issue](https://github.com/seanWLawrence/hendrix/issues/new) and let's talk!
 
 ## License
 
