@@ -1,6 +1,6 @@
 # Hendrix
 
-[![Coverage Status](https://coveralls.io/repos/github/seanWLawrence/hendrix/badge.svg?branch=master)](https://coveralls.io/github/seanWLawrence/hendrix?branch=master) [![Build status](https://travis-ci.org/seanWLawrence/hendrix.svg?branch=master)](https://travis-ci.org/seanWLawrence/hendrix.svg?branch=master)
+[![Build status](https://travis-ci.org/seanWLawrence/hendrix.svg?branch=master)](https://travis-ci.org/seanWLawrence/hendrix.svg?branch=master)
 
 Simple, Rails-like CLI tool for generating files quickly.
 

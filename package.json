@@ -36,7 +36,6 @@
     "@typescript-eslint/eslint-plugin": "^2.3.3",
     "@typescript-eslint/parser": "^2.3.3",
     "commitizen": "^4.0.3",
-    "coveralls": "^3.0.7",
     "cz-conventional-changelog": "3.0.2",
     "ejs": "^2.7.1",
     "eslint": "^6.5.1",
