@@ -104,7 +104,7 @@ describe("supports other template engines with `templateRender` function on conf
     });
   });
 
-  it("works with templates engiens", async () => {
+  it("template engine examples in readme are correct", async () => {
     const greeting = "Hello, world";
 
     const result = "Hello, world works!";
