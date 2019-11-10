@@ -235,7 +235,7 @@ const main = () => {
       const availableGenerators = getAvailableGenerators();
 
       cli
-        .version("1.0.6")
+        .version("2.0.3")
         .usage("<template> <name> <output-path> [variables...]")
         .description(
           "Generate files from your templates directory. Default: './hendrix'"
