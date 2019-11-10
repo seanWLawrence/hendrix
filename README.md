@@ -222,7 +222,7 @@ create a new folder called `hendrix` with two generator examples called `reactCl
 The _example_ generators will have `.mustache` files and require no additional
 setup.
 
-> Other template engines can be used, such as Pug, Haml, etc. by adding a custom `templateRender` function in the
+> Other template engines can be used, such as Pug, Haml, etc. by adding a custom `renderTemplate` function in the
 > [configuration](#configuration). See the [recipes](#recipes) section for examples using the most popular template engines.
 
 ```bash
@@ -238,11 +238,7 @@ Hendrix.
 
 After running the `help` command for the first time, you'll see a message saying some example generators were created. 
 
-```bash
-hendrix --help
-```
-
-Afterwards, you should see something like this in your terminal:
+You should see something like this in your terminal:
 
 ```ascii
 Available generators:
