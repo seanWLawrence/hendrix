@@ -1,3 +1,10 @@
+## [2.0.3](https://github.com/seanWLawrence/hendrix/compare/v2.0.2...v2.0.3) (2020-12-12)
+
+
+### Bug Fixes
+
+* **cli:** examples were not included in published output ([626ffd2](https://github.com/seanWLawrence/hendrix/commit/626ffd269f23995f30b97639176d206d5d694fc4))
+
 # 1.0.0 (2019-11-08)
 
 ### Bug Fixes
@@ -26,4 +33,3 @@
 ### BREAKING CHANGES
 
 * **configuration:** `templatesPath` is now called `generatorsPath` in the configuration
-
