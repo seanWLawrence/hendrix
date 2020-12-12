@@ -12,7 +12,8 @@
     "semantic-release": "semantic-release"
   },
   "files": [
-    "bin/index.js"
+    "bin/index.js",
+    "examples-*/**/*"
   ],
   "keywords": [
     "generator",
