@@ -1,3 +1,10 @@
+## [2.0.4](https://github.com/seanWLawrence/hendrix/compare/v2.0.3...v2.0.4) (2020-12-12)
+
+
+### Bug Fixes
+
+* **cli:** build package before publishing ([3c16556](https://github.com/seanWLawrence/hendrix/commit/3c16556ef06a76c489788dffa7a4e9379e936475))
+
 ## [2.0.3](https://github.com/seanWLawrence/hendrix/compare/v2.0.2...v2.0.3) (2020-12-12)
 
 
