@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 import commander from "commander";
-import { promisify } from "util";
 import { readdirSync, existsSync, readFileSync, writeFileSync } from "fs";
 import mkdirp from "mkdirp";
 import { ncp } from "ncp";
@@ -14,7 +13,7 @@ import argv from "yargs-parser";
 
 const cliInput = argv(process.argv.slice(2));
 
-const addMargin = str => `${str}\n`;
+const addMargin = (str) => `${str}\n`;
 
 const safeRequire = (filePath, defaultValue = void 0) => {
   try {
@@ -28,24 +27,25 @@ const currentWorkingDirectory = process.cwd();
 
 const configPath = join(currentWorkingDirectory, ".hendrixrc.js");
 
-const noop = () => {};
+// eslint-disable-next-line
+const noop = (): void => {};
 
 const DEFAULT_CONFIG = {
   generatorsPath: "hendrix",
   outputPaths: {},
   renderTemplate: render,
-  onPostHelp: noop
+  onPostHelp: noop,
 };
 
 const {
   generatorsPath = "hendrix",
   outputPaths = {},
   renderTemplate = render,
-  onPostHelp = noop
+  onPostHelp = noop,
 } = safeRequire(configPath, DEFAULT_CONFIG);
 
 const prettifyAvailableGenerators = pipe(
-  map(generator => {
+  map((generator) => {
     return `  ${generator}`;
   }),
   joinStrings("\n")
@@ -55,10 +55,10 @@ const getAvailableGenerators = () => {
   const availableGenerators = readdirSync(
     join(currentWorkingDirectory, generatorsPath),
     {
-      withFileTypes: true
+      withFileTypes: true,
     }
   )
-    .filter(dirEnt => dirEnt.isDirectory())
+    .filter((dirEnt) => dirEnt.isDirectory())
     .map(({ name }) => name);
 
   const hasAvailableGenerators = availableGenerators.length > 0;
@@ -84,14 +84,11 @@ ${chalk.underline(
 )}
 `;
 
-const displayAvailableGenerators = pipe(
-  additionalHelpMessage,
-  console.log
-);
+const displayAvailableGenerators = pipe(additionalHelpMessage, console.log);
 
 const formatVariables = pipe(
   head,
-  map(variableString => {
+  map((variableString) => {
     const [variableName, variableValue] = variableString.split(":");
 
     return { name: variableName, value: variableValue };
@@ -104,10 +101,10 @@ const TEMPLATE_EXTENSIONS = [
   "handlebars",
   "ejs",
   "pug",
-  "haml"
+  "haml",
 ];
 
-const isNotTemplateExtension = word => !TEMPLATE_EXTENSIONS.includes(word);
+const isNotTemplateExtension = (word) => !TEMPLATE_EXTENSIONS.includes(word);
 
 const stripTemplateExtension = pipe(
   split("."),
@@ -117,10 +114,7 @@ const stripTemplateExtension = pipe(
 
 const customFileName = ({ templateFileName, fileName }) => {
   const baseFileName = stripTemplateExtension(templateFileName);
-  const fileExtension = baseFileName
-    .split(".")
-    .slice(1)
-    .join(".");
+  const fileExtension = baseFileName.split(".").slice(1).join(".");
 
   return [fileName, fileExtension].join(".");
 };
@@ -129,7 +123,7 @@ const createGeneratorsDirectoryIfDoesNotExist = () => {
   const generatorsDirectoryExists = existsSync(generatorsPath);
 
   if (generatorsDirectoryExists) {
-    return new Promise(resolve => resolve());
+    return new Promise<void>((resolve) => resolve());
   }
 
   console.log(
@@ -142,8 +136,8 @@ const createGeneratorsDirectoryIfDoesNotExist = () => {
 
   const examplesPath = join(__dirname, "../examples-mustache");
 
-  return new Promise((resolve, reject) => {
-    return ncp(examplesPath, generatorsPath, error => {
+  return new Promise<void>((resolve, reject) => {
+    return ncp(examplesPath, generatorsPath, (error) => {
       if (error) {
         console.error(error);
         reject(error);
@@ -160,7 +154,8 @@ const createGeneratorsDirectoryIfDoesNotExist = () => {
       console.log(
         addMargin(
           chalk.blue(
-            "Run \"hendrix\" command again to see a list of available generators."
+            // eslint-disable-next-line
+            'Run "hendrix" command again to see a list of available generators.'
           )
         )
       );
@@ -177,14 +172,14 @@ const generateFiles = ({ template, outputPath, name, variables }) => {
     .then(() => {
       const templateFiles = readdirSync(templateFilesPath);
 
-      templateFiles.forEach(templateFile => {
+      templateFiles.forEach((templateFile) => {
         const templateFilePath = join(templateFilesPath, templateFile);
         const templateContent = readFileSync(templateFilePath, "utf8");
 
         const renderedTemplate = renderTemplate(templateContent, {
           variables,
           name,
-          ...cliInput
+          ...cliInput,
         });
 
         const baseFileOutputPath = get(outputPaths, template, "");
@@ -200,7 +195,7 @@ const generateFiles = ({ template, outputPath, name, variables }) => {
         const fileName = cliInput.fileName
           ? customFileName({
               templateFileName: templateFile,
-              fileName: cliInput.fileName
+              fileName: cliInput.fileName,
             })
           : stripTemplateExtension(templateFile);
 
@@ -217,7 +212,7 @@ const generateFiles = ({ template, outputPath, name, variables }) => {
         `)
       );
     })
-    .catch(e => {
+    .catch((e) => {
       throw Error(e);
     });
 };
@@ -252,7 +247,7 @@ const main = () => {
               template,
               outputPath,
               name,
-              variables: formatVariables(variables)
+              variables: formatVariables(variables),
             });
           }
         );
@@ -269,7 +264,7 @@ const main = () => {
 
       cli.parse(process.argv);
     })
-    .catch(e => {
+    .catch((e) => {
       throw Error(e);
     });
 };
