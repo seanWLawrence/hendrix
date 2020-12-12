@@ -46,7 +46,7 @@
     "nunjucks": "^3.2.0",
     "pug": "^2.0.4",
     "rimraf": "^3.0.0",
-    "semantic-release": "^15.13.30",
+    "semantic-release": "^17.2.3",
     "ts-jest": "^24.1.0",
     "typescript": "^3.6.4"
   },
