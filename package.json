@@ -44,7 +44,7 @@
     "hogan.js": "^3.0.2",
     "jest": "^24.9.0",
     "nunjucks": "^3.2.0",
-    "pug": "^2.0.4",
+    "pug": "^3.0.1",
     "rimraf": "^3.0.0",
     "semantic-release": "^15.13.30",
     "ts-jest": "^24.1.0",
